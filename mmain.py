@@ -28,7 +28,13 @@ class MyBot(BotBase):
 
     async def on_ready(self):
         await self.pool.create_node(
-            bot=self, host="127.0.0.1", port="6969", password="haha", identifier="MAIN"
+            bot=self,
+            host="127.0.0.1",
+            port="6969",
+            password="haha",
+            identifier="MAIN",
+            spotify_client_id=os.getenv("SPOTIFY_CLIENT"),
+            spotify_client_secret=os.getenv("SPOTIFY_SECRET"),
         )
 
 
