@@ -9,6 +9,7 @@ from botbase import BotBase
 
 # REMOVE ON WINDOWS
 import uvloop  # type: ignore
+
 # REMOVE ON WINDOWS
 
 
@@ -26,7 +27,7 @@ class MyBot(BotBase):
 intents = nextcord.Intents.none()
 intents.guilds = True
 intents.messages = True
-# FIXME: any more intents needed?
+intents.voice_states = True
 bot = MyBot(
     intents=intents,
 )

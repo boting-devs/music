@@ -1,8 +1,8 @@
 from botbase import Emojis
 
 
-# db_url = "postgres://ooliver:ChitChat100@159.223.121.13/botname"  # for dev
-db_name = "botname"  # FIXME: botname
+# db_url = "postgres://ooliver:ChitChat100@159.223.121.13/carol"  # for dev
+db_name = "carol"
 # db_user = "ooliver"  # default
 # color = 0x9966cc  # default
 prefix = "!"  # FIXME: actual prefix
@@ -11,7 +11,7 @@ prefix = "!"  # FIXME: actual prefix
 helpindex = (
     "I am a bot made by `P H O E N I X#1241` and `ooliver#6969`, "
     "I have been up since {created_at}. "
-    "I serve as a ...!"  # FIXME: usually what it does
+    "I serve as a music bot for all your beats and tunes!"
 )
 # helpfields = {}  # default, name: value pairs
 # helpinsert = ""  # default
