@@ -3,12 +3,13 @@ from __future__ import annotations
 import asyncio
 import os
 
-from dotenv import load_dotenv
 import nextcord
-from botbase import BotBase
 
 # REMOVE ON WINDOWS
 import uvloop  # type: ignore
+from botbase import BotBase
+from dotenv import load_dotenv
+from pomice import NodePool
 
 # REMOVE ON WINDOWS
 
@@ -22,6 +23,15 @@ load_dotenv()
 class MyBot(BotBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.pool = NodePool()
+
+    async def startup(self):
+        await self.pool.create_node(
+            bot=self, host="127.0.0.1", port="6969", password="haha", identifier="MAIN"
+        )
+
+        await super().startup()
 
 
 intents = nextcord.Intents.none()
