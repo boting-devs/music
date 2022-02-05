@@ -26,12 +26,10 @@ class MyBot(BotBase):
 
         self.pool = NodePool()
 
-    async def startup(self):
+    async def on_ready(self):
         await self.pool.create_node(
             bot=self, host="127.0.0.1", port="6969", password="haha", identifier="MAIN"
         )
-
-        await super().startup()
 
 
 intents = nextcord.Intents.none()
