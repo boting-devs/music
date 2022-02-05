@@ -1,8 +1,8 @@
 from botbase import Emojis
 
 
-# db_url = "postgres://ooliver:ChitChat100@159.223.121.13/carol"  # for dev
-db_name = "carol"
+# db_url = "postgres://ooliver:ChitChat100@159.223.121.13/viber"  # for dev
+db_name = "viber"
 # db_user = "ooliver"  # default
 # color = 0x9966cc  # default
 prefix = "!"  # FIXME: actual prefix
