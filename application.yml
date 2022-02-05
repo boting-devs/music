@@ -20,11 +20,11 @@ lavalink:
     soundcloudSearchEnabled: true
     gc-warnings: true
     ratelimit:
-    ipBlocks: ["2001:470:8913::/48"] # list of ip blocks
-    #excludedIps: ["...", "..."] # ips which should be explicit excluded from usage by lavalink
-    strategy: "LoadBalance" # RotateOnBan | LoadBalance | NanoSwitch | RotatingNanoSwitch
-    searchTriggersFail: true # Whether a search 429 should trigger marking the ip as failing
-    #retryLimit: -1 # -1 = use default lavaplayer value | 0 = infinity | >0 = retry will happen this numbers times
+      ipBlocks: ["2001:470:8913::/48"] # list of ip blocks
+      #excludedIps: ["...", "..."] # ips which should be explicit excluded from usage by lavalink
+      strategy: "LoadBalance" # RotateOnBan | LoadBalance | NanoSwitch | RotatingNanoSwitch
+      searchTriggersFail: true # Whether a search 429 should trigger marking the ip as failing
+      #retryLimit: -1 # -1 = use default lavaplayer value | 0 = infinity | >0 = retry will happen this numbers times
 
 metrics:
   prometheus:
