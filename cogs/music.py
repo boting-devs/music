@@ -90,6 +90,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await ctx.send("Now playing", embed=embed)
     @command(help="pause")
     async def pause(self,ctx: MyContext):
+        player = ctx.voice_client
         await player.set_pause(True)
 
 def setup(bot: MyBot):
