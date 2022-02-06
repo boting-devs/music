@@ -106,6 +106,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await player.stop()
         await ctx.send("stopped")
 
+    @command(help="Set volume")
+    async def volume(self,ctx:MyContext,*,number:int):
+        if 100 < number < 1:
+            await ctx.reply("🚫 The allowed range is between 1 & 100")
+            return
+        player = ctx.voice_client
+        await player.set_volume(number)
+        await ctx.send(f"Volume set to {number}%")
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
