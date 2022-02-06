@@ -16,7 +16,7 @@ from nextcord.ext.commands import (
 from pomice import Playlist
 from nextcord.utils import utcnow
 
-from .extras.errors import NotInVoice, TooManyTracks
+from .extras.errors import NotInVoice, TooManyTracks, NotConnected
 from .extras.types import MyContext, Player
 
 if TYPE_CHECKING:
@@ -28,12 +28,7 @@ if TYPE_CHECKING:
 def connected():
     async def extended_check(ctx: Context) -> bool:
         if ctx.voice_client is None:
-            if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
-                await ctx.message.add_reaction("\U0000274c")
-            else:
-                await ctx.send("I'm not even connected")
-
-            return False
+            raise NotConnected()
 
         return True
 

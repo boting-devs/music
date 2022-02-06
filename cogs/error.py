@@ -18,7 +18,7 @@ from nextcord.ext.commands import (
 )
 from nextcord.utils import utcnow
 
-from .extras.errors import NotInVoice, TooManyTracks
+from .extras.errors import NotInVoice, TooManyTracks, NotConnected
 from .extras.views import LinkButtonView
 
 if TYPE_CHECKING:
@@ -33,7 +33,10 @@ eh: dict[Type[Exception], tuple[str, str]] = {
     PrivateMessageOnly: ("DMs Only", "This command can only be used in DMs!"),
     NotOwner: ("Owner Only", "This command can only be used by my owner!"),
     NotInVoice: ("Not in Voice", "You must be in a voice channel to use this command!"),
-    TooManyTracks: ("Too many tracks", "You can only queue up to 100 tracks at a time!"),
+    TooManyTracks: (
+        "Too many tracks",
+        "You can only queue up to 100 tracks at a time!",
+    ),
 }
 
 
@@ -56,7 +59,7 @@ class Errors(Cog):
         embed.timestamp = utcnow()
         embed.set_footer(
             text="report in the link below if this is weird |"
-                f" do help {ctx.clean_prefix}{ctx.command} for info"
+            f" do help {ctx.clean_prefix}{ctx.command} for info"
         )
 
     @Cog.listener()
@@ -79,6 +82,12 @@ class Errors(Cog):
             self.format_embed(embed, ctx)
             await ctx.send(embed=embed)
             return
+
+        elif isinstance(error, NotConnected):
+            if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+                await ctx.message.add_reaction("\U0000274c")
+            else:
+                await ctx.send("I'm not even connected")
 
         elif isinstance(error, MissingPermissions):
             perms = ", ".join(
