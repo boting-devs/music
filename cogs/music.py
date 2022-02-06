@@ -17,7 +17,7 @@ from .extras.errors import NotInVoice
 
 if TYPE_CHECKING:
     from ..mmain import MyBot
-
+import pomice
 
 class Music(Cog):
     def __init__(self, bot: MyBot):
