@@ -87,7 +87,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if track.thumbnail:
             embed.set_thumbnail(url=track.thumbnail)
 
-        await ctx.send_embed("Now playing", embed=embed)
+        await ctx.send("Now playing", embed=embed)
 
 
 def setup(bot: MyBot):
