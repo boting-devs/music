@@ -220,6 +220,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send(f"Volume set to `{number}%`")
 
+    @connected()
+    @command(help="disconnect from voice channel",aliases=["dis","fuck off","leave"])
+    async def disconnect(self,ctx:MyContext):
+        channel = ctx.author.voice.channel
+        await channel.discconnect(cls=Player)
+
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
