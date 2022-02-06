@@ -1,19 +1,15 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from time import strftime, gmtime
 
-from .extras.types import MyContext
-from nextcord import (
-    User,
-    Member,
-)
-from nextcord.ext.commands import Cog, command
+from nextcord import ClientUser, Embed, Member, User
+from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
 from pomice import Player, Playlist
-
-from nextcord import User, ClientUser
-from nextcord.ext.commands import BotMissingPermissions, NoPrivateMessage
+from nextcord.utils import utcnow
 
 from .extras.errors import NotInVoice
+from .extras.types import MyContext
 
 if TYPE_CHECKING:
     from ..mmain import MyBot
@@ -68,15 +64,28 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         player = ctx.voice_client
         assert player is not None
-        result = await player.get_tracks(query=query)
+        result = await player.get_tracks(query=query, ctx=ctx)
 
         if not result:
             return await ctx.send_embed("No tracks found", "No tracks were found.")
 
         if isinstance(result, Playlist):
-            await player.play(track=result.tracks[0])
+            track = result.tracks[0]
         else:
-            await player.play(track=result[0])
+            track = result[0]
+
+        await player.play(track=track)
+
+        embed = Embed(
+            title=track.info["title"],
+            description=f"{strftime('%H:%M:%S', gmtime(track.info['length'] / 1000))}",
+            color=self.bot.color,
+            timestamp=utcnow(),
+        )
+        embed.set_author(name=track.info["author"], url=track.info["uri"])
+        embed.set_thumbnail(url=track.info["thumbnail"])
+
+        await ctx.send_embed("Now playing", embed=embed)
 
 
 def setup(bot: MyBot):
