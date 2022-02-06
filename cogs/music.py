@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union
 
-from pomice import Player
-from botbase import MyContext
-from nextcord import VoiceChannel, StageChannel, slash_command, SlashOption, Interaction
+from botbase import MyContext, MyInter
+from nextcord import MyInter, SlashOption, StageChannel, VoiceChannel, slash_command, ChannelType
+from nextcord.abc import GuildChannel
 from nextcord.ext.commands import Cog, command
+from pomice import Player
 
 if TYPE_CHECKING:
     from ..mmain import MyBot
@@ -23,11 +24,26 @@ class Music(Cog):
     ):
         await self.join(ctx, channel)
 
-    @slash_command(name="join", description="Join your voice channel.")
-    async def join_slash(self, inter: Interaction, channel: VoiceChannel | StageChannel | None):
+    @slash_command(
+        name="join",
+        description="Join your voice channel.",
+        guild_ids=[939509053623795732],
+    )
+    async def join_slash(
+        self,
+        inter: MyInter,
+        channel: GuildChannel = SlashOption(  # type: ignore
+            description="Optional channel to connect",
+            channel_types=[ChannelType.voice, ChannelType.stage_voice],
+            required=False
+        ),
+    ):
         await self.join(inter, channel)
 
-    async def join(self, aaa: Interaction | MyContext, channel: VoiceChannel | StageChannel | None):
+    async def join(
+        self, aaa: MyInter | MyContext, channel: GuildChannel | None
+    ):
+        assert isinstance(channel, (VoiceChannel, StageChannel))
         # if channel is None:
         #     channel = ctx.author.voice.channel
 
