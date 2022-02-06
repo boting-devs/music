@@ -3,7 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 
 from botbase import MyContext, MyInter
-from nextcord import MyInter, SlashOption, StageChannel, VoiceChannel, slash_command, ChannelType
+from nextcord import (
+    SlashOption,
+    StageChannel,
+    VoiceChannel,
+    slash_command,
+    ChannelType,
+)
 from nextcord.abc import GuildChannel
 from nextcord.ext.commands import Cog, command
 from pomice import Player
@@ -35,14 +41,12 @@ class Music(Cog):
         channel: GuildChannel = SlashOption(  # type: ignore
             description="Optional channel to connect",
             channel_types=[ChannelType.voice, ChannelType.stage_voice],
-            required=False
+            required=False,
         ),
     ):
         await self.join(inter, channel)
 
-    async def join(
-        self, aaa: MyInter | MyContext, channel: GuildChannel | None
-    ):
+    async def join(self, aaa: MyInter | MyContext, channel: GuildChannel | None):
         assert isinstance(channel, (VoiceChannel, StageChannel))
         # if channel is None:
         #     channel = ctx.author.voice.channel
