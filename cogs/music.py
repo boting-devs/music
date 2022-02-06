@@ -56,6 +56,16 @@ class Music(Cog):
 
         await ctx.send_embed("Connected", f"I have connected to {channel.mention}!")
 
+    @command(
+        name="play",help="Play music")
+    async def play_prefix(self,ctx: MyContext,*,search):
+        assert isinstance(ctx.author, Member) and ctx.author.voice is not None and ctx.author.voice.channel is not None
+        player = ctx.voice_client
+        result = await player.get_tracks(query=f'{search}')
+        if isinstance(results, pomice.Playlist):
+            await player.play(track=results.tracks[0])
+        else:
+            await player.play(track=results[0])
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
