@@ -4,8 +4,8 @@ from botbase import Emojis
 # db_url = "postgres://ooliver:ChitChat100@159.223.121.13/vibr"  # for dev
 db_name = "vibr"
 # db_user = "ooliver"  # default
-# color = 0x9966cc  # default
-prefix = ["!"]  # FIXME: actual prefix
+colors = [0xFF00E1, 0xDA00FF, 0x8000FF, 0x2500FF, 0x008FFF]
+prefix = ["vb ", "vB ", "Vb", "VB", "vibr "]
 # logchannel = 927220286867275797  # default
 # helptitle = "Help Me {name}!"  # default
 helpindex = (
@@ -15,7 +15,7 @@ helpindex = (
 )
 # helpfields = {}  # default, name: value pairs
 # helpinsert = ""  # default
-emojiset = Emojis({"index": "..."})  # FIXME: emoji set for help select
+emojiset = Emojis({"index": "<:vibr:939849446529835008>"})
 # aiohttp_enabled = True  # default
 # blacklist_enabled = True  # default
 # version = "0.0.0"  # default
