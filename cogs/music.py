@@ -34,9 +34,9 @@ class Music(Cog):
             raise NotInVoice()
         elif (
             not ctx.author.voice.channel.permissions_for(ctx.me).connect
-            and not ctx.author.voice.channel.permissions_for(ctx.me).administrator
-        ):
-            raise BotMissingPermissions(["connect"])
+            or ctx.author.voice.channel.permissions_for(ctx.me).speak
+        ) and not ctx.author.voice.channel.permissions_for(ctx.me).administrator:
+            raise BotMissingPermissions(["connect", "speak"])
 
         return True
 
@@ -54,7 +54,7 @@ class Music(Cog):
 
         await channel.connect(cls=Player)  # type: ignore
 
-        await ctx.send_embed("")
+        await ctx.send_embed("Connected", f"I have connected to {channel.mention}!")
 
 
 def setup(bot: MyBot):
