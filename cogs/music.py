@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from ..mmain import MyBot
 
 
-class Music(Cog):
+class Music(Cog, name="music", description="Play some tunes with or without friends!"):
     def __init__(self, bot: MyBot):
         self.bot = bot
 
