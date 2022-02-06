@@ -239,7 +239,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="disconnect from voice channel",aliases=["dis","fuck off","leave"])
     async def disconnect(self,ctx:MyContext):
         channel = ctx.author.voice.channel
-        await channel.discconnect(cls=Player)
+        await channel.disconnect(cls=Player)
 
 
 def setup(bot: MyBot):
