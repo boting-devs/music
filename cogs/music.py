@@ -50,7 +50,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await ctx.send_embed("Connected", f"I have connected to {channel.mention}!")
 
-    @command(help="Play some tunes!", aliases=["p"])
+    @command(help="Play some tunes!", aliases=["p","Play"])
     async def play(self, ctx: MyContext, *, query: str):
         assert (
             isinstance(ctx.author, Member)
@@ -88,19 +88,19 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             embed.set_thumbnail(url=track.thumbnail)
 
         await ctx.send("Now playing", embed=embed)
-    @command(help="Pause a song",aliases=["hold"])
+    @command(help="Pause a song",aliases=["hold","Pause"])
     async def pause(self,ctx: MyContext):
         player = ctx.voice_client
         await player.set_pause(True)
         await ctx.send("Paused")
 
-    @command(help="resume",aliases=["start"])
+    @command(help="resume",aliases=["start","Resume"])
     async def resume(self,ctx: MyContext):
         player = ctx.voice_client
         await player.set_pause(False)
         await ctx.send("Resumed")
 
-    @command(help="stop a song",aliases=["s"])
+    @command(help="stop a song",aliases=["s","Stop"])
     async def stop(self,ctx: MyContext):
         player = ctx.voice_client
         await player.stop()
