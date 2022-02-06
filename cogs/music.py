@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union
 
-from botbase import MyContext, MyInter
+from botbase import MyContext, MyInter, WrappedUser
 from nextcord import (
+    ChannelType,
     SlashOption,
     StageChannel,
+    User,
     VoiceChannel,
     slash_command,
-    ChannelType,
 )
 from nextcord.abc import GuildChannel
 from nextcord.ext.commands import Cog, command
@@ -47,12 +48,23 @@ class Music(Cog):
         await self.join(inter, channel)
 
     async def join(self, aaa: MyInter | MyContext, channel: GuildChannel | None):
-        assert isinstance(channel, (VoiceChannel, StageChannel))
-        # if channel is None:
-        #     channel = ctx.author.voice.channel
+        assert isinstance(channel, (VoiceChannel, StageChannel, type(None)))
 
-        # await channel.connect(cls=Player)
-        ...
+        if isinstance(aaa.author, (WrappedUser, User)) or not aaa.guild:
+            return await aaa.send("Logic for guild only.")
+
+        if not aaa.author.voice or not aaa.author.voice.channel:
+            return await aaa.send("Logic for not connected.")
+
+        if not channel:
+            channel = aaa.author.voice.channel
+
+        if not channel.permissions_for(aaa.guild.me).connect:
+            return await aaa.send("Logic for no permissions.")
+
+        await channel.connect()
+
+        await aaa.send("Logic for connected.")
 
 
 def setup(bot: MyBot):
