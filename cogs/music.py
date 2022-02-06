@@ -208,14 +208,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send("Stopped")
 
     @connected()
-    @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuck off"])
+    @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff"])
     async def disconnect(self, ctx: MyContext):
         player = ctx.voice_client
         await player.destroy()
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             if ctx.invoked_with == "die":
                 await ctx.message.add_reaction("\U0001f480")
-            elif ctx.invoked_with == "fuck off":
+            elif ctx.invoked_with == "fuckoff":
                 await ctx.message.add_reaction("\U00002639\U0000fe0f")
             else:
                 await ctx.message.add_reaction("\U0001f44b")
