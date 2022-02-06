@@ -19,9 +19,9 @@ class Music(Cog):
         name="join", help="Join your voice channel.", aliases=["connect", "c", "j"]
     )
     async def join_prefix(
-        self, ctx: MyContext, channel: Union[VoiceChannel, StageChannel] = None
-    ):
-        await self.join(ctx, channel)
+        self, ctx: MyContext, channel: Union[VoiceChannel, StageChannel] = None):
+            channel = ctx.author.voice.channel
+            await channel.connect(cls=pomice.Player)
 
     @slash_command(name="join", description="Join your voice channel.")
     async def join_slash(self, inter: Interaction, channel: VoiceChannel | StageChannel | None):
