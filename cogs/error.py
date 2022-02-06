@@ -126,7 +126,7 @@ class Errors(Cog):
                 color=Color.red(),
             )
             await ctx.send(embed=embed, view=self.support_view)
-            painchannel = await self.bot.getch_channel(927220286867275797)
+            painchannel = await self.bot.getch_channel(self.bot.logchannel)
             if ctx.guild is None:
                 channel = "dm"
                 name = "dm"
