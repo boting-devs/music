@@ -88,17 +88,23 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             embed.set_thumbnail(url=track.thumbnail)
 
         await ctx.send("Now playing", embed=embed)
-    @command(help="pause")
+    @command(help="Pause a song",aliases=["hold"])
     async def pause(self,ctx: MyContext):
         player = ctx.voice_client
         await player.set_pause(True)
         await ctx.send("Paused")
 
-    @command(help="resume")
+    @command(help="resume",aliases=["start"])
     async def resume(self,ctx: MyContext):
         player = ctx.voice_client
         await player.set_pause(False)
         await ctx.send("Resumed")
+
+    @command(help="stop a song",aliases=["s"])
+    async def stop(self,ctx: MyContext):
+        player = ctx.voice_client
+        await player.stop()
+        await ctx.send("stopped")
 
 
 def setup(bot: MyBot):
