@@ -6,7 +6,7 @@ db_name = "vibr"
 # db_user = "ooliver"  # default
 colors = [0xFF00E1, 0xDA00FF, 0x8000FF, 0x2500FF, 0x008FFF]
 prefix = ["vb ", "vB ", "Vb", "VB", "vibr "]
-# logchannel = 927220286867275797  # default
+logchannel = 939853360289419284
 # helptitle = "Help Me {name}!"  # default
 helpindex = (
     "I am a bot made by `P H O E N I X#1241` and `ooliver#6969`, "
