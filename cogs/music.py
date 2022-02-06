@@ -64,6 +64,12 @@ class Music(Cog):
             and ctx.author.voice is not None
             and ctx.author.voice.channel is not None
         )
+
+        if not ctx.voice_client:
+            channel = ctx.author.voice.channel
+            await channel.connect(cls=Player)
+
+            
         player = ctx.voice_client
         result = await player.get_tracks(query=f'{search}')
         if isinstance(result, pomice.Playlist):
