@@ -32,7 +32,7 @@ eh: dict[Type[Exception], tuple[str, str]] = {
     NoPrivateMessage: ("Server Only", "This command can only be used in servers!"),
     PrivateMessageOnly: ("DMs Only", "This command can only be used in DMs!"),
     NotOwner: ("Owner Only", "This command can only be used by my owner!"),
-    NotInVoice: ("In Voice", "You must be in a voice channel to use this command!"),
+    NotInVoice: ("Not in Voice", "You must be in a voice channel to use this command!"),
 }
 
 

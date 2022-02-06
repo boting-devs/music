@@ -44,13 +44,17 @@ class Music(Cog):
         name="join", help="Join your voice channel.", aliases=["connect", "c", "j"]
     )
     async def join_prefix(self, ctx: MyContext):
-        assert isinstance(ctx.author, Member) and ctx.author.voice is not None and ctx.author.voice.channel is not None
+        assert (
+            isinstance(ctx.author, Member)
+            and ctx.author.voice is not None
+            and ctx.author.voice.channel is not None
+        )
 
         channel = ctx.author.voice.channel
 
         await channel.connect(cls=Player)  # type: ignore
 
-        await ctx.send("Logic for connected.")
+        await ctx.send_embed("")
 
 
 def setup(bot: MyBot):
