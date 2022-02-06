@@ -7,19 +7,19 @@ from typing import TYPE_CHECKING
 from botbase import MyContext
 from nextcord import Color, Embed
 from nextcord.ext.commands import (
+    BotMissingPermissions,
     Cog,
     CommandInvokeError,
     CommandNotFound,
+    MissingPermissions,
     NoPrivateMessage,
     NotOwner,
     PrivateMessageOnly,
-    MissingPermissions,
-    BotMissingPermissions,
 )
 from nextcord.utils import utcnow
 
+from .extras.errors import NotInVoice, TooManyTracks
 from .extras.views import LinkButtonView
-from .extras.errors import NotInVoice
 
 if TYPE_CHECKING:
     from typing import Type
@@ -33,6 +33,7 @@ eh: dict[Type[Exception], tuple[str, str]] = {
     PrivateMessageOnly: ("DMs Only", "This command can only be used in DMs!"),
     NotOwner: ("Owner Only", "This command can only be used by my owner!"),
     NotInVoice: ("Not in Voice", "You must be in a voice channel to use this command!"),
+    TooManyTracks: ("Too many tracks", "You can only queue up to 100 tracks at a time!"),
 }
 
 
