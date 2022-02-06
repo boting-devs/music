@@ -92,6 +92,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def pause(self,ctx: MyContext):
         player = ctx.voice_client
         await player.set_pause(True)
+        await ctx.send("Paused")
+
+    @command(help="resume")
+    async def resume(self,ctx: MyContext):
+        player = ctx.voice_client
+        await player.set_pause(False)
+        await ctx.send("Resumed")
+
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
