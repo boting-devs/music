@@ -63,9 +63,9 @@ class Music(Cog):
         player = ctx.voice_client
         result = await player.get_tracks(query=f'{search}')
         if isinstance(result, pomice.Playlist):
-            await player.play(track=results.tracks[0])
+            await player.play(track=result.tracks[0])
         else:
-            await player.play(track=results[0])
+            await player.play(track=result[0])
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
