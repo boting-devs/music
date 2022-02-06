@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from botbase import MyContext
+from .extras.types import MyContext
 from nextcord import (
     User,
     Member,
 )
 from nextcord.ext.commands import Cog, command
-from pomice import Player
+from pomice import Player, Playlist
 
 from nextcord import User, ClientUser
 from nextcord.ext.commands import BotMissingPermissions, NoPrivateMessage
@@ -17,7 +17,7 @@ from .extras.errors import NotInVoice
 
 if TYPE_CHECKING:
     from ..mmain import MyBot
-import pomice
+
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
     def __init__(self, bot: MyBot):
@@ -40,10 +40,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         return True
 
-    @command(
-        name="join", help="Join your voice channel.", aliases=["connect", "c", "j"]
-    )
-    async def join_prefix(self, ctx: MyContext):
+    @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
+    async def join(self, ctx: MyContext):
         assert (
             isinstance(ctx.author, Member)
             and ctx.author.voice is not None
@@ -56,26 +54,30 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await ctx.send_embed("Connected", f"I have connected to {channel.mention}!")
 
-    @command(
-        name="play",help="Play music")
-    async def play_prefix(self,ctx: MyContext,*,search):
-        assert(
+    @command(help="Play some tunes!", aliases=["p"])
+    async def play(self, ctx: MyContext, *, query: str):
+        assert (
             isinstance(ctx.author, Member)
             and ctx.author.voice is not None
             and ctx.author.voice.channel is not None
         )
 
         if not ctx.voice_client:
-            channel = ctx.author.voice.channel
-            await channel.connect(cls=Player)
-
+            if cmd := self.bot.get_command("join"):
+                await ctx.invoke(cmd)  # type: ignore
 
         player = ctx.voice_client
-        result = await player.get_tracks(query=f'{search}')
-        if isinstance(result, pomice.Playlist):
+        assert player is not None
+        result = await player.get_tracks(query=query)
+
+        if not result:
+            return await ctx.send_embed("No tracks found", "No tracks were found.")
+
+        if isinstance(result, Playlist):
             await player.play(track=result.tracks[0])
         else:
             await player.play(track=result[0])
+
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
