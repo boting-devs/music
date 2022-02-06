@@ -71,30 +71,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await track.ctx.send("Disconnecting on timeout \U0001f44b")
                 await player.destroy()
 
-    async def playing_embed(self, track: Track | Playlist, queue: bool):
-        if isinstance(track, Playlist):
-            assert track.tracks[0].ctx is not None
-
-            ctx = track.tracks[0].ctx
-
-            title = track.name
-            author = ", ".join({t.author for t in track.tracks if t.author is not None})
-            time = strftime(
-                "%H:%M:%S",
-                gmtime(
-                    sum(t.length for t in track.tracks if t.length is not None) / 1000
-                ),
-            )
-        else:
-            assert track.ctx is not None
-
-            ctx = track.ctx
-            title = track.title
-            author = track.author
-            time = strftime(
-                "%H:%M:%S",
-                gmtime(track.length if track.length is not None else 0 / 1000),
-            )
+    async def playing_embed(self, track: Track, queue: bool):
+        assert track.ctx is not None
+        ctx = track.ctx
+        title = track.title
+        author = track.author
+        time = strftime(
+            "%H:%M:%S",
+            gmtime(track.length if track.length is not None else 0 / 1000),
+        )
 
         embed = Embed(
             title=title,
@@ -148,23 +133,20 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if isinstance(result, Playlist):
                 track = result.tracks[0]
                 toplay = result.tracks[1:]
-                info = result
             else:
-                track = info = result[0]
+                track = result[0]
                 toplay = []
 
             await player.play(track=track)
 
-            await self.playing_embed(info, queue=False)
+            await self.playing_embed(track, queue=False)
         else:
             if isinstance(result, Playlist):
                 toplay = result.tracks
-                info = result
             else:
-                info = result[0]
                 toplay = [result[0]]
 
-            await self.playing_embed(info, queue=True)
+            await self.playing_embed(toplay[0], queue=True)
 
         if len(player.queue) + len(toplay) > 100:
             raise TooManyTracks()
