@@ -1,11 +1,11 @@
 from botbase import Emojis
 
 
-# db_url = "postgres://ooliver:ChitChat100@159.223.121.13/viber"  # for dev
-db_name = "viber"
+# db_url = "postgres://ooliver:ChitChat100@159.223.121.13/vibr"  # for dev
+db_name = "vibr"
 # db_user = "ooliver"  # default
 # color = 0x9966cc  # default
-prefix = "!"  # FIXME: actual prefix
+prefix = ["!"]  # FIXME: actual prefix
 # logchannel = 927220286867275797  # default
 # helptitle = "Help Me {name}!"  # default
 helpindex = (
