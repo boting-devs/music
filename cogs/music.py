@@ -34,7 +34,7 @@ class Music(Cog):
             raise NotInVoice()
         elif (
             not ctx.author.voice.channel.permissions_for(ctx.me).connect
-            or ctx.author.voice.channel.permissions_for(ctx.me).speak
+            or not ctx.author.voice.channel.permissions_for(ctx.me).speak
         ) and not ctx.author.voice.channel.permissions_for(ctx.me).administrator:
             raise BotMissingPermissions(["connect", "speak"])
 
