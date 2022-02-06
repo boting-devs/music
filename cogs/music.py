@@ -83,7 +83,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             timestamp=utcnow(),
         )
         embed.set_author(name=track.info["author"], url=track.info["uri"])
-        embed.set_thumbnail(url=track.info["thumbnail"])
+
+        if track.thumbnail:
+            embed.set_thumbnail(url=track.thumbnail)
 
         await ctx.send_embed("Now playing", embed=embed)
 
