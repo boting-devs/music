@@ -17,7 +17,7 @@ from .extras.errors import NotInVoice
 
 if TYPE_CHECKING:
     from ..mmain import MyBot
-
+import pomice
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
     def __init__(self, bot: MyBot):
@@ -56,6 +56,26 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await ctx.send_embed("Connected", f"I have connected to {channel.mention}!")
 
+    @command(
+        name="play",help="Play music")
+    async def play_prefix(self,ctx: MyContext,*,search):
+        assert(
+            isinstance(ctx.author, Member)
+            and ctx.author.voice is not None
+            and ctx.author.voice.channel is not None
+        )
+
+        if not ctx.voice_client:
+            channel = ctx.author.voice.channel
+            await channel.connect(cls=Player)
+
+
+        player = ctx.voice_client
+        result = await player.get_tracks(query=f'{search}')
+        if isinstance(result, pomice.Playlist):
+            await player.play(track=result.tracks[0])
+        else:
+            await player.play(track=result[0])
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
