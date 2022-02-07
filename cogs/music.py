@@ -61,12 +61,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return True
 
     @Cog.listener()
-    async def on_track_end(self, player: Player, track: Track, _: str):
-        log.info("Stopped with queue %s", player.queue)
+    async def on_pomice_track_end(self, player: Player, track: Track, _: str):
         if player.queue:
             toplay = player.queue.pop(0)
 
-            log.info("Playing next song %s", toplay)
             await player.play(toplay)
         else:
             await sleep(60)
