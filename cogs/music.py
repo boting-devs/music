@@ -108,7 +108,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             color=self.bot.color,
             timestamp=utcnow(),
         )
-        embed.set_author(name=str(title) + "-" + str(author), url=track.uri)
+        embed.set_author(name=str(title) + " - " + str(author), url=track.uri)
 
         if track.thumbnail:
             embed.set_thumbnail(url=track.thumbnail)
@@ -153,7 +153,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not result:
             return await ctx.send_author_embed("No tracks found")
 
-        if not player.queue:
+        if not player.queue and not player.is_playing:
             if isinstance(result, Playlist):
                 track = result.tracks[0]
                 toplay = result.tracks[1:]
