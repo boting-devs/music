@@ -130,15 +130,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         channel = ctx.author.voice.channel
 
-        player = await channel.connect(cls=Player)  # type: ignore
+        await channel.connect(cls=Player)  # type: ignore
 
         await ctx.send_author_embed(f"Connected to {channel.name}")
 
+        self.bot.loop.create_task(self.leave_check(ctx))
+
+    async def leave_check(self, ctx: MyContext):
         await sleep(60)
 
-        if not player.is_playing:
+        if not ctx.voice_client or not ctx.voice_client.is_playing:
             await ctx.send_author_embed("Disconnecting on no activity")
-            await player.destroy()
+            await ctx.voice_client.destroy()
 
     @command(help="Play some tunes!", aliases=["p"])
     async def play(self, ctx: MyContext, *, query: str):
