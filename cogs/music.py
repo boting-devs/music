@@ -84,7 +84,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             ctx = track.tracks[0].ctx
 
             title = track.name
-            author = ", ".join({t.author for t in track.tracks if t.author is not None})
+            author = "Multiple Authors"
             time = strftime(
                 "%H:%M:%S",
                 gmtime(
