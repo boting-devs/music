@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from time import strftime, gmtime
 from asyncio import sleep
+from logging import getLogger
 
 from nextcord import ClientUser, Embed, Member, User
 from nextcord.ext.commands import (
@@ -23,6 +24,9 @@ if TYPE_CHECKING:
     from pomice import Track
 
     from ..mmain import MyBot
+
+
+log = getLogger(__name__)
 
 
 def connected():
@@ -57,7 +61,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return True
 
     @Cog.listener()
-    async def on_track_end(self, player: Player, track: Track, reason: str):
+    async def on_track_end(self, player: Player, track: Track, _: str):
         if player.queue:
             toplay = player.queue.pop(0)
 
@@ -68,10 +72,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if not player.is_playing:
                 assert track.ctx is not None
 
-                await track.ctx.send("Disconnecting on timeout \U0001f44b")
+                await track.ctx.send_author_embed("24/7 coming soon")
                 await player.destroy()
 
-    async def playing_embed(self, track: Track | Playlist, queue: bool):
+    async def playing_embed(self, track: Track | Playlist):
         if isinstance(track, Playlist):
             assert track.tracks[0].ctx is not None
 
@@ -100,20 +104,16 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 )
 
         embed = Embed(
-            title=title,
-            description=f"{time} - requested by {ctx.author.display_name}",
+            description=f"{time} - {ctx.author.mention}",
             color=self.bot.color,
             timestamp=utcnow(),
         )
-        embed.set_author(name=author, url=track.uri)
+        embed.set_author(name=str(title) + "-" + str(author), url=track.uri)
 
         if track.thumbnail:
             embed.set_thumbnail(url=track.thumbnail)
 
-        if queue:
-            await ctx.send("Queued", embed=embed)
-        else:
-            await ctx.send("Now Playing", embed=embed)
+        await ctx.send(embed=embed)
 
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
     async def join(self, ctx: MyContext):
@@ -125,9 +125,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         channel = ctx.author.voice.channel
 
-        await channel.connect(cls=Player)  # type: ignore
+        player = await channel.connect(cls=Player)  # type: ignore
 
-        await ctx.send_embed("Connected", f"I have connected to {channel.mention}!")
+        await ctx.send_author_embed(f"Connected to {channel.name}")
+
+        await sleep(60)
+
+        if not player.is_playing:
+            await ctx.send_author_embed("24/7 coming soon")
+            await player.destroy()
 
     @command(help="Play some tunes!", aliases=["p"])
     async def play(self, ctx: MyContext, *, query: str):
@@ -145,7 +151,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         result = await player.get_tracks(query=query, ctx=ctx)
 
         if not result:
-            return await ctx.send_embed("No tracks found", "No tracks were found.")
+            return await ctx.send_author_embed("No tracks found")
 
         if not player.queue:
             if isinstance(result, Playlist):
@@ -158,7 +164,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             await player.play(track=track)
 
-            await self.playing_embed(info, queue=False)
+            await self.playing_embed(info)
         else:
             if isinstance(result, Playlist):
                 toplay = result.tracks
@@ -167,13 +173,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 info = result[0]
                 toplay = [result[0]]
 
-            await self.playing_embed(info, queue=True)
+            await self.playing_embed(info)
 
         if len(player.queue) + len(toplay) > 100:
             raise TooManyTracks()
 
         if toplay:
+            log.info(f"Adding {len(toplay)} tracks to queue")
+            log.info(player.queue)
+            log.info(toplay)
             player.queue += toplay
+            log.info(player.queue)
 
     @connected()
     @command(help="Pause the tunes", aliases=["hold"])
@@ -183,7 +193,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f8\U0000fe0f")
         else:
-            await ctx.send("Paused")
+            await ctx.send_author_embed("Paused")
 
     @connected()
     @command(help="Continue the bangers", aliases=["start"])
@@ -193,7 +203,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000025b6\U0000fe0f")
         else:
-            await ctx.send("Resumed")
+            await ctx.send_author_embed("Resumed")
 
     @connected()
     @command(help="Stop, wait a minute...", aliases=["s"])
@@ -203,7 +213,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f9\U0000fe0f")
         else:
-            await ctx.send("Stopped")
+            await ctx.send_author_embed("Stopped")
 
     @connected()
     @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff"])
@@ -218,7 +228,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.message.add_reaction("\U0001f44b")
         else:
-            await ctx.send("Bye :(")
+            await ctx.send_author_embed("Bye :(")
 
     @connected()
     @command(help="Set volume")
@@ -231,7 +241,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
                 await ctx.message.add_reaction("\U0001f4e2")
             else:
-                await ctx.send(f"Volume set to `{number}%`")
+                await ctx.send_author_embed(f"Volume set to `{number}%`")
 
 
 def setup(bot: MyBot):
