@@ -233,7 +233,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected()
     @command(help="Set volume")
     async def volume(self, ctx: MyContext, *, number: int):
-        if not 1 < number < 500:
+        if not 1 <= number <= 500:
             return await ctx.reply("🚫 The allowed range is between 1 & 500")
         else:
             player = ctx.voice_client
