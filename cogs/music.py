@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-from time import strftime, gmtime
 from asyncio import sleep
 from logging import getLogger
+from time import gmtime, strftime
+from typing import TYPE_CHECKING
 
 from nextcord import ClientUser, Embed, Member, User
 from nextcord.ext.commands import (
     BotMissingPermissions,
     Cog,
-    NoPrivateMessage,
-    command,
     Context,
+    NoPrivateMessage,
     check,
+    command,
 )
-from pomice import Playlist
 from nextcord.utils import utcnow
+from pomice import Playlist
 
-from .extras.errors import NotInVoice, TooManyTracks, NotConnected
+from .extras.errors import NotConnected, NotInVoice, TooManyTracks
 from .extras.types import MyContext, Player
 
 if TYPE_CHECKING:
@@ -72,10 +72,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if not player.is_playing:
                 assert track.ctx is not None
 
-                await track.ctx.send_author_embed("24/7 coming soon")
+                await track.ctx.send_author_embed("Disconnecting on no activity")  # type: ignore
                 await player.destroy()
 
-    async def playing_embed(self, track: Track | Playlist):
+    async def playing_embed(self, track: Track | Playlist, queue: bool = False):
         if isinstance(track, Playlist):
             assert track.tracks[0].ctx is not None
 
@@ -113,7 +113,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if track.thumbnail:
             embed.set_thumbnail(url=track.thumbnail)
 
-        await ctx.send(embed=embed)
+        if queue:
+            await ctx.send(embed=embed, content="Queued")
+        else:
+            await ctx.send(embed=embed)
 
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
     async def join(self, ctx: MyContext):
@@ -132,7 +135,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await sleep(60)
 
         if not player.is_playing:
-            await ctx.send_author_embed("24/7 coming soon")
+            await ctx.send_author_embed("Disconnecting on no activity")
             await player.destroy()
 
     @command(help="Play some tunes!", aliases=["p"])
@@ -173,17 +176,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 info = result[0]
                 toplay = [result[0]]
 
-            await self.playing_embed(info)
+            await self.playing_embed(info, queue=True)
 
         if len(player.queue) + len(toplay) > 100:
             raise TooManyTracks()
 
         if toplay:
-            log.info(f"Adding {len(toplay)} tracks to queue")
-            log.info(player.queue)
-            log.info(toplay)
             player.queue += toplay
-            log.info(player.queue)
 
     @connected()
     @command(help="Pause the tunes", aliases=["hold"])
