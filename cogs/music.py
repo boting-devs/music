@@ -19,7 +19,7 @@ from pomice import Playlist
 
 from .extras.errors import NotConnected, NotInVoice, TooManyTracks
 from .extras.types import MyContext, Player
-
+import aiohttp
 
 if TYPE_CHECKING:
 
