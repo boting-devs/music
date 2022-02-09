@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import nextcord
 from asyncio import sleep
 from logging import getLogger
 from time import gmtime, strftime
