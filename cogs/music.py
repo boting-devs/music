@@ -78,7 +78,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await track.ctx.send_author_embed("Disconnecting on no activity")  # type: ignore
                 await player.destroy()
 
-    async def playing_embed(self, track:  | Playlist, queue: bool = False):
+    async def playing_embed(self, track: Track | Playlist, queue: bool = False):
         if isinstance(track, Playlist):
             assert track.tracks[0].ctx is not None
 
