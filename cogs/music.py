@@ -255,7 +255,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         author = current_track.author
         Lyric_url = "https://some-random-api.ml/lyrics?title="
 
-        async with aiohttp.request("GET",Lyric_url+current_track,headers={}) as r:
+        async with aiohttp.request("GET",Lyric_url+current_track) as r:
             if not 300 > r.status >= 200:
                 return await ctx.send("No lyrics")
 
