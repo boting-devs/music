@@ -65,13 +65,15 @@ class PlayButon(View):
 
         return True
 
-    @button(emoji="\U000023f8\U0000fe0f", style=ButtonStyle.blurple, custom_id="view:pp")
+    @button(
+        emoji="\U000023f8\U0000fe0f", style=ButtonStyle.blurple, custom_id="view:pp"
+    )
     async def playpause(self, button: Button, inter: Interaction):
         assert inter.guild is not None
         assert inter.guild.voice_client is not None
         assert isinstance(inter.guild.voice_client, Player)
 
-        if inter.guild.voice_client.is_playing:
+        if not inter.guild.voice_client.is_paused:
             await inter.guild.voice_client.set_pause(True)
             button.emoji = "\U000025b6\U0000fe0f"
             await inter.response.edit_message(view=self)
