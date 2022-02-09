@@ -54,7 +54,7 @@ class Playbutton(nextcord.ui.View):
         self.stop()
 
     @nextcord.ui.button(label="▶", style=nextcord.ButtonStyle.green)
-    async def pause(
+    async def resume(
         self, button: nextcord.ui.Button, interaction: nextcord.Interaction
     ):
         button.disabled = True
