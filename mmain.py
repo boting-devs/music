@@ -25,6 +25,7 @@ class MyBot(BotBase):
         super().__init__(*args, **kwargs)
 
         self.pool = NodePool()
+        self.views_added = False
 
     async def on_ready(self):
         await self.pool.create_node(

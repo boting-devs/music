@@ -1,11 +1,11 @@
 from __future__ import annotations
-import nextcord
+
 from asyncio import sleep
 from logging import getLogger
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
-from nextcord import ClientUser, Embed, Member, User
+from nextcord import ClientUser, Embed, Member, User, ButtonStyle, Interaction
 from nextcord.ext.commands import (
     BotMissingPermissions,
     Cog,
@@ -15,6 +15,7 @@ from nextcord.ext.commands import (
     command,
 )
 from nextcord.utils import utcnow
+from nextcord.ui import button, Button, View
 from pomice import Playlist
 
 from .extras.errors import NotConnected, NotInVoice, TooManyTracks
@@ -22,8 +23,8 @@ from .extras.types import MyContext, Player
 import aiohttp
 
 if TYPE_CHECKING:
-
     from pomice import Track
+    from botbase import MyInter
 
     from ..mmain import MyBot
 
@@ -40,26 +41,44 @@ def connected():
 
     return check(extended_check)
 
-class Playbutton(nextcord.ui.View):
+
+class PlayButon(View):
     def __init__(self):
-        super().__init__()
-        self.value = None
+        super().__init__(timeout=None)
 
-    @nextcord.ui.button(label="⏸", style=nextcord.ButtonStyle.red)
-    async def pause(
-        self, button: nextcord.ui.Button, interaction: nextcord.Interaction
-    ):
-        button.disabled = True
-        self.value = True
-        self.stop()
+    async def interaction_check(self, inter: MyInter) -> bool:
+        if not inter.guild or not inter.guild.voice_client:
+            await inter.send_embed(
+                "Not in Voice", "The bot needs to be connected to a vc!"
+            )
+            return False
+        elif (
+            not inter.guild
+            or not inter.guild.voice_client
+            or not inter.user.id
+            in [m.id for m in inter.guild.voice_client.channel.members]  # type: ignore
+        ):
+            await inter.send_embed(
+                "Not in Voice", "You need to be in the same vc as the bot!"
+            )
+            return False
 
-    @nextcord.ui.button(label="▶", style=nextcord.ButtonStyle.green)
-    async def resume(
-        self, button: nextcord.ui.Button, interaction: nextcord.Interaction
-    ):
-        button.disabled = True
-        self.value = True
-        self.stop()
+        return True
+
+    @button(emoji="\U000023f8\U0000fe0f", style=ButtonStyle.blurple, custom_id="view:pp")
+    async def playpause(self, button: Button, inter: Interaction):
+        assert inter.guild is not None
+        assert inter.guild.voice_client is not None
+        assert isinstance(inter.guild.voice_client, Player)
+
+        if inter.guild.voice_client.is_playing:
+            await inter.guild.voice_client.set_pause(True)
+            button.emoji = "\U000025b6\U0000fe0f"
+            await inter.response.edit_message(view=self)
+        else:
+            await inter.guild.voice_client.set_pause(False)
+            button.emoji = "\U000023f8\U0000fe0f"
+            await inter.response.edit_message(view=self)
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
@@ -84,6 +103,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return True
 
     @Cog.listener()
+    async def on_ready(self):
+        if not self.bot.views_added:
+            self.bot.add_view(PlayButon())
+            self.bot.views_added = True
+
+    @Cog.listener()
     async def on_pomice_track_end(self, player: Player, track: Track, _: str):
         if player.queue:
             toplay = player.queue.pop(0)
@@ -99,7 +124,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await player.destroy()
 
     async def playing_embed(self, track: Track | Playlist, queue: bool = False):
-        view=Playbutton()
+        view = PlayButon()
         if isinstance(track, Playlist):
             assert track.tracks[0].ctx is not None
 
@@ -270,15 +295,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
     @connected()
-    @command(help="Lyrics")
-    async def lyrics(self,ctx: MyContext,*,current_track=None):
-        if current_track ==None:
-            current_track=ctx.voice_client.current.title
+    @command(help="Sing along to your favourite tunes!")
+    async def lyrics(self, ctx: MyContext, *, current_track=None):
+        if current_track is None:
+            current_track = ctx.voice_client.current.title
         print(current_track)
-        #author = current_track.author
+        # author = current_track.author
         Lyric_url = f"https://some-random-api.ml/lyrics?title={current_track}"
 
-        async with aiohttp.request("GET",Lyric_url) as r:
+        async with aiohttp.request("GET", Lyric_url) as r:
             if not 200 <= r.status <= 299:
                 return await ctx.send("No lyrics")
 
@@ -291,7 +316,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 title=data["title"],
                 description=data["lyrics"],
                 color=self.bot.color,
-                timestamp=utcnow())
+                timestamp=utcnow(),
+            )
             await ctx.send(embed=embed)
 
 
