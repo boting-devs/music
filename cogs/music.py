@@ -50,7 +50,7 @@ class PlayButon(View):
         inter = MyInter(inter, inter.client)  # type: ignore
         if not inter.guild or not inter.guild.voice_client:
             await inter.send_embed(
-                "Not in Voice", "The bot needs to be connected to a vc!"
+                "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
             )
             return False
         elif (
@@ -60,7 +60,7 @@ class PlayButon(View):
             in [m.id for m in inter.guild.voice_client.channel.members]  # type: ignore
         ):
             await inter.send_embed(
-                "Not in Voice", "You need to be in the same vc as the bot!"
+                "Not in Voice", "You need to be in the same vc as the bot!", ephemeral=True
             )
             return False
 
