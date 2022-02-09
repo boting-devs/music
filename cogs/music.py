@@ -252,7 +252,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def lyrics(self,ctx: MyContext,*,current_track):
         #current_track=ctx.voice_client.current
         #print(current_track)
-        author = current_track.author
+        #author = current_track.author
         Lyric_url = f"https://some-random-api.ml/lyrics?title={current_track}"
 
         async with aiohttp.request("GET",Lyric_url) as r:
