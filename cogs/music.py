@@ -250,9 +250,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @connected()
     @command(help="Lyrics")
-    async def lyrics(self,ctx: MyContext,track: Track):
+    async def lyrics(self,ctx: MyContext,):
         current_track=ctx.voice_client.current
-        lyric=musixmatch.matcher_lyrics_get(current_track,track.author)
+        lyric=musixmatch.matcher_lyrics_get(current_track,)
         await ctx.send(lyric)
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
