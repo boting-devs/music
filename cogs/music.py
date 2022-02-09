@@ -245,6 +245,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
+    @connected()
+    @command(help="Lyrics")
+    async def lyrics(self,ctx: MyContext):
+        current_track=ctx.voice_client.current
+        await ctx.send(current_track)
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
