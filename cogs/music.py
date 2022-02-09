@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
     from ..mmain import MyBot
 
-musixmatch= Musixmatch('cc893b202d827938128dcede354b91ee')
 
 log = getLogger(__name__)
 
