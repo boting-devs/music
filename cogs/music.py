@@ -23,6 +23,7 @@ from .extras.types import MyContext, Player
 from musixmatch import Musixmatch
 
 if TYPE_CHECKING:
+
     from pomice import Track
 
     from ..mmain import MyBot
@@ -250,9 +251,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @connected()
     @command(help="Lyrics")
-    async def lyrics(self,ctx: MyContext,):
+    async def lyrics(self,ctx: MyContext,track: Track):
         current_track=ctx.voice_client.current
-        track = pomice.objects.Track
+        
         lyric=musixmatch.matcher_lyrics_get(current_track,track.author)
         await ctx.send(lyric)
 def setup(bot: MyBot):
