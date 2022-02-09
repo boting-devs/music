@@ -17,6 +17,7 @@ from nextcord.ext.commands import (
 from nextcord.utils import utcnow
 from nextcord.ui import button, Button, View
 from pomice import Playlist
+from botbase import MyInter
 
 from .extras.errors import NotConnected, NotInVoice, TooManyTracks
 from .extras.types import MyContext, Player
@@ -24,7 +25,6 @@ import aiohttp
 
 if TYPE_CHECKING:
     from pomice import Track
-    from botbase import MyInter
 
     from ..mmain import MyBot
 
