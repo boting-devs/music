@@ -40,6 +40,27 @@ def connected():
 
     return check(extended_check)
 
+class Playbutton(nextcord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.value = None
+
+    @nextcord.ui.button(label="⏸", style=nextcord.ButtonStyle.red)
+    async def pause(
+        self, button: nextcord.ui.Button, interaction: nextcord.Interaction
+    ):
+        button.disabled = True
+        self.value = True
+        self.stop()
+
+    @nextcord.ui.button(label="▶", style=nextcord.ButtonStyle.green)
+    async def pause(
+        self, button: nextcord.ui.Button, interaction: nextcord.Interaction
+    ):
+        button.disabled = True
+        self.value = True
+        self.stop()
+
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
     def __init__(self, bot: MyBot):
@@ -118,7 +139,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if queue:
             await ctx.send(embed=embed, content="Queued")
         else:
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, view=View)
 
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
     async def join(self, ctx: MyContext):
@@ -271,5 +292,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 color=self.bot.color,
                 timestamp=utcnow())
             await ctx.send(embed=embed)
+
+
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
