@@ -20,11 +20,14 @@ from pomice import Playlist
 from .extras.errors import NotConnected, NotInVoice, TooManyTracks
 from .extras.types import MyContext, Player
 
+from musixmatch import Musixmatch
+
 if TYPE_CHECKING:
     from pomice import Track
 
     from ..mmain import MyBot
 
+musixmatch= Musixmatch('cc893b202d827938128dcede354b91ee')
 
 log = getLogger(__name__)
 
@@ -249,7 +252,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Lyrics")
     async def lyrics(self,ctx: MyContext):
         current_track=ctx.voice_client.current
-        await ctx.send(current_track)
-
+        lyric=musixmatch.matcher_lyrics_get(current_track)
+        await ctx.send(lyric)
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
