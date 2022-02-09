@@ -20,7 +20,6 @@ from pomice import Playlist
 from .extras.errors import NotConnected, NotInVoice, TooManyTracks
 from .extras.types import MyContext, Player
 
-from musixmatch import Musixmatch
 
 if TYPE_CHECKING:
 
@@ -255,7 +254,24 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         current_track=ctx.voice_client.current
         print(current_track)
         author = current_track.author
-        lyric=musixmatch.matcher_lyrics_get(current_track,author)
-        await ctx.send(lyric)
+        Lyric_url = "https://some-random-api.ml/lyrics?title="
+
+        async with ctx.typing:
+            async with aiohttp.request("GET",Lyric_url+current_track,headers={}) as r:
+                if not 300 > r.status >= 200:
+                    return await ctx.send("No lyrics")
+
+                data = await r.json()
+
+                if len(data["lyrics"]) > 2000:
+                    return await ctx.send(f"<{data['links']['genius']}>")
+
+                embed = Embed(
+                    title=data["title"],
+                    description=data["lyrics"],
+                    color=self.bot.color,
+                    timestamp=utcnow())
+                embed.set_thumbnail(url=current_track.thumbnail)
+                await ctx.send(embed=embed)
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
