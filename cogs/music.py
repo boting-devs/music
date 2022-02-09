@@ -99,6 +99,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await player.destroy()
 
     async def playing_embed(self, track: Track | Playlist, queue: bool = False):
+        view=Playbutton()
         if isinstance(track, Playlist):
             assert track.tracks[0].ctx is not None
 
@@ -139,7 +140,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if queue:
             await ctx.send(embed=embed, content="Queued")
         else:
-            await ctx.send(embed=embed, view=View)
+            await ctx.send(embed=embed, view=view)
 
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
     async def join(self, ctx: MyContext):
