@@ -132,6 +132,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if not player.is_playing:
                 assert track.ctx is not None
 
+                if track.ctx.voice_client is None:
+                    return
+
                 await track.ctx.send_author_embed("Disconnecting on no activity")  # type: ignore
                 await player.destroy()
 
