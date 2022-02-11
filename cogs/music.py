@@ -329,5 +329,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         @command()
         async def hello(self,ctx):
             await ctx.send("hey")
+            
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
