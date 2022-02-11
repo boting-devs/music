@@ -300,35 +300,35 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-        @connected()
-        @command(help="Sing along to your favourite tunes!")
-        async def lyrics(self, ctx: MyContext, *,search):
-            data = {'q': search}
-            headers = {'Authorization': f'Bearer {TKN}'}
-            try:
-                result = get(API_URL, params=data, headers=headers).json()
-                
-            except Exception as exc:
-                await ctx.send(f'Could not get lyrics, as a error occured: {exc}')
-                
+    @connected()
+    @command(help="Sing along to your favourite tunes!")
+    async def lyrics(self, ctx: MyContext, *,search):
+        data = {'q': search}
+        headers = {'Authorization': f'Bearer {TKN}'}
+        try:
+            result = get(API_URL, params=data, headers=headers).json()
             
-            title = result['response']['hits'][0]['result']['title']
-            artist = result['response']['hits'][0]['result']['artist_names']
-            source = result['response']['hits'][0]['result']['url']
-            thumbnail = result['response']['hits'][0]['result']['header_image_url']
+        except Exception as exc:
+            await ctx.send(f'Could not get lyrics, as a error occured: {exc}')
             
-            lyricsform = []
-            for lyricsdata in BeautifulSoup(get(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
-                dat = lyricsdata.get_text('\n')
-                lyricsform.append(f"{dat}\n")
-                
-            lyrics=''.join(lyricsform).replace('[', '\n[').strip()
+        
+        title = result['response']['hits'][0]['result']['title']
+        artist = result['response']['hits'][0]['result']['artist_names']
+        source = result['response']['hits'][0]['result']['url']
+        thumbnail = result['response']['hits'][0]['result']['header_image_url']
+        
+        lyricsform = []
+        for lyricsdata in BeautifulSoup(get(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
+            dat = lyricsdata.get_text('\n')
+            lyricsform.append(f"{dat}\n")
             
-            await ctx.send_author_embed(lyrics)
+        lyrics=''.join(lyricsform).replace('[', '\n[').strip()
+        
+        await ctx.send_author_embed(lyrics)
 
-        @command()
-        async def hello(self,ctx):
-            await ctx.send_author_embed("hey")
+    @command()
+    async def hello(self,ctx):
+        await ctx.send_author_embed("hey")
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
