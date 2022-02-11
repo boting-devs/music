@@ -282,11 +282,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Stop, wait a minute...")
     async def stop(self, ctx: MyContext):
         player = ctx.voice_client
+        player.queue=[]
         await player.stop()
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f9\U0000fe0f")
         else:
             await ctx.send_author_embed("Stopped")
+
 
     @connected()
     @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff"])
