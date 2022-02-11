@@ -311,7 +311,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             except Exception as exc:
                 await ctx.send(f'Could not get lyrics, as a error occured: {exc}')
                 
-            print(result)
             
             title = result['response']['hits'][0]['result']['title']
             artist = result['response']['hits'][0]['result']['artist_names']
