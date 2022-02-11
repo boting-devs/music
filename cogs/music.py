@@ -323,8 +323,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             lyricsform.append(f"{dat}\n")
             
         lyrics=''.join(lyricsform).replace('[', '\n[').strip()
-        
-        await ctx.send(lyrics)
+        if len(lyrics)>2000:
+            await ctx.send(source)
+        else:
+            await ctx.send(lyrics)
 
     @command()
     async def hello(self,ctx):
