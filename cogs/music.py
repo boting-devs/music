@@ -137,7 +137,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if not player.is_playing:
                 assert track.ctx is not None
 
-                if track.ctx.voice_client is None:
+                if player is None:
                     return
 
                 await track.ctx.send_author_embed("Disconnecting on no activity")  # type: ignore
@@ -221,6 +221,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not ctx.voice_client:
             if cmd := self.bot.get_command("join"):
                 await ctx.invoke(cmd)  # type: ignore
+
+        await ctx.send(f"Searching `{query}`")
 
         player = ctx.voice_client
         result = await player.get_tracks(query=query, ctx=ctx)
