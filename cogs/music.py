@@ -324,8 +324,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             
         lyrics = ''.join(lyricsform).replace('[', '\n[').strip()
         
-        return (title, artist, lyrics, source, thumbnail)
-
         songData = searchsong('cochise tell em')
 
         title = songData[0]
