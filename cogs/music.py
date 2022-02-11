@@ -318,7 +318,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         
         lyricsform = []
         
-        for lyricsdata in BeautifulSoup(aiohttp.request(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
+        for lyricsdata in BeautifulSoup(get(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
             dat = lyricsdata.get_text('\n')
             lyricsform.append(f"{dat}\n")
             
