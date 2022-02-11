@@ -324,7 +324,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             
         lyrics=''.join(lyricsform).replace('[', '\n[').strip()
         
-        await ctx.send_author_embed(lyrics)
+        await ctx.send(lyrics)
 
     @command()
     async def hello(self,ctx):
