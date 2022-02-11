@@ -304,7 +304,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         headers = {'Authorization': f'Bearer {TKN}'}
         
         try:
-            result =async with aiohttp.request(API_URL, params=data, headers=headers).json()
+            async with aiohttp.request(API_URL, params=data, headers=headers).json() as result
             
         except Exception as exc:
             print(f'Could not get lyrics, as a error occured: {exc}')
