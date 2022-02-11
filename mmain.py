@@ -4,15 +4,13 @@ import asyncio
 import os
 
 import nextcord
-
-# REMOVE ON WINDOWS
-import uvloop  # type: ignore
+from nextcord import Activity, ActivityType
 from botbase import BotBase
 from dotenv import load_dotenv
 from pomice import NodePool
 
 # REMOVE ON WINDOWS
-
+import uvloop  # type: ignore
 
 # REMOVE ON WINDOWS
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -45,6 +43,7 @@ intents.messages = True
 intents.voice_states = True
 bot = MyBot(
     intents=intents,
+    activity=Activity(type=ActivityType.listening, name="your beats :)"),
 )
 
 

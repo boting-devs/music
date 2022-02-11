@@ -4,6 +4,7 @@ from asyncio import sleep
 from logging import getLogger
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
+from inspect import signature
 
 from nextcord import ClientUser, Embed, Member, User, ButtonStyle, Interaction
 from nextcord.ext.commands import (
@@ -13,18 +14,18 @@ from nextcord.ext.commands import (
     NoPrivateMessage,
     check,
     command,
+    MissingRequiredArgument,
 )
 from nextcord.utils import utcnow
 from nextcord.ui import button, Button, View
 from pomice import Playlist
 from botbase import MyInter
+import quart
 
 from .extras.errors import NotConnected, NotInVoice, TooManyTracks
 from .extras.types import MyContext, Player
-import aiohttp
 
 from bs4 import BeautifulSoup
-from requests import get
 
 if TYPE_CHECKING:
     from pomice import Track
@@ -305,10 +306,19 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-    @connected()
     @command(help="Sing along to your favourite tunes!")
-    async def lyrics(self, ctx: MyContext, *, search: str):
-        data = {"q": search}
+    async def lyrics(self, ctx: MyContext, *, query: str = ""):
+        if not query:
+            if ctx.voice_client is None or ctx.voice_client.current is None:
+                raise MissingRequiredArgument(
+                    param=signature(self.lyrics).parameters["query"]
+                )
+
+            q = ctx.voice_client.current.title
+        else:
+            q = query
+
+        data = {"q": q}
         headers = {"Authorization": f"Bearer {TKN}"}
 
         async with self.bot.session.get(API_URL, params=data, headers=headers) as resp:
@@ -319,17 +329,23 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         source = result["response"]["hits"][0]["result"]["url"]
         thumbnail = result["response"]["hits"][0]["result"]["header_image_url"]
 
-        lyricsform = []
-        for lyricsdata in BeautifulSoup(get(source).text, "html.parser").select(
-            "div[class*=Lyrics__Container]"
-        ):
-            dat = lyricsdata.get_text("\n")
-            lyricsform.append(f"{dat}\n")
+        async with self.bot.session.get(source) as resp:
+            txt = await resp.text()
+
+        lyricsform = [
+            l.get_text("\n") + "\n"
+            for l in BeautifulSoup(txt, "html.parser").select(
+                "div[class*=Lyrics__Container]"
+            )
+        ]
 
         lyrics = "".join(lyricsform).replace("[", "\n[").strip()
-        await ctx.send_embed(title, lyrics)
+        embed = Embed(title=title, description=lyrics)
+        embed.set_author(name=artist)
+        embed.set_thumbnail(url=thumbnail)
+        await ctx.send(embed=embed)
 
-    @command(help="hello")
+    @command(help="Hi :3")
     async def hello(self, ctx: MyContext):
         await ctx.send_author_embed("hey")
 
