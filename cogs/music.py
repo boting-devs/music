@@ -326,6 +326,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 
             lyrics = ''.join(lyricsform).replace('[', '\n[').strip()
             
-            await ctx.send(f'{title} by {artist}\nSource: {source}\n{thumbnail}\nLyrics:\n{lyrics}')
+            await ctx.send(f'{lyrics}')
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
