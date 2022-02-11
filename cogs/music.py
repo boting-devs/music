@@ -31,7 +31,8 @@ if TYPE_CHECKING:
 
 log = getLogger(__name__)
 
-
+API_URL = 'https://api.genius.com/search/'
+TKN = "uAqHVCscQXkInwln736OZ7clAeBzaDeZUiHrFAvM-hzM2NcPgCkWxy3eag4hXNLR_xnhMDkrwi5E11vaSynmrA"
 def connected():
     async def extended_check(ctx: Context) -> bool:
         if ctx.voice_client is None:
