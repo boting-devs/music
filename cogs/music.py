@@ -314,11 +314,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-    @command(
-        help="Sing along to your favourite tunes!",
-        extras={"bypass": True},
-        aliases=["l"],
-    )
+    @command(help="Sing along to your favourite tunes!", extras={"bypass": True})
     async def lyrics(self, ctx: MyContext, *, query: str = ""):
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
