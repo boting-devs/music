@@ -285,6 +285,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.message.add_reaction("\U000023f9\U0000fe0f")
         else:
             await ctx.send_author_embed("Stopped")
+        return
 
     @connected()
     @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff"])
