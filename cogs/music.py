@@ -301,10 +301,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
         @command(help="Sing along to your favourite tunes!")
-        async def lyrics(self, ctx: MyContext, *,search):
+        async def lyrics(self, ctx: MyContext, *,search=None):
             data = {'q': search}
             headers = {'Authorization': f'Bearer {TKN}'}
-            
+            await ctx.send("hey")
             try:
                 result = get(API_URL, params=data, headers=headers).json()
                 
