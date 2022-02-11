@@ -340,7 +340,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         ]
 
         lyrics = "".join(lyricsform).replace("[", "\n[").strip()
-        embed = Embed(title=title, description=lyrics)
+        embed = Embed(title=title, description=lyrics, color=self.bot.color)
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
         await ctx.send(embed=embed)
