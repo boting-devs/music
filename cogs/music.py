@@ -299,30 +299,39 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @connected()
     @command(help="Sing along to your favourite tunes!")
-    async def lyrics(self, ctx: MyContext, *, current_track=None):
-        if current_track is None:
-            current_track = ctx.voice_client.current.title
-        print(current_track)
-        # author = current_track.author
-        Lyric_url = f"https://some-random-api.ml/lyrics?title={current_track}"
+    async def lyrics(self, ctx: MyContext, *, search):
+        data = {'q': search}
+        headers = {'Authorization': f'Bearer {TKN}'}
+        
+        try:
+            result = get(API_URL, params=data, headers=headers).json()
+            
+        except Exception as exc:
+            print(f'Could not get lyrics, as a error occured: {exc}')
+        
+        title = result['response']['hits'][0]['result']['title']
+        artist = result['response']['hits'][0]['result']['artist_names']
+        source = result['response']['hits'][0]['result']['url']
+        thumbnail = result['response']['hits'][0]['result']['header_image_url']
+        
+        lyricsform = []
+        
+        for lyricsdata in BeautifulSoup(get(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
+            dat = lyricsdata.get_text('\n')
+            lyricsform.append(f"{dat}\n")
+            
+        lyrics = ''.join(lyricsform).replace('[', '\n[').strip()
+        
+        return (title, artist, lyrics, source, thumbnail)
 
-        async with aiohttp.request("GET", Lyric_url) as r:
-            if not 200 <= r.status <= 299:
-                return await ctx.send("No lyrics")
+        songData = searchsong('cochise tell em')
 
-            data = await r.json()
+        title = songData[0]
+        artist = songData[1]
+        lyrics = songData[2]
+        source = songData[3]
+        thumbnail = songData[4]
 
-            if len(data["lyrics"]) > 2000:
-                return await ctx.send(f"<{data['links']['genius']}>")
-
-            embed = Embed(
-                title=data["title"],
-                description=data["lyrics"],
-                color=self.bot.color,
-                timestamp=utcnow(),
-            )
-            await ctx.send(embed=embed)
-
-
+        await ctx.send(f'{title} by {artist} | Source: {source} (thumbnail: {thumbnail})\nLyrics:\n{lyrics}')
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
