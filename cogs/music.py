@@ -137,7 +137,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if not player.is_playing:
                 assert track.ctx is not None
 
-                if player is None:
+                if player is None or track.ctx.voice_client is None:
                     return
 
                 await track.ctx.send_author_embed("Disconnecting on no activity")  # type: ignore
@@ -206,7 +206,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def leave_check(self, ctx: MyContext):
         await sleep(60)
 
-        if not ctx.voice_client or not ctx.voice_client.is_playing:
+        if not ctx.voice_client:
+            return
+
+        if not ctx.voice_client.is_playing:
             await ctx.send_author_embed("Disconnecting on no activity")
             await ctx.voice_client.destroy()
 
