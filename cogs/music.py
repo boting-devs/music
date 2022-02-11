@@ -334,6 +334,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         source = songData[3]
         thumbnail = songData[4]
 
-        await ctx.send(f'{title} by {artist} | Source: {source} (thumbnail: {thumbnail})\nLyrics:\n{lyrics}')
+        await ctx.send(f'{lyrics}')
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
