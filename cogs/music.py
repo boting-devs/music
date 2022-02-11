@@ -130,6 +130,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             toplay = player.queue.pop(0)
 
             await player.play(toplay)
+            await self.playing_embed(toplay)
         else:
             await sleep(60)
 
@@ -313,7 +314,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-    @command(help="Sing along to your favourite tunes!", extras={"bypass": True})
+    @command(
+        help="Sing along to your favourite tunes!",
+        extras={"bypass": True},
+        aliases=["l"],
+    )
     async def lyrics(self, ctx: MyContext, *, query: str = ""):
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
@@ -355,6 +360,16 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Hi :3")
     async def hello(self, ctx: MyContext):
         await ctx.send_author_embed("hey")
+
+    @connected()
+    @command(help="When the beat isnt hitting right", aliases=["s"])
+    async def skip(self, ctx: MyContext):
+        if not ctx.voice_client.queue:
+            return await ctx.send_author_embed("Nothing in queue")
+
+        toplay = ctx.voice_client.queue.pop(0)
+        await ctx.voice_client.play(toplay)
+        await self.playing_embed(toplay)
 
 
 def setup(bot: MyBot):
