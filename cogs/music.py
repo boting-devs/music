@@ -300,6 +300,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
+        @connected()
         @command(help="Sing along to your favourite tunes!")
         async def lyrics(self, ctx: MyContext, *,search=None):
             data = {'q': search}
