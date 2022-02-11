@@ -302,7 +302,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         @connected()
         @command(help="Sing along to your favourite tunes!")
-        async def lyrics(self, ctx: MyContext, *,search=None):
+        async def lyrics(self, ctx: MyContext, *,search):
             data = {'q': search}
             headers = {'Authorization': f'Bearer {TKN}'}
             try:
