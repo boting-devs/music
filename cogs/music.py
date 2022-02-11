@@ -323,7 +323,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             lyricsform.append(f"{dat}\n")
             
         lyrics=''.join(lyricsform).replace('[', '\n[').strip()
-        embed= Embed(title=title,description=lyrics,color=self.bot.color())
+        embed= Embed(title=f"{title}",description=f"{lyrics}",color=self.bot.color())
         await ctx.send(embed=embed)
 
     @command()
