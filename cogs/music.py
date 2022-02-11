@@ -298,14 +298,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-    @connected()
     @command(help="Sing along to your favourite tunes!")
     async def lyrics(self, ctx: MyContext, *, search):
         data = {'q': search}
         headers = {'Authorization': f'Bearer {TKN}'}
         
         try:
-            result = get(API_URL, params=data, headers=headers).json()
+            result =async with aiohttp.request(API_URL, params=data, headers=headers).json()
             
         except Exception as exc:
             print(f'Could not get lyrics, as a error occured: {exc}')
@@ -317,7 +316,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         
         lyricsform = []
         
-        for lyricsdata in BeautifulSoup(get(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
+        for lyricsdata in BeautifulSoup(aiohttp.request(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
             dat = lyricsdata.get_text('\n')
             lyricsform.append(f"{dat}\n")
             
