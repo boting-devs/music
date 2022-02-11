@@ -23,6 +23,8 @@ from .extras.errors import NotConnected, NotInVoice, TooManyTracks
 from .extras.types import MyContext, Player
 import aiohttp
 
+from bs4 import BeautifulSoup
+from requests import get
 if TYPE_CHECKING:
     from pomice import Track
 
@@ -304,7 +306,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         headers = {'Authorization': f'Bearer {TKN}'}
         
         try:
-            result= aiohttp.request(API_URL, params=data, headers=headers).json()
+            result= get(API_URL, params=data, headers=headers).json()
             
         except Exception as exc:
             print(f'Could not get lyrics, as a error occured: {exc}')
