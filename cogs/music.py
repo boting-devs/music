@@ -25,6 +25,7 @@ import aiohttp
 
 from bs4 import BeautifulSoup
 from requests import get
+
 if TYPE_CHECKING:
     from pomice import Track
 
@@ -33,8 +34,10 @@ if TYPE_CHECKING:
 
 log = getLogger(__name__)
 
-API_URL = 'https://api.genius.com/search/'
+API_URL = "https://api.genius.com/search/"
 TKN = "E4Eq5BhA2Xq6U99o1swO5IWcS7BBKyx1lCzyApT1wbyEqhItNaK5PpukKpUKrt3G"
+
+
 def connected():
     async def extended_check(ctx: Context) -> bool:
         if ctx.voice_client is None:
@@ -63,7 +66,9 @@ class PlayButon(View):
             in [m.id for m in inter.guild.voice_client.channel.members]  # type: ignore
         ):
             await inter.send_embed(
-                "Not in Voice", "You need to be in the same vc as the bot!", ephemeral=True
+                "Not in Voice",
+                "You need to be in the same vc as the bot!",
+                ephemeral=True,
             )
             return False
 
@@ -302,33 +307,32 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @connected()
     @command(help="Sing along to your favourite tunes!")
-    async def lyrics(self, ctx: MyContext, *,search):
-        data = {'q': search}
-        headers = {'Authorization': f'Bearer {TKN}'}
-        try:
-            result = get(API_URL, params=data, headers=headers).json()
-            
-        except Exception as exc:
-            await ctx.send(f'Could not get lyrics, as a error occured: {exc}')
-            
-        
-        title = result['response']['hits'][0]['result']['title']
-        artist = result['response']['hits'][0]['result']['artist_names']
-        source = result['response']['hits'][0]['result']['url']
-        thumbnail = result['response']['hits'][0]['result']['header_image_url']
-        
-        lyricsform = []
-        for lyricsdata in BeautifulSoup(get(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
-            dat = lyricsdata.get_text('\n')
-            lyricsform.append(f"{dat}\n")
-            
-        lyrics=''.join(lyricsform).replace('[', '\n[').strip()
-        embed= Embed(title=f"{title}",description=f"{lyrics}",color=self.bot.color)
-        await ctx.send(embed=embed)
+    async def lyrics(self, ctx: MyContext, *, search: str):
+        data = {"q": search}
+        headers = {"Authorization": f"Bearer {TKN}"}
 
-    @command()
-    async def hello(self,ctx):
+        async with self.bot.session.get(API_URL, params=data, headers=headers) as resp:
+            result = await resp.json()
+
+        title = result["response"]["hits"][0]["result"]["title"]
+        artist = result["response"]["hits"][0]["result"]["artist_names"]
+        source = result["response"]["hits"][0]["result"]["url"]
+        thumbnail = result["response"]["hits"][0]["result"]["header_image_url"]
+
+        lyricsform = []
+        for lyricsdata in BeautifulSoup(get(source).text, "html.parser").select(
+            "div[class*=Lyrics__Container]"
+        ):
+            dat = lyricsdata.get_text("\n")
+            lyricsform.append(f"{dat}\n")
+
+        lyrics = "".join(lyricsform).replace("[", "\n[").strip()
+        await ctx.send_embed(title, lyrics)
+
+    @command(help="hello")
+    async def hello(self, ctx: MyContext):
         await ctx.send_author_embed("hey")
+
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
