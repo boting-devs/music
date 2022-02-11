@@ -301,7 +301,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
         @command(help="Sing along to your favourite tunes!")
-        async def lyrics(self, ctx: MyContext, *, q):
+        async def lyrics(self, ctx: MyContext, *,search):
             data = {'q': search}
             headers = {'Authorization': f'Bearer {TKN}'}
             
