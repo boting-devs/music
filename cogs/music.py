@@ -318,7 +318,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             thumbnail = result['response']['hits'][0]['result']['header_image_url']
             
             lyricsform = []
-            
+            await ctx.send("hello")
             for lyricsdata in BeautifulSoup(get(source).text, 'html.parser').select('div[class*=Lyrics__Container]'):
                 dat = lyricsdata.get_text('\n')
                 lyricsform.append(f"{dat}\n")
