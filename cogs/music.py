@@ -300,17 +300,19 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-    @command(help="Sing along to your favourite tunes!")
+        @command(help="Sing along to your favourite tunes!")
     async def lyrics(self, ctx: MyContext, *, search):
         data = {'q': search}
         headers = {'Authorization': f'Bearer {TKN}'}
         
         try:
-            result= get(API_URL, params=data, headers=headers).json()
+            result = get(API_URL, params=data, headers=headers).json()
             
         except Exception as exc:
-            print(f'Could not get lyrics, as a error occured: {exc}')
+            await ctx.send(f'Could not get lyrics, as a error occured: {exc}')
+            
         print(result)
+        
         title = result['response']['hits'][0]['result']['title']
         artist = result['response']['hits'][0]['result']['artist_names']
         source = result['response']['hits'][0]['result']['url']
@@ -324,14 +326,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             
         lyrics = ''.join(lyricsform).replace('[', '\n[').strip()
         
-        songData = searchsong('cochise tell em')
-
-        title = songData[0]
-        artist = songData[1]
-        lyrics = songData[2]
-        source = songData[3]
-        thumbnail = songData[4]
-
-        await ctx.send(f'{lyrics}')
+        await ctx.send(f'{title} by {artist}\nSource: {source}\n{thumbnail}\nLyrics:\n{lyrics}')
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
