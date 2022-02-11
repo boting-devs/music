@@ -277,7 +277,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Resumed")
 
     @connected()
-    @command(help="Stop, wait a minute...", aliases=["s"])
+    @command(help="Stop, wait a minute...")
     async def stop(self, ctx: MyContext):
         player = ctx.voice_client
         await player.stop()
