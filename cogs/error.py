@@ -33,10 +33,6 @@ eh: dict[Type[Exception], tuple[str, str]] = {
     PrivateMessageOnly: ("DMs Only", "This command can only be used in DMs!"),
     NotOwner: ("Owner Only", "This command can only be used by my owner!"),
     NotInVoice: ("Not in Voice", "You must be in a voice channel to use this command!"),
-    TooManyTracks: (
-        "Too many tracks",
-        "You can only queue up to 100 tracks at a time!",
-    ),
 }
 
 

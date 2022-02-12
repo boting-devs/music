@@ -7,7 +7,3 @@ class NotInVoice(CheckFailure):
 
 class NotConnected(CheckFailure):
     """Raised when bot isnt connected to a channel."""
-
-
-class TooManyTracks(CheckFailure):
-    """Raised when a queue has too many tracks."""

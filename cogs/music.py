@@ -5,6 +5,7 @@ from logging import getLogger
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
 from inspect import signature
+from random import shuffle
 
 from nextcord import ClientUser, Embed, Member, User, ButtonStyle, Interaction
 from nextcord.ext.commands import (
@@ -303,10 +304,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 info = result[0]
                 toplay = [result[0]]
 
-            await playing_embed(info, queue=True)
 
-        if len(player.queue) + len(toplay) > 100:
-            raise TooManyTracks()
+            if len(player.queue) + len(toplay) > 500:
+                await ctx.send_author_embed("Queueing 500 tracks...")
+                toplay = toplay[:500]
+
+            await playing_embed(info, queue=True)
 
         if toplay:
             player.queue += toplay
