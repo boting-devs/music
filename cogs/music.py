@@ -461,6 +461,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Pause the tunes", aliases=["hold"])
     async def pause(self, ctx: MyContext):
         player = ctx.voice_client
+        if not player.is_playing:
+            return await ctx.send_author_embed("No song is playing")
         await player.set_pause(True)
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f8\U0000fe0f")
@@ -471,6 +473,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Continue the bangers", aliases=["start"])
     async def resume(self, ctx: MyContext):
         player = ctx.voice_client
+        if not player.is_playing:
+            return await ctx.send_author_embed("No song is playing")
         await player.set_pause(False)
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000025b6\U0000fe0f")
@@ -482,7 +486,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def stop(self, ctx: MyContext):
         player = ctx.voice_client
         if not player.is_playing:
-            return await ctx.send_author_embed("Nothing is playing")
+            return await ctx.send_author_embed("No song is playing")
         player.queue = []
         await player.stop()
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
@@ -585,7 +589,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Show the current beats", aliases=["np"])
     async def nowplaying(self, ctx: MyContext):
         if not ctx.voice_client.is_playing:
-            return await ctx.send_author_embed("Nothing is playing")
+            return await ctx.send_author_embed("No song is playing")
 
         return await playing_embed(ctx.voice_client.current, length=True)
 
