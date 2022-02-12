@@ -128,6 +128,11 @@ class PlayButton(View):
                 "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
             )
             return False
+        elif not inter.guild.voice_client.members:  # buggy maybe because of restart
+            ch = inter.guild.voice_client.channel
+            await inter.guild.voice_client.disconnect()
+            await ch.connect()
+            return await self.interaction_check(inter)
         elif not inter.user.id in [
             m.id for m in inter.guild.voice_client.channel.members
         ]:
@@ -213,13 +218,15 @@ class QueueSource(ListPageSource):
     # )
 
     def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
+        add = self.queue.index(tracks[0]) + 1
         desc = "\n".join(
-            f"**{i}.** [{t.title}]({t.uri}) by {t.author}" for i, t in enumerate(tracks)
+            f"**{i + add}.** [{t.title}]({t.uri}) by {t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]" for i, t in enumerate(tracks)
         )
         if tracks[0] == self.queue[0]:
             c = self.now
             desc = (
-                f"\U0001f3b6 Now Playing\n[{c.title}]({c.uri}) by {c.author}\n\U0001f3b6 Up Next\n"
+                f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
+                f"\U0001f3b6 Up Next:\n"
                 + desc
             )
         embed = Embed(
@@ -229,9 +236,10 @@ class QueueSource(ListPageSource):
 
         maximum = self.get_max_pages()
         if maximum > 1:
-            embed.set_author(
-                name=f"Page {menu.current_page + 1}/{maximum} "
-                f"({len(self.entries)} tracks)"
+            embed.set_footer(
+                text=f"Page {menu.current_page + 1}/{maximum} "
+                     f"({len(self.queue)} tracks - total"
+                     f"{strftime('%H:%M:%S', gmtime(round(sum(t.length / 1000 for t in self.queue if t.length else 0))))})"
             )
 
         embed.set_author(name=self.title)
