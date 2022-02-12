@@ -528,7 +528,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             assert ctx.voice_client.current.title is not None
             q = ctx.voice_client.current.title[:20]
-            print(q)
         else:
             q = query
 
