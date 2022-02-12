@@ -1,34 +1,34 @@
 from __future__ import annotations
 
 from asyncio import sleep
+from inspect import signature
 from logging import getLogger
+from random import shuffle
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
-from inspect import signature
-from random import shuffle
 
-from nextcord import ClientUser, Embed, Member, User, ButtonStyle, Interaction
+from bs4 import BeautifulSoup
+from nextcord import ButtonStyle, ClientUser, Embed, Interaction, Member, User
 from nextcord.ext.commands import (
     BotMissingPermissions,
     Cog,
     Context,
+    MissingRequiredArgument,
     NoPrivateMessage,
     check,
     command,
-    MissingRequiredArgument,
 )
+from nextcord.ext.menus import ButtonMenuPages, ListPageSource
+from nextcord.ui import Button, View, button
 from nextcord.utils import utcnow
-from nextcord.ui import button, Button, View
 from pomice import Playlist
 
 from .extras.errors import NotConnected, NotInVoice, TooManyTracks
-from .extras.types import MyContext, Player, MyInter
-
-from bs4 import BeautifulSoup
+from .extras.types import MyContext, MyInter, Player
 
 if TYPE_CHECKING:
-    from pomice import Track
     from nextcord import VoiceState
+    from pomice import Track
 
     from ..mmain import MyBot
 
@@ -155,7 +155,7 @@ class PlayButton(View):
             await inter.response.send_author_embed("Resumed")
 
     @button(emoji="\U000023ed", style=ButtonStyle.blurple, custom_id="view:next")
-    async def nextbutton(self, _: Button, inter: Interaction):
+    async def skip(self, _: Button, inter: Interaction):
         inter = MyInter(inter, inter.client)  # type: ignore
         assert inter.guild is not None
         if not inter.guild.voice_client.queue:
@@ -166,7 +166,7 @@ class PlayButton(View):
         await playing_embed(toplay)
 
     @button(emoji="\U000023f9", style=ButtonStyle.blurple, custom_id="view:stop")
-    async def stopbutton(self, _: Button, inter: Interaction):
+    async def stop(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
@@ -178,12 +178,97 @@ class PlayButton(View):
         await inter.send_author_embed("Stopped")
 
     @button(emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle")
-    async def shufflebutton(self, _: Button, inter: Interaction):
+    async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
+
+    @button(emoji="\U0001f3b6", style=ButtonStyle.blurple, custom_id="view:queue")
+    async def queue(self, _: Button, inter: Interaction):
+        assert inter.guild is not None
+        inter = MyInter(inter, inter.client)  # type: ignore
+        current = inter.guild.voice_client.current
+        queue = inter.guild.voice_client.queue
+        menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
+        await menu.start(interaction=inter)
+
+
+class MyMenu(ButtonMenuPages):
+    ctx: MyContext
+
+
+class QueueSource(ListPageSource):
+    def __init__(self, now: Track, queue: list[Track]):
+        super().__init__(entries=queue, per_page=10)
+        self.queue = queue
+        self.now = now
+        self.title = f"Queue of {len(queue)} songs"
+
+    # desc = (
+    #     "\U0001f3b6 Now Playing\n"
+    #     + f"[{current.title}]({current.uri}) by {current.author}"
+    #     + "\n".join(f"**{i}.** [{t.title}]({t.uri}) by {t.author}" for i, t in enumerate(queue))
+    # )
+
+    def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
+        desc = "\n".join(
+            f"**{i}.** [{t.title}]({t.uri}) by {t.author}" for i, t in enumerate(tracks)
+        )
+        if tracks[0] == self.queue[0]:
+            c = self.now
+            desc = (
+                f"\U0001f3b6 Now Playing\n[{c.title}]({c.uri}) by {c.author}\n\U0001f3b6 Up Next\n"
+                + desc
+            )
+        embed = Embed(
+            description=desc,
+            color=menu.ctx.bot.color,
+        )
+
+        maximum = self.get_max_pages()
+        if maximum > 1:
+            embed.set_author(
+                name=f"Page {menu.current_page + 1}/{maximum} "
+                f"({len(self.entries)} tracks)"
+            )
+
+        embed.set_author(name=self.title)
+
+        return embed
+
+
+class QueueView(ButtonMenuPages):
+    def __init__(self, source: ListPageSource, ctx: MyContext | MyInter) -> None:
+        super().__init__(source=source, style=ButtonStyle.blurple)
+        self.ctx = ctx
+
+    async def interaction_check(self, interaction: Interaction) -> bool:
+        if interaction.user and (
+            interaction.user.id == self.ctx.bot.owner_id
+            or interaction.user.id in self.ctx.bot.owner_ids
+        ):
+            return True
+        if self.ctx.command is not None:
+            await interaction.response.send_message(
+                f"This menu is for {self.ctx.author.mention}, use {self.ctx.command.name} to have a menu to yourself.",
+                ephemeral=True,
+            )
+        else:
+            await interaction.response.send_message(
+                f"This menu is for {self.ctx.author.mention}.",
+                ephemeral=True,
+            )
+        return False
+
+    async def on_timeout(self):
+        for child in self.children:
+            if isinstance(child, Button):
+                child.disabled = True
+
+        if self.message is not None:
+            await self.message.edit(view=self)
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
@@ -467,6 +552,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.message.add_reaction("\U0001f500")
         else:
             await ctx.send_author_embed("Shuffled the queue")
+
+    @connected()
+    @command(help="Show the queue of the beats", aliases=["q"])
+    async def queue(self, ctx: MyContext):
+        current = ctx.voice_client.current
+        queue = ctx.voice_client.queue
+        menu = QueueView(source=QueueSource(current, queue), ctx=ctx)
+        await menu.start(ctx)
 
 
 def setup(bot: MyBot):
