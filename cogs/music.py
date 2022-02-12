@@ -52,12 +52,9 @@ def connected():
 async def playing_embed(
     track: Track | Playlist, queue: bool = False, length: bool = False
 ):
-    log.info("a")
     view = PlayButton()
     if isinstance(track, Playlist):
         assert track.tracks[0].ctx is not None
-
-        log.info("b")
 
         ctx: MyContext = track.tracks[0].ctx  # type: ignore
 
@@ -69,8 +66,6 @@ async def playing_embed(
         )
     else:
         assert track.ctx is not None
-
-        log.info("b")
 
         ctx: MyContext = track.ctx  # type: ignore
         title = track.title
@@ -87,15 +82,12 @@ async def playing_embed(
         color=ctx.bot.color,
         timestamp=utcnow(),
     )
-    log.info("c")
 
     if length:
         if isinstance(track, Playlist):
             tr = track.tracks[0]
         else:
             tr = track
-
-        log.info("c")
 
         c = ctx.voice_client.position
         assert tr.length is not None
@@ -112,15 +104,12 @@ async def playing_embed(
         timing = f"{current} {line} {total}"
         embed.description = ctx.author.mention + "\n" + timing
     else:
-        log.info("c")
         embed.description = f"{time} - {ctx.author.mention}"
 
     embed.set_author(name=str(title) + " - " + str(author), url=track.uri)
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
-
-    log.info("sending")
 
     if queue:
         await ctx.send(embed=embed, content="Queued", view=view)
@@ -139,7 +128,9 @@ class PlayButton(View):
                 "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
             )
             return False
-        elif not inter.user.id in [m.id for m in inter.guild.voice_client.channel.members]:
+        elif not inter.user.id in [
+            m.id for m in inter.guild.voice_client.channel.members
+        ]:
             await inter.send_embed(
                 "Not in Voice",
                 "You need to be in the same vc as the bot!",
@@ -251,7 +242,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @Cog.listener()
     async def on_voice_state_update(self, _: VoiceState, after: VoiceState):
-        if after or after.channel or not after.channel.members or not after.channel.guild.voice_client:
+        if (
+            after
+            or after.channel
+            or not after.channel.members
+            or not after.channel.guild.voice_client
+        ):
             return
 
         if c := after.guild.voice_client.current:
@@ -451,9 +447,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await ctx.send_author_embed("Nothing in queue")
 
         toplay = ctx.voice_client.queue.pop(0)
-        log.info("pop")
         await ctx.voice_client.play(toplay)
-        log.info("play")
         await playing_embed(toplay)
 
     @connected()
