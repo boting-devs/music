@@ -95,7 +95,14 @@ class PlayButon(View):
             button.emoji = "\U000023f8\U0000fe0f"
             await inter.response.edit_message(view=self)
 
-    @button(emoji="lyric_emoji",style=ButtonStyle.blurple,custom_id="view:lyric")
+    @button(emoji="\U000023ed",style=ButtonStyle.blurple,custom_id="view:lyric")
+    async def lyricbutton(self,button:Button,inter:Interaction):
+        if not ctx.voice_client.queue:
+            return await inter.send_embed("Nothing in queue",ephemeral=True)
+
+        toplay = ctx.voice_client.queue.pop(0)
+        await ctx.voice_client.play(toplay)
+        await self.playing_embed(toplay)
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
