@@ -37,7 +37,7 @@ eh: dict[Type[Exception], tuple[str, str]] = {
         "Too Many Tracks",
         "You can only queue up to 100 tracks at a time!",
     ),
-    LyricsNotFond: ("No Lyrics Found", "Sorry, could not find lyrics for that track :(")
+    LyricsNotFound: ("No Lyrics Found", "Sorry, could not find lyrics for that track :("),
 }
 
 
