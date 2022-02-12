@@ -241,10 +241,44 @@ class QueueSource(ListPageSource):
         return embed
 
 
+class Shuffle(Button["QueueView"]):
+    async def callback(self, _: Button, inter: Interaction):
+        inter = MyInter(inter, inter.client)  # type: ignore
+        if not inter.guild or not inter.guild.voice_client:
+            await inter.send_embed(
+                "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
+            )
+            return
+        elif inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
+            await inter.send_embed(
+                "Not in Voice",
+                "You need to be in the same vc as the bot!",
+                ephemeral=True,
+            )
+            return
+
+        inter = MyInter(inter, inter.client)  # type: ignore
+
+        shuffle(inter.guild.voice_client.queue)
+        await inter.send_author_embed("Shuffled the queue")
+        player = inter.guild.voice_client
+        assert self.view is not None
+        await self.view.change_source(QueueSource(player.current, player.queue))
+
+
 class QueueView(ButtonMenuPages):
     def __init__(self, source: ListPageSource, ctx: MyContext | MyInter) -> None:
         super().__init__(source=source, style=ButtonStyle.blurple)
         self.ctx = ctx
+
+        # HACK: im very sorry
+        children = self.children.copy()
+        for child in children:
+            self.remove_item(child)
+        self.add_item(Shuffle(emoji="\U0001f500", style=ButtonStyle.blurple))
+        for child in children:
+            self.add_item(child)
+        # HACK: im very sorry
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user and (
@@ -271,29 +305,6 @@ class QueueView(ButtonMenuPages):
 
         if self.message is not None:
             await self.message.edit(view=self)
-
-    @button(emoji="\U0001f500", style=ButtonStyle.blurple)
-    async def shuffle(self, _: Button, inter: Interaction):
-        inter = MyInter(inter, inter.client)  # type: ignore
-        if not inter.guild or not inter.guild.voice_client:
-            await inter.send_embed(
-                "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
-            )
-            return
-        elif inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
-            await inter.send_embed(
-                "Not in Voice",
-                "You need to be in the same vc as the bot!",
-                ephemeral=True,
-            )
-            return
-
-        inter = MyInter(inter, inter.client)  # type: ignore
-
-        shuffle(inter.guild.voice_client.queue)
-        await inter.send_author_embed("Shuffled the queue")
-        player = inter.guild.voice_client
-        await self.change_source(QueueSource(player.current, player.queue))
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
