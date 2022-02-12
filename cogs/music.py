@@ -101,6 +101,7 @@ class PlayButon(View):
 
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
+        await self.playing_embed(toplay)
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
