@@ -594,6 +594,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         menu = QueueView(source=QueueSource(current, queue), ctx=ctx)
         await menu.start(ctx)
 
+    @connected()
+    @command(help="Loop a song")
+    async def loop(self,ctx:MyContext):
+        player = ctx.voice_client
+        current_song = player.current
+        player.queue.insert(0,current_song)
+        await ctx.send("looped")
+
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
