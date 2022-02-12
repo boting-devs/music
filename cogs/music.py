@@ -103,6 +103,19 @@ class PlayButon(View):
         await inter.guild.voice_client.play(toplay)
         await self.playing_embed(toplay)
 
+    @button(emoji="\U000023f9",style=ButtonStyle.blurple,custom_id="view:stop")
+    async def stopbutton(self,button:Button,inter:Interaction):
+        assert inter.guild is not None
+        assert inter.guild.voice_client is not None
+        assert isinstance(inter.guild.voice_client, Player)
+
+        if not inter.guild.voice_client.is_playing:
+            return await ctx.send_author_embed("Nothing is playing",ephemeral=True)
+        inter.guild.voice_client.queue=[]
+        await inter.guild.voice_client.stop()
+        await ctx.send("Stopped")
+
+
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
     def __init__(self, bot: MyBot):
@@ -296,6 +309,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Stop, wait a minute...")
     async def stop(self, ctx: MyContext):
         player = ctx.voice_client
+        if not player.is_playing:
+            return await ctx.send_author_embed("Nothing is playing")
         player.queue=[]
         await player.stop()
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
