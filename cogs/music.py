@@ -227,7 +227,7 @@ class QueueSource(ListPageSource):
             )
         embed = Embed(
             description=desc,
-            color=menu.ctx.bot.color if menu.ctx else menu.ctx.interaction.client.color,  # type: ignore
+            color=menu.ctx.bot.color if menu.ctx else menu.interaction.client.color,  # type: ignore
         )
 
         maximum = self.get_max_pages()
@@ -365,7 +365,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await player.destroy()
 
     @Cog.listener()
-    async def on_voice_state_update(self, _: VoiceState, after: VoiceState):
+    async def on_voice_state_update(self, _: Member, __: VoiceState, after: VoiceState):
         if after or after.channel or not after.channel.guild.voice_client:
             return
 
