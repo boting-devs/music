@@ -38,6 +38,7 @@ log = getLogger(__name__)
 API_URL = "https://api.genius.com/search/"
 TKN = "E4Eq5BhA2Xq6U99o1swO5IWcS7BBKyx1lCzyApT1wbyEqhItNaK5PpukKpUKrt3G"
 
+
 def connected():
     async def extended_check(ctx: Context) -> bool:
         if ctx.voice_client is None:
@@ -48,7 +49,75 @@ def connected():
     return check(extended_check)
 
 
-class PlayButon(View):
+async def playing_embed(
+    track: Track | Playlist, queue: bool = False, length: bool = False
+):
+    view = PlayButton()
+    if isinstance(track, Playlist):
+        assert track.tracks[0].ctx is not None
+
+        ctx: MyContext = track.tracks[0].ctx  # type: ignore
+
+        title = track.name
+        author = "Multiple Authors"
+        time = strftime(
+            "%H:%M:%S",
+            gmtime(sum(t.length for t in track.tracks if t.length is not None) / 1000),
+        )
+    else:
+        assert track.ctx is not None
+
+        ctx: MyContext = track.ctx  # type: ignore
+        title = track.title
+        author = track.author
+        if not track.length:
+            time = "Unknown"
+        else:
+            time = strftime(
+                "%H:%M:%S",
+                gmtime(track.length / 1000),
+            )
+
+    embed = Embed(
+        color=ctx.bot.color,
+        timestamp=utcnow(),
+    )
+
+    if time:
+        if isinstance(track, Playlist):
+            tr = track.tracks[0]
+        else:
+            tr = track
+
+        c = ctx.voice_client.position
+        assert tr.length is not None
+        t = tr.length
+        current = strftime("%H:%M:%S", gmtime(c // 1000))
+        total = strftime("%H:%M:%S", gmtime(t // 1000))
+        pos = round(c / t * 12)
+        line = (
+            ("\U00002501" * (pos - 1 if pos > 0 else 0))
+            + "\U000025cf"
+            + ("\U00002501" * (12 - pos))
+        )
+        # if 2/12, then get 1 before, then dot then 12 - 2 to pad to 12
+        timing = f"{current} {line} {total}"
+        embed.description = ctx.author.mention + "\n" + timing
+    else:
+        embed.description = f"{time} - {ctx.author.mention}"
+
+    embed.set_author(name=str(title) + " - " + str(author), url=track.uri)
+
+    if track.thumbnail:
+        embed.set_thumbnail(url=track.thumbnail)
+
+    if queue:
+        await ctx.send(embed=embed, content="Queued", view=view)
+    else:
+        await ctx.send(embed=embed, view=view)
+
+
+class PlayButton(View):
     def __init__(self):
         super().__init__(timeout=None)
 
@@ -75,46 +144,47 @@ class PlayButon(View):
         return True
 
     @button(
-        emoji="\U000023f8\U0000fe0f", style=ButtonStyle.blurple, custom_id="view:pp"
+        emoji="\U000023ef\U0000fe0f", style=ButtonStyle.blurple, custom_id="view:pp"
     )
-    async def playpause(self, button: Button, inter: Interaction):
+    async def playpause(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         assert inter.guild.voice_client is not None
         assert isinstance(inter.guild.voice_client, Player)
+        inter = MyInter(inter, inter.client)  # type: ignore
 
         if not inter.guild.voice_client.is_paused:
             await inter.guild.voice_client.set_pause(True)
-            button.emoji = "\U000025b6\U0000fe0f"
-            await inter.response.edit_message(view=self)
+            await inter.response.send_author_embed("Paused")
         else:
             await inter.guild.voice_client.set_pause(False)
-            button.emoji = "\U000023f8\U0000fe0f"
-            await inter.response.edit_message(view=self)
+            await inter.response.send_author_embed("Resumed")
 
-    @button(emoji="\U000023ed",style=ButtonStyle.blurple,custom_id="view:next")
-    async def nextbutton(self, button:Button,inter:Interaction):
+    @button(emoji="\U000023ed", style=ButtonStyle.blurple, custom_id="view:next")
+    async def nextbutton(self, _: Button, inter: Interaction):
+        inter = MyInter(inter, inter.client)  # type: ignore
         assert inter.guild is not None
         assert inter.guild.voice_client is not None
         assert isinstance(inter.guild.voice_client, Player)
         if not inter.guild.voice_client.queue:
-            return await inter.send("Nothing in queue",ephemeral=True)
+            return await inter.send_embed("Nothing in queue", ephemeral=True)
 
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
-        await self.playing_embed(toplay)
+        await playing_embed(toplay)
 
-    @button(emoji="\U000023f9",style=ButtonStyle.blurple,custom_id="view:stop")
-    async def stopbutton(self,button:Button,inter:Interaction):
+    @button(emoji="\U000023f9", style=ButtonStyle.blurple, custom_id="view:stop")
+    async def stopbutton(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         assert inter.guild.voice_client is not None
         assert isinstance(inter.guild.voice_client, Player)
+        inter = MyInter(inter, inter.client)  # type: ignore
 
         if not inter.guild.voice_client.is_playing:
-            return await ctx.send_author_embed("Nothing is playing",ephemeral=True)
-        inter.guild.voice_client.queue=[]
-        await inter.guild.voice_client.stop()
-        await inter.send("Stopped")
+            return await inter.send_embed("Nothing is playing", ephemeral=True)
 
+        inter.guild.voice_client.queue = []
+        await inter.guild.voice_client.stop()
+        await inter.send_author_embed("Stopped")
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
@@ -145,7 +215,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.views_added:
-            self.bot.add_view(PlayButon())
+            self.bot.add_view(PlayButton())
             self.bot.views_added = True
 
     @Cog.listener()
@@ -154,7 +224,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             toplay = player.queue.pop(0)
 
             await player.play(toplay)
-            await self.playing_embed(toplay)
+            await playing_embed(toplay)
         else:
             await sleep(60)
 
@@ -166,50 +236,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
                 await track.ctx.send_author_embed("Disconnecting on no activity")  # type: ignore
                 await player.destroy()
-
-    async def playing_embed(self, track: Track | Playlist, queue: bool = False):
-        view = PlayButon()
-        if isinstance(track, Playlist):
-            assert track.tracks[0].ctx is not None
-
-            ctx = track.tracks[0].ctx
-
-            title = track.name
-            author = "Multiple Authors"
-            time = strftime(
-                "%H:%M:%S",
-                gmtime(
-                    sum(t.length for t in track.tracks if t.length is not None) / 1000
-                ),
-            )
-        else:
-            assert track.ctx is not None
-
-            ctx = track.ctx
-            title = track.title
-            author = track.author
-            if not track.length:
-                time = "Unknown"
-            else:
-                time = strftime(
-                    "%H:%M:%S",
-                    gmtime(track.length / 1000),
-                )
-
-        embed = Embed(
-            description=f"{time} - {ctx.author.mention}",
-            color=self.bot.color,
-            timestamp=utcnow(),
-        )
-        embed.set_author(name=str(title) + " - " + str(author), url=track.uri)
-
-        if track.thumbnail:
-            embed.set_thumbnail(url=track.thumbnail)
-
-        if queue:
-            await ctx.send(embed=embed, content="Queued", view=view)
-        else:
-            await ctx.send(embed=embed, view=view)
 
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
     async def join(self, ctx: MyContext):
@@ -268,7 +294,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             await player.play(track=track)
 
-            await self.playing_embed(info)
+            await playing_embed(info)
         else:
             if isinstance(result, Playlist):
                 toplay = result.tracks
@@ -277,7 +303,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 info = result[0]
                 toplay = [result[0]]
 
-            await self.playing_embed(info, queue=True)
+            await playing_embed(info, queue=True)
 
         if len(player.queue) + len(toplay) > 100:
             raise TooManyTracks()
@@ -311,13 +337,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = ctx.voice_client
         if not player.is_playing:
             return await ctx.send_author_embed("Nothing is playing")
-        player.queue=[]
+        player.queue = []
         await player.stop()
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f9\U0000fe0f")
         else:
             await ctx.send_author_embed("Stopped")
-
 
     @connected()
     @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff"])
@@ -398,7 +423,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         toplay = ctx.voice_client.queue.pop(0)
         await ctx.voice_client.play(toplay)
-        await self.playing_embed(toplay)
+        await playing_embed(toplay)
+
+    @connected()
+    @command(help="Show the current beats", aliases=["np"])
+    async def nowplaying(self, ctx: MyContext):
+        return await playing_embed(ctx.voice_client.current, length=True)
 
 
 def setup(bot: MyBot):
