@@ -21,7 +21,7 @@ from nextcord.utils import utcnow
 from nextcord.ui import button, Button, View
 from pomice import Playlist
 
-from .extras.errors import NotConnected, NotInVoice
+from .extras.errors import NotConnected, NotInVoice, TooManyTracks
 from .extras.types import MyContext, Player, MyInter
 
 from bs4 import BeautifulSoup
@@ -284,11 +284,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not result:
             return await ctx.send_author_embed("No tracks found")
 
+        if len(player.queue) >= 500:
+            raise TooManyTracks()
+
         if not player.queue and not player.is_playing:
             if isinstance(result, Playlist):
                 track = result.tracks[0]
                 toplay = result.tracks[1:]
                 info = result
+
+                if len(player.queue) + len(toplay) > 500:
+                    amount = 500 - len(player.queue)
+                    await ctx.send_author_embed(f"Queueing {amount} tracks...")
             else:
                 track = info = result[0]
                 toplay = []
@@ -300,13 +307,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if isinstance(result, Playlist):
                 toplay = result.tracks
                 info = result
+                if len(player.queue) + len(toplay) > 500:
+                    amount = 500 - len(player.queue)
+                    await ctx.send_author_embed(f"Queueing {amount} tracks...")
             else:
                 info = result[0]
                 toplay = [result[0]]
-
-            if len(player.queue) + len(toplay) > 500:
-                await ctx.send_author_embed("Queueing 500 tracks...")
-                toplay = toplay[:500]
 
             await playing_embed(info, queue=True)
 
