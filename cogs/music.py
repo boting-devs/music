@@ -216,7 +216,8 @@ class QueueSource(ListPageSource):
     def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
         add = self.queue.index(tracks[0]) + 1
         desc = "\n".join(
-            f"**{i + add}.** [{t.title}]({t.uri}) by {t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
+            f"**{i + add}.** [{t.title}]({t.uri}) by "
+            f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
             for i, t in enumerate(tracks)
         )
         if tracks[0] == self.queue[0]:
@@ -251,13 +252,20 @@ class QueueView(ButtonMenuPages):
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user and (
-            interaction.user.id == self.ctx.bot.owner_id
-            or interaction.user.id in self.ctx.bot.owner_ids
+            interaction.user.id
+            == (self.ctx.bot.owner_id if self.ctx else self.interaction.client.owner_id)
+            or interaction.user.id
+            in (
+                self.ctx.bot.owner_ids
+                if self.ctx
+                else self.interaction.client.owner_ids
+            )
         ):
             return True
-        if self.ctx.command is not None:
+        if self.ctx and self.ctx.command is not None:
             await interaction.response.send_message(
-                f"This menu is for {self.ctx.author.mention}, use {self.ctx.command.name} to have a menu to yourself.",
+                f"This menu is for {self.ctx.author.mention}, "
+                f"use {self.ctx.command.name} to have a menu to yourself.",
                 ephemeral=True,
             )
         else:
@@ -350,11 +358,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 if player is None or track.ctx.voice_client is None:
                     return
 
-                await track.ctx.send_author_embed("Disconnecting on no activity")  # type: ignore
+                await track.ctx.send_author_embed(  # type: ignore
+                    "Disconnecting on no activity"
+                )
                 await player.destroy()
 
     @Cog.listener()
-    async def on_voice_state_update(self, _: Member, __: VoiceState, after: VoiceState):
+    async def on_voice_state_update(self, _, __, after: VoiceState):
         if after or after.channel or not after.channel.guild.voice_client:
             return
 
