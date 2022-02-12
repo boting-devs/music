@@ -95,8 +95,7 @@ class PlayButon(View):
             button.emoji = "\U000023f8\U0000fe0f"
             await inter.response.edit_message(view=self)
 
-    @button(
-        emoji="lyric_emoji",style=ButtonStyle.blurple,custom_id="view:lyric")
+    @button(emoji="lyric_emoji",style=ButtonStyle.blurple,custom_id="view:lyric")
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
