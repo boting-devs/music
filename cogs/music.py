@@ -113,7 +113,7 @@ class PlayButon(View):
             return await ctx.send_author_embed("Nothing is playing",ephemeral=True)
         inter.guild.voice_client.queue=[]
         await inter.guild.voice_client.stop()
-        await ctx.send("Stopped")
+        await inter.send("Stopped")
 
 
 
