@@ -38,6 +38,9 @@ log = getLogger(__name__)
 API_URL = "https://api.genius.com/search/"
 TKN = "E4Eq5BhA2Xq6U99o1swO5IWcS7BBKyx1lCzyApT1wbyEqhItNaK5PpukKpUKrt3G"
 
+emotes: dict[int, str] = {
+        lyric_emoji: "<:1:941962580052836362>",
+    }
 
 def connected():
     async def extended_check(ctx: Context) -> bool:
@@ -91,6 +94,9 @@ class PlayButon(View):
             await inter.guild.voice_client.set_pause(False)
             button.emoji = "\U000023f8\U0000fe0f"
             await inter.response.edit_message(view=self)
+
+    @button(
+        emoji="lyric_emoji",style=ButtonStyle.blurple,custom_id="view:lyric")
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
