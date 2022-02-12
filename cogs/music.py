@@ -190,7 +190,7 @@ class PlayButton(View):
         current = inter.guild.voice_client.current
         queue = inter.guild.voice_client.queue
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
-        await menu.start(interaction=inter)
+        await menu.start(interaction=inter, ephemeral=True)
 
 
 class MyMenu(ButtonMenuPages):
@@ -203,12 +203,6 @@ class QueueSource(ListPageSource):
         self.queue = queue
         self.now = now
         self.title = f"Queue of {len(queue)} songs"
-
-    # desc = (
-    #     "\U0001f3b6 Now Playing\n"
-    #     + f"[{current.title}]({current.uri}) by {current.author}"
-    #     + "\n".join(f"**{i}.** [{t.title}]({t.uri}) by {t.author}" for i, t in enumerate(queue))
-    # )
 
     def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
         add = self.queue.index(tracks[0]) + 1
@@ -271,6 +265,29 @@ class QueueView(ButtonMenuPages):
 
         if self.message is not None:
             await self.message.edit(view=self)
+
+    @button(emoji="\U0001f500", style=ButtonStyle.blurple)
+    async def shuffle(self, _: Button, inter: Interaction):
+        inter = MyInter(inter, inter.client)  # type: ignore
+        if not inter.guild or not inter.guild.voice_client:
+            await inter.send_embed(
+                "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
+            )
+            return
+        elif inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
+            await inter.send_embed(
+                "Not in Voice",
+                "You need to be in the same vc as the bot!",
+                ephemeral=True,
+            )
+            return
+
+        inter = MyInter(inter, inter.client)  # type: ignore
+
+        shuffle(inter.guild.voice_client.queue)
+        await inter.send_author_embed("Shuffled the queue")
+        player = inter.guild.voice_client
+        await self.change_source(QueueSource(player.current, player.queue))
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
