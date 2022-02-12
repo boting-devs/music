@@ -178,7 +178,7 @@ class PlayButton(View):
         inter = MyInter(inter, inter.client)  # type: ignore
 
         if not inter.guild.voice_client.is_playing:
-            return await inter.send_embed("Nothing is playing", ephemeral=True)
+            return await inter.send_embed("No song is playing", ephemeral=True)
 
         inter.guild.voice_client.queue = []
         await inter.guild.voice_client.stop()
@@ -201,7 +201,15 @@ class PlayButton(View):
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
         await menu.start(interaction=inter, ephemeral=True)
 
+    @button(emoji="\U0001f502",style=ButtonStyle.blurple,custom_id="view:loop")
+    assert inter.guild is not None
+        inter = MyInter(inter, inter.client)  # type: ignore
 
+        if not inter.guild.voice_client.is_playing:
+            return await inter.send_embed("No song is playing", ephemeral=True)
+        current_song = inter.guild.voice_client.current
+        inter.guild.voice_client.queue.insert(0,current_song)
+        await ctx.send("looping song once \U0001f502")
 class MyMenu(ButtonMenuPages):
     ctx: MyContext
 
@@ -610,9 +618,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Loop a song")
     async def loop(self,ctx:MyContext):
         player = ctx.voice_client
+        if not player.is_playing:
+            return await ctx.send_author_embed("Nothing is playing")
         current_song = player.current
         player.queue.insert(0,current_song)
-        await ctx.send("looped")
+        await ctx.send("looping song once \U0001f502")
 
 
 def setup(bot: MyBot):
