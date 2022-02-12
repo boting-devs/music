@@ -201,7 +201,7 @@ class PlayButton(View):
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
         await menu.start(interaction=inter, ephemeral=True)
 
-    @button(emoji="\U0001f502",style=ButtonStyle.blurple,custom_id="view:loop")
+    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop")
     async def loop(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -209,9 +209,10 @@ class PlayButton(View):
         if not inter.guild.voice_client.is_playing:
             return await inter.send_embed("No song is playing", ephemeral=True)
         current_song = inter.guild.voice_client.current
-        inter.guild.voice_client.queue.insert(0,current_song)
+        inter.guild.voice_client.queue.insert(0, current_song)
         await inter.send_author_embed("looping song once \U0001f502")
-        
+
+
 class MyMenu(ButtonMenuPages):
     ctx: MyContext
 
@@ -376,7 +377,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @Cog.listener()
     async def on_voice_state_update(self, member: Member, before, after: VoiceState):
         if after.channel or not before or not member.guild.voice_client:
-            log.info("voice state update from %s to %s with", before.channel, after.channel, _.guild.voice_client)
+            log.info(
+                "voice state update from %s to %s with",
+                before.channel,
+                after.channel,
+                _.guild.voice_client,
+            )
             return
 
         if c := before.guild.voice_client.current:
@@ -619,12 +625,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @connected()
     @command(help="Loop a song")
-    async def loop(self,ctx:MyContext):
+    async def loop(self, ctx: MyContext):
         player = ctx.voice_client
         if not player.is_playing:
             return await ctx.send_author_embed("Nothing is playing")
         current_song = player.current
-        player.queue.insert(0,current_song)
+        player.queue.insert(0, current_song)
         await ctx.send("looping song once \U0001f502")
 
 
