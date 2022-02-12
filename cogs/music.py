@@ -28,6 +28,7 @@ from bs4 import BeautifulSoup
 
 if TYPE_CHECKING:
     from pomice import Track
+    from nextcord import VoiceState
 
     from ..mmain import MyBot
 
@@ -110,6 +111,8 @@ async def playing_embed(
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
 
+    log.info("sending")
+
     if queue:
         await ctx.send(embed=embed, content="Queued", view=view)
     else:
@@ -127,12 +130,7 @@ class PlayButton(View):
                 "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
             )
             return False
-        elif (
-            not inter.guild
-            or not inter.guild.voice_client
-            or not inter.user.id
-            in [m.id for m in inter.guild.voice_client.channel.members]  # type: ignore
-        ):
+        elif not inter.user.id in [m.id for m in inter.guild.voice_client.channel.members]:
             await inter.send_embed(
                 "Not in Voice",
                 "You need to be in the same vc as the bot!",
@@ -237,6 +235,16 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
                 await track.ctx.send_author_embed("Disconnecting on no activity")  # type: ignore
                 await player.destroy()
+
+    @Cog.listener()
+    async def on_voice_state_update(self, _: VoiceState, after: VoiceState):
+        if after or after.channel or not after.channel.members or not after.channel.guild.voice_client:
+            return
+
+        if c := after.guild.voice_client.current:
+            await c.send_author_embed("Disconnecting on no activity")
+
+        await after.channel.guild.voice_client.destroy()
 
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
     async def join(self, ctx: MyContext):
@@ -430,7 +438,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await ctx.send_author_embed("Nothing in queue")
 
         toplay = ctx.voice_client.queue.pop(0)
+        log.info("pop")
         await ctx.voice_client.play(toplay)
+        log.info("play")
         await playing_embed(toplay)
 
     @connected()
