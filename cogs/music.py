@@ -517,6 +517,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @command(help="Sing along to your favourite tunes!", extras={"bypass": True})
     async def lyrics(self, ctx: MyContext, *, query: str = ""):
+        a = await ctx.send("`Searching....`")
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
                 raise MissingRequiredArgument(
@@ -558,7 +559,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         embed = Embed(title=title, description=lyrics, color=self.bot.color)
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
-        await ctx.send(embed=embed)
+        await a.edit(embed=embed)
 
     @command(help="Hi :3")
     async def hello(self, ctx: MyContext):
