@@ -128,7 +128,7 @@ class PlayButton(View):
                 "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
             )
             return False
-        elif not inter.guild.voice_client.members:  # buggy maybe because of restart
+        elif not inter.guild.voice_client.channel.members:  # buggy maybe because of restart
             ch = inter.guild.voice_client.channel
             await inter.guild.voice_client.disconnect()
             await ch.connect()
@@ -190,7 +190,7 @@ class PlayButton(View):
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
 
-    @button(emoji="\U0001f3b6", style=ButtonStyle.blurple, custom_id="view:queue")
+    @button(emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue")
     async def queue(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
