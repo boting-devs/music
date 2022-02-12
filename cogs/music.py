@@ -178,7 +178,7 @@ class PlayButton(View):
         inter = MyInter(inter, inter.client)  # type: ignore
 
         if not inter.guild.voice_client.is_playing:
-            return await inter.send_embed("Nothing is playing", ephemeral=True)
+            return await inter.send_embed("No song is playing", ephemeral=True)
 
         inter.guild.voice_client.queue = []
         await inter.guild.voice_client.stop()
@@ -198,13 +198,20 @@ class PlayButton(View):
         inter = MyInter(inter, inter.client)  # type: ignore
         current = inter.guild.voice_client.current
         queue = inter.guild.voice_client.queue
-        if not queue:
-            return await inter.send_embed("Nothing Playing", ephemeral=True)
-
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
         await menu.start(interaction=inter, ephemeral=True)
 
+    @button(emoji="\U0001f502",style=ButtonStyle.blurple,custom_id="view:loop")
+    async def loop(self, _: Button, inter: Interaction):
+        assert inter.guild is not None
+        inter = MyInter(inter, inter.client)  # type: ignore
 
+        if not inter.guild.voice_client.is_playing:
+            return await inter.send_embed("No song is playing", ephemeral=True)
+        current_song = inter.guild.voice_client.current
+        inter.guild.voice_client.queue.insert(0,current_song)
+        await inter.send_author_embed("looping song once \U0001f502")
+        
 class MyMenu(ButtonMenuPages):
     ctx: MyContext
 
@@ -530,12 +537,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                     param=signature(self.lyrics).parameters["query"]
                 )
 
-            assert ctx.voice_client.current.title is not None
             q = ctx.voice_client.current.title[:20]
+            print(q)
         else:
             q = query
-
-        a = await ctx.send(f"`Searching {q}....`")
         data = {"q": q}
         headers = {"Authorization": f"Bearer {TKN}"}
 
@@ -549,6 +554,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             thumbnail = result["response"]["hits"][0]["result"]["header_image_url"]
         except IndexError:
             raise LyricsNotFound()
+
+        a = await ctx.send("`Searching....`")
 
         async with self.bot.session.get(source) as resp:
             txt = await resp.text()
@@ -606,19 +613,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def queue(self, ctx: MyContext):
         current = ctx.voice_client.current
         queue = ctx.voice_client.queue
-        if not queue:
-            return await ctx.send_author_embed("Nothing in queue")
-
         menu = QueueView(source=QueueSource(current, queue), ctx=ctx)
         await menu.start(ctx)
 
     @connected()
     @command(help="Loop a song")
-    async def loop(self, ctx: MyContext):
+    async def loop(self,ctx:MyContext):
         player = ctx.voice_client
+        if not player.is_playing:
+            return await ctx.send_author_embed("Nothing is playing")
         current_song = player.current
-        player.queue.insert(0, current_song)
-        await ctx.send("looped")
+        player.queue.insert(0,current_song)
+        await ctx.send("looping song once \U0001f502")
 
 
 def setup(bot: MyBot):
