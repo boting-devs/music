@@ -198,6 +198,9 @@ class PlayButton(View):
         inter = MyInter(inter, inter.client)  # type: ignore
         current = inter.guild.voice_client.current
         queue = inter.guild.voice_client.queue
+        if not queue:
+            return await inter.send_embed("Nothing Playing", ephemeral=True)
+
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
         await menu.start(interaction=inter, ephemeral=True)
 
@@ -517,17 +520,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @command(help="Sing along to your favourite tunes!", extras={"bypass": True})
     async def lyrics(self, ctx: MyContext, *, query: str = ""):
-        a = await ctx.send("`Searching....`")
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
                 raise MissingRequiredArgument(
                     param=signature(self.lyrics).parameters["query"]
                 )
 
+            assert ctx.voice_client.current.title is not None
             q = ctx.voice_client.current.title[:20]
         else:
             q = query
-        print(q)
+
+        a = await ctx.send(f"`Searching {q}....`")
         data = {"q": q}
         headers = {"Authorization": f"Bearer {TKN}"}
 
@@ -598,15 +602,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def queue(self, ctx: MyContext):
         current = ctx.voice_client.current
         queue = ctx.voice_client.queue
+        if not queue:
+            return await ctx.send_author_embed("Nothing in queue")
+
         menu = QueueView(source=QueueSource(current, queue), ctx=ctx)
         await menu.start(ctx)
 
     @connected()
     @command(help="Loop a song")
-    async def loop(self,ctx:MyContext):
+    async def loop(self, ctx: MyContext):
         player = ctx.voice_client
         current_song = player.current
-        player.queue.insert(0,current_song)
+        player.queue.insert(0, current_song)
         await ctx.send("looped")
 
 
