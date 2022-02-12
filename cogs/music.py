@@ -236,10 +236,11 @@ class QueueSource(ListPageSource):
 
         maximum = self.get_max_pages()
         if maximum > 1:
+            c = sum((t.length / 1000 if t.length else 0) for t in self.queue)
+            a = strftime("%H:%M:%S", gmtime(round(c)))
             embed.set_footer(
                 text=f"Page {menu.current_page + 1}/{maximum} "
-                     f"({len(self.queue)} tracks - total"
-                     f"{strftime('%H:%M:%S', gmtime(round(sum(t.length / 1000 for t in self.queue if t.length else 0))))})"
+                     f"({len(self.queue)} tracks - total {a})"
             )
 
         embed.set_author(name=self.title)
