@@ -92,7 +92,7 @@ class PlayButon(View):
             await inter.response.edit_message(view=self)
 
     @button(emoji="\U000023ed",style=ButtonStyle.blurple,custom_id="view:next")
-    async def nextbutton(self,button:Button,inter:Interaction):
+    async def nextbutton(self,ctx:MyContext, button:Button,inter:Interaction):
         assert inter.guild is not None
         assert inter.guild.voice_client is not None
         assert isinstance(inter.guild.voice_client, Player)
