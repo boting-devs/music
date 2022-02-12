@@ -526,7 +526,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             q = ctx.voice_client.current.title[:20]
         else:
             q = query
-        a = await ctx.send("`Searching....`")
         data = {"q": q}
         headers = {"Authorization": f"Bearer {TKN}"}
 
@@ -541,6 +540,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         except IndexError:
             raise LyricsNotFound()
 
+        a = await ctx.send("`Searching....`")
+        
         async with self.bot.session.get(source) as resp:
             txt = await resp.text()
 
