@@ -93,6 +93,9 @@ class PlayButon(View):
 
     @button(emoji="\U000023ed",style=ButtonStyle.blurple,custom_id="view:next")
     async def nextbutton(self,button:Button,inter:Interaction):
+        assert inter.guild is not None
+        assert inter.guild.voice_client is not None
+        assert isinstance(inter.guild.voice_client, Player)
         if not ctx.voice_client.queue:
             return await inter.send("Nothing in queue",ephemeral=True)
 
