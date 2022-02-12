@@ -524,6 +524,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 )
 
             q = ctx.voice_client.current.title[:20]
+            print(q)
         else:
             q = query
         data = {"q": q}
@@ -541,7 +542,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             raise LyricsNotFound()
 
         a = await ctx.send("`Searching....`")
-        
+
         async with self.bot.session.get(source) as resp:
             txt = await resp.text()
 
