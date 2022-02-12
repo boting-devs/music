@@ -50,7 +50,7 @@ def connected():
 
 
 async def playing_embed(
-    track: Track | Playlist, queue: bool = False, length: bool = False
+    track: Track | Playlist, queue: bool = False, length: bool = False, skipped_by: str | None = None
 ):
     view = PlayButton()
     if isinstance(track, Playlist):
@@ -105,6 +105,9 @@ async def playing_embed(
         embed.description = ctx.author.mention + "\n" + timing
     else:
         embed.description = f"{time} - {ctx.author.mention}"
+
+    if skipped_by:
+        embed.description = embed.description + "\n skipped by " + skipped_by
 
     embed.set_author(name=str(title) + " - " + str(author), url=track.uri)
 
@@ -164,7 +167,7 @@ class PlayButton(View):
 
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
-        await playing_embed(toplay)
+        await playing_embed(toplay, skipped_by=inter.user.mention)
 
     @button(emoji="\U000023f9", style=ButtonStyle.blurple, custom_id="view:stop")
     async def stop(self, _: Button, inter: Interaction):
@@ -550,7 +553,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         toplay = ctx.voice_client.queue.pop(0)
         await ctx.voice_client.play(toplay)
-        await playing_embed(toplay)
+        await playing_embed(toplay, skipped_by=ctx.author.mention)
 
     @connected()
     @command(help="Show the current beats", aliases=["np"])
