@@ -11,3 +11,7 @@ class NotConnected(CheckFailure):
 
 class TooManyTracks(CheckFailure):
     """Raised when a queue has too many tracks."""
+
+
+class LyricsNotFound(CheckFailure):
+    """Raised when lyrics are not found."""

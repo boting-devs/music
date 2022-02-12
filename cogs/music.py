@@ -23,7 +23,7 @@ from nextcord.ui import Button, View, button
 from nextcord.utils import utcnow
 from pomice import Playlist
 
-from .extras.errors import NotConnected, NotInVoice, TooManyTracks
+from .extras.errors import NotConnected, NotInVoice, TooManyTracks, LyricsNotFound
 from .extras.types import MyContext, MyInter, Player
 
 if TYPE_CHECKING:
@@ -516,7 +516,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
     @command(help="Sing along to your favourite tunes!", extras={"bypass": True})
-    async def lyrics(self, ctx: MyContext, *, query: str = ""):
+    async `def lyric`s(self, ctx: MyContext, *, query: str = ""):
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
                 raise MissingRequiredArgument(
@@ -533,10 +533,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         async with self.bot.session.get(API_URL, params=data, headers=headers) as resp:
             result = await resp.json()
 
-        title = result["response"]["hits"][0]["result"]["title"]
-        artist = result["response"]["hits"][0]["result"]["artist_names"]
-        source = result["response"]["hits"][0]["result"]["url"]
-        thumbnail = result["response"]["hits"][0]["result"]["header_image_url"]
+        try:
+            title = result["response"]["hits"][0]["result"]["title"]
+            artist = result["response"]["hits"][0]["result"]["artist_names"]
+            source = result["response"]["hits"][0]["result"]["url"]
+            thumbnail = result["response"]["hits"][0]["result"]["header_image_url"]
+        except IndexError:
+            raise LyricsNotFound()
 
         async with self.bot.session.get(source) as resp:
             txt = await resp.text()
@@ -549,6 +552,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         ]
 
         lyrics = "".join(lyricsform).replace("[", "\n[").strip()
+        if len(lyrics) > 4096:
+            lyrics = lyrics[:4093] + "..."
+
         embed = Embed(title=title, description=lyrics, color=self.bot.color)
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
