@@ -52,9 +52,12 @@ def connected():
 async def playing_embed(
     track: Track | Playlist, queue: bool = False, length: bool = False
 ):
+    log.info("a")
     view = PlayButton()
     if isinstance(track, Playlist):
         assert track.tracks[0].ctx is not None
+
+        log.info("b")
 
         ctx: MyContext = track.tracks[0].ctx  # type: ignore
 
@@ -66,6 +69,8 @@ async def playing_embed(
         )
     else:
         assert track.ctx is not None
+
+        log.info("b")
 
         ctx: MyContext = track.ctx  # type: ignore
         title = track.title
@@ -82,12 +87,15 @@ async def playing_embed(
         color=ctx.bot.color,
         timestamp=utcnow(),
     )
+    log.info("c")
 
     if length:
         if isinstance(track, Playlist):
             tr = track.tracks[0]
         else:
             tr = track
+
+        log.info("c")
 
         c = ctx.voice_client.position
         assert tr.length is not None
@@ -104,6 +112,7 @@ async def playing_embed(
         timing = f"{current} {line} {total}"
         embed.description = ctx.author.mention + "\n" + timing
     else:
+        log.info("c")
         embed.description = f"{time} - {ctx.author.mention}"
 
     embed.set_author(name=str(title) + " - " + str(author), url=track.uri)
@@ -219,6 +228,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @Cog.listener()
     async def on_pomice_track_end(self, player: Player, track: Track, _: str):
+        await sleep(0.1)
+        if player.is_playing:
+            return
+
         if player.queue:
             toplay = player.queue.pop(0)
 
