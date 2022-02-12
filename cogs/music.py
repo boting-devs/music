@@ -550,8 +550,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         except IndexError:
             raise LyricsNotFound()
 
-        a = await ctx.send("`Searching....`")
-
         async with self.bot.session.get(source) as resp:
             txt = await resp.text()
 
