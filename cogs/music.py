@@ -523,7 +523,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                     param=signature(self.lyrics).parameters["query"]
                 )
 
-            q = ctx.voice_client.current.title
+            q = ctx.voice_client.current.title[:20]
         else:
             q = query
         print(q)
