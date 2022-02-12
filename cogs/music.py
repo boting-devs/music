@@ -532,6 +532,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         async with self.bot.session.get(API_URL, params=data, headers=headers) as resp:
             result = await resp.json()
+            print(result)
 
         title = result["response"]["hits"][0]["result"]["title"]
         artist = result["response"]["hits"][0]["result"]["artist_names"]
