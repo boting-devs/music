@@ -430,6 +430,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected()
     @command(help="Show the current beats", aliases=["np"])
     async def nowplaying(self, ctx: MyContext):
+        if not ctx.voice_client.is_playing:
+            return await ctx.send_author_embed("Nothing is playing")
+
         return await playing_embed(ctx.voice_client.current, length=True)
 
     @connected()
