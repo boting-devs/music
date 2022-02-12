@@ -375,7 +375,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @Cog.listener()
     async def on_voice_state_update(self, _, before, after: VoiceState):
-        if after or after.channel or not after.channel.guild.voice_client:
+        if after.channel or not after.channel.guild.voice_client:
             return
 
         if c := before.guild.voice_client.current:
