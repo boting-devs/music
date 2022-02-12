@@ -374,14 +374,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await player.destroy()
 
     @Cog.listener()
-    async def on_voice_state_update(self, _, before, after: VoiceState):
-        if after.channel or not after.channel.guild.voice_client:
+    async def on_voice_state_update(self, member: Member, before, after: VoiceState):
+        if after.channel or not before or not member.guild.voice_client:
+            log.info("voice state update from %s to %s with", before.channel, after.channel, _.guild.voice_client)
             return
 
         if c := before.guild.voice_client.current:
             await c.send_author_embed("Disconnecting on no activity")
 
-        await before.channel.guild.voice_client.destroy()
+        await member.guild.voice_client.destroy()
 
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
     async def join(self, ctx: MyContext):
