@@ -128,14 +128,7 @@ class PlayButton(View):
                 "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
             )
             return False
-        elif not inter.guild.voice_client.channel.members:  # buggy maybe because of restart
-            ch = inter.guild.voice_client.channel
-            await inter.guild.voice_client.disconnect()
-            await ch.connect()
-            return await self.interaction_check(inter)
-        elif not inter.user.id in [
-            m.id for m in inter.guild.voice_client.channel.members
-        ]:
+        elif inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
             await inter.send_embed(
                 "Not in Voice",
                 "You need to be in the same vc as the bot!",
@@ -339,7 +332,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if (
             after
             or after.channel
-            or not after.channel.members
             or not after.channel.guild.voice_client
         ):
             return

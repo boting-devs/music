@@ -44,6 +44,7 @@ intents.voice_states = True
 bot = MyBot(
     intents=intents,
     activity=Activity(type=ActivityType.listening, name="your beats :)"),
+    case_insensitive=True,
 )
 
 
