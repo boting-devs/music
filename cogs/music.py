@@ -381,7 +381,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 "voice state update from %s to %s with",
                 before.channel,
                 after.channel,
-                _.guild.voice_client,
+                member.guild.voice_client,
             )
             return
 
