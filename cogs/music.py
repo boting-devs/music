@@ -50,7 +50,10 @@ def connected():
 
 
 async def playing_embed(
-    track: Track | Playlist, queue: bool = False, length: bool = False, skipped_by: str | None = None
+    track: Track | Playlist,
+    queue: bool = False,
+    length: bool = False,
+    skipped_by: str | None = None,
 ):
     view = PlayButton()
     if isinstance(track, Playlist):
@@ -224,7 +227,7 @@ class QueueSource(ListPageSource):
             )
         embed = Embed(
             description=desc,
-            color=menu.ctx.bot.color,
+            color=menu.ctx.bot.color if menu.ctx else menu.ctx.interaction.client.color,  # type: ignore
         )
 
         maximum = self.get_max_pages()
