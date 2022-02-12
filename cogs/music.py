@@ -128,7 +128,10 @@ class PlayButton(View):
                 "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
             )
             return False
-        elif inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
+        elif (
+            not inter.user.voice
+            or inter.user.voice.channel.id != inter.guild.voice_client.channel.id
+        ):
             await inter.send_embed(
                 "Not in Voice",
                 "You need to be in the same vc as the bot!",
@@ -147,10 +150,10 @@ class PlayButton(View):
 
         if not inter.guild.voice_client.is_paused:
             await inter.guild.voice_client.set_pause(True)
-            await inter.response.send_author_embed("Paused")
+            await inter.send_author_embed("Paused")
         else:
             await inter.guild.voice_client.set_pause(False)
-            await inter.response.send_author_embed("Resumed")
+            await inter.send_author_embed("Resumed")
 
     @button(emoji="\U000023ed", style=ButtonStyle.blurple, custom_id="view:next")
     async def skip(self, _: Button, inter: Interaction):
@@ -207,14 +210,14 @@ class QueueSource(ListPageSource):
     def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
         add = self.queue.index(tracks[0]) + 1
         desc = "\n".join(
-            f"**{i + add}.** [{t.title}]({t.uri}) by {t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]" for i, t in enumerate(tracks)
+            f"**{i + add}.** [{t.title}]({t.uri}) by {t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
+            for i, t in enumerate(tracks)
         )
         if tracks[0] == self.queue[0]:
             c = self.now
             desc = (
                 f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
-                f"\U0001f3b6 Up Next:\n"
-                + desc
+                f"\U0001f3b6 Up Next:\n" + desc
             )
         embed = Embed(
             description=desc,
@@ -227,7 +230,7 @@ class QueueSource(ListPageSource):
             a = strftime("%H:%M:%S", gmtime(round(c)))
             embed.set_footer(
                 text=f"Page {menu.current_page + 1}/{maximum} "
-                     f"({len(self.queue)} tracks - total {a})"
+                f"({len(self.queue)} tracks - total {a})"
             )
 
         embed.set_author(name=self.title)
@@ -346,11 +349,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @Cog.listener()
     async def on_voice_state_update(self, _: VoiceState, after: VoiceState):
-        if (
-            after
-            or after.channel
-            or not after.channel.guild.voice_client
-        ):
+        if after or after.channel or not after.channel.guild.voice_client:
             return
 
         if c := after.guild.voice_client.current:
