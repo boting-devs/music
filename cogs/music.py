@@ -517,7 +517,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @command(help="Sing along to your favourite tunes!", extras={"bypass": True})
     async def lyrics(self, ctx: MyContext, *, query: str = ""):
-        a = await ctx.send("`Searching....`")
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
                 raise MissingRequiredArgument(
@@ -527,7 +526,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             q = ctx.voice_client.current.title[:20]
         else:
             q = query
-        print(q)
+        a = await ctx.send("`Searching....`")
         data = {"q": q}
         headers = {"Authorization": f"Bearer {TKN}"}
 
