@@ -82,7 +82,7 @@ async def playing_embed(
         timestamp=utcnow(),
     )
 
-    if time:
+    if length:
         if isinstance(track, Playlist):
             tr = track.tracks[0]
         else:
@@ -436,7 +436,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Switch things up")
     async def shuffle(self, ctx: MyContext):
         shuffle(ctx.voice_client.queue)
-        await ctx.send_author_embed("")
 
         if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U0001f500")
