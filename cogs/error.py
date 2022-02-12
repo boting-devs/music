@@ -18,7 +18,7 @@ from nextcord.ext.commands import (
 )
 from nextcord.utils import utcnow
 
-from .extras.errors import NotInVoice, TooManyTracks, NotConnected
+from .extras.errors import NotInVoice, NotConnected
 from .extras.views import LinkButtonView
 
 if TYPE_CHECKING:

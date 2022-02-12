@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import botbase
 import pomice
+import nextcord
 
 
 class Player(pomice.Player):
@@ -13,3 +14,11 @@ class Player(pomice.Player):
 
 class MyContext(botbase.MyContext):
     voice_client: Player
+
+
+class FakeGuild(nextcord.Guild):
+    voice_client: Player
+
+
+class MyInter(botbase.MyInter):
+    guild: FakeGuild | None

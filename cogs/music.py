@@ -20,11 +20,9 @@ from nextcord.ext.commands import (
 from nextcord.utils import utcnow
 from nextcord.ui import button, Button, View
 from pomice import Playlist
-from botbase import MyInter
-import quart
 
-from .extras.errors import NotConnected, NotInVoice, TooManyTracks
-from .extras.types import MyContext, Player
+from .extras.errors import NotConnected, NotInVoice
+from .extras.types import MyContext, Player, MyInter
 
 from bs4 import BeautifulSoup
 
@@ -149,8 +147,6 @@ class PlayButton(View):
     )
     async def playpause(self, _: Button, inter: Interaction):
         assert inter.guild is not None
-        assert inter.guild.voice_client is not None
-        assert isinstance(inter.guild.voice_client, Player)
         inter = MyInter(inter, inter.client)  # type: ignore
 
         if not inter.guild.voice_client.is_paused:
@@ -164,8 +160,6 @@ class PlayButton(View):
     async def nextbutton(self, _: Button, inter: Interaction):
         inter = MyInter(inter, inter.client)  # type: ignore
         assert inter.guild is not None
-        assert inter.guild.voice_client is not None
-        assert isinstance(inter.guild.voice_client, Player)
         if not inter.guild.voice_client.queue:
             return await inter.send_embed("Nothing in queue", ephemeral=True)
 
@@ -176,8 +170,6 @@ class PlayButton(View):
     @button(emoji="\U000023f9", style=ButtonStyle.blurple, custom_id="view:stop")
     async def stopbutton(self, _: Button, inter: Interaction):
         assert inter.guild is not None
-        assert inter.guild.voice_client is not None
-        assert isinstance(inter.guild.voice_client, Player)
         inter = MyInter(inter, inter.client)  # type: ignore
 
         if not inter.guild.voice_client.is_playing:
@@ -186,6 +178,14 @@ class PlayButton(View):
         inter.guild.voice_client.queue = []
         await inter.guild.voice_client.stop()
         await inter.send_author_embed("Stopped")
+
+    @button(emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle")
+    async def shufflebutton(self, _: Button, inter: Interaction):
+        assert inter.guild is not None
+        inter = MyInter(inter, inter.client)  # type: ignore
+
+        shuffle(inter.guild.voice_client.queue)
+        await inter.send_author_embed("Shuffled the queue")
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
@@ -303,7 +303,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 info = result[0]
                 toplay = [result[0]]
-
 
             if len(player.queue) + len(toplay) > 500:
                 await ctx.send_author_embed("Queueing 500 tracks...")
@@ -432,6 +431,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Show the current beats", aliases=["np"])
     async def nowplaying(self, ctx: MyContext):
         return await playing_embed(ctx.voice_client.current, length=True)
+
+    @connected()
+    @command(help="Switch things up")
+    async def shuffle(self, ctx: MyContext):
+        shuffle(ctx.voice_client.queue)
+        await ctx.send_author_embed("")
+
+        if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+            await ctx.message.add_reaction("\U0001f500")
+        else:
+            await ctx.send_author_embed("Shuffled the queue")
 
 
 def setup(bot: MyBot):
