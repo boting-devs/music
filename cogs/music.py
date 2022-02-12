@@ -202,14 +202,15 @@ class PlayButton(View):
         await menu.start(interaction=inter, ephemeral=True)
 
     @button(emoji="\U0001f502",style=ButtonStyle.blurple,custom_id="view:loop")
-    assert inter.guild is not None
-        inter = MyInter(inter, inter.client)  # type: ignore
+    async def loop(self, _: Button, inter: Interaction):
+        assert inter.guild is not None
+            inter = MyInter(inter, inter.client)  # type: ignore
 
-        if not inter.guild.voice_client.is_playing:
-            return await inter.send_embed("No song is playing", ephemeral=True)
-        current_song = inter.guild.voice_client.current
-        inter.guild.voice_client.queue.insert(0,current_song)
-        await ctx.send("looping song once \U0001f502")
+            if not inter.guild.voice_client.is_playing:
+                return await inter.send_embed("No song is playing", ephemeral=True)
+            current_song = inter.guild.voice_client.current
+            inter.guild.voice_client.queue.insert(0,current_song)
+            await ctx.send("looping song once \U0001f502")
 class MyMenu(ButtonMenuPages):
     ctx: MyContext
 
