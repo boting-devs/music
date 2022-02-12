@@ -91,10 +91,10 @@ class PlayButon(View):
             button.emoji = "\U000023f8\U0000fe0f"
             await inter.response.edit_message(view=self)
 
-    @button(emoji="\U000023ed",style=ButtonStyle.blurple,custom_id="view:lyric")
-    async def lyricbutton(self,button:Button,inter:Interaction):
+    @button(emoji="\U000023ed",style=ButtonStyle.blurple,custom_id="view:next")
+    async def nextbutton(self,button:Button,inter:Interaction):
         if not ctx.voice_client.queue:
-            return await inter.send_embed("Nothing in queue",ephemeral=True)
+            return await inter.send("Nothing in queue",ephemeral=True)
 
         toplay = ctx.voice_client.queue.pop(0)
         await ctx.voice_client.play(toplay)
