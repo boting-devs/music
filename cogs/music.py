@@ -210,7 +210,8 @@ class PlayButton(View):
             return await inter.send_embed("No song is playing", ephemeral=True)
         current_song = inter.guild.voice_client.current
         inter.guild.voice_client.queue.insert(0,current_song)
-        await ctx.send("looping song once \U0001f502")
+        await inter.send_author_embed("looping song once \U0001f502")
+        
 class MyMenu(ButtonMenuPages):
     ctx: MyContext
 
