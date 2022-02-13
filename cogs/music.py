@@ -202,6 +202,9 @@ class PlayButton(View):
         inter = MyInter(inter, inter.client)  # type: ignore
         current = inter.guild.voice_client.current
         queue = inter.guild.voice_client.queue
+        if not queue:
+            return await inter.send_embed("Nothing in queue")
+
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
         await menu.start(interaction=inter, ephemeral=True)
 
@@ -381,8 +384,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await player.destroy()
 
     @Cog.listener()
-    async def on_voice_state_update(self, member: Member, before, after: VoiceState):
-        if after.channel or not before.channel or not member.guild.voice_client:
+    async def on_voice_state_update(
+        self, member: Member, before: VoiceState, after: VoiceState
+    ):
+        if (
+            after.channel
+            or not before.channel
+            or not member.guild.voice_client
+            or self.bot.user.id == member.id  # type: ignore
+        ):
             log.info(
                 "voice state update from %s to %s with %s by %s",
                 before.channel,
@@ -392,7 +402,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             )
             return
 
-        if c := before.guild.voice_client.current:
+        if c := member.guild.voice_client.current:  # type: ignore
             await c.send_author_embed("Disconnecting on no activity")
 
         await member.guild.voice_client.destroy()  # type: ignore
@@ -551,8 +561,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                     param=signature(self.lyrics).parameters["query"]
                 )
 
+            assert ctx.voice_client.current.title is not None
             q = ctx.voice_client.current.title[:20]
-            print(q)
         else:
             q = query
         data = {"q": q}
@@ -627,6 +637,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def queue(self, ctx: MyContext):
         current = ctx.voice_client.current
         queue = ctx.voice_client.queue
+        if not queue:
+            return await ctx.send_author_embed("Nothing in queue")
+
         menu = QueueView(source=QueueSource(current, queue), ctx=ctx)
         await menu.start(ctx)
 
