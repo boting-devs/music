@@ -184,7 +184,9 @@ class PlayButton(View):
         await inter.guild.voice_client.stop()
         await inter.send_author_embed("Stopped")
 
-    @button(emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle",row=1)
+    @button(
+        emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle", row=1
+    )
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -192,7 +194,9 @@ class PlayButton(View):
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
 
-    @button(emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue",row=1)
+    @button(
+        emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue", row=1
+    )
     async def queue(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -201,7 +205,7 @@ class PlayButton(View):
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
         await menu.start(interaction=inter, ephemeral=True)
 
-    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop",row=1)
+    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop", row=1)
     async def loop(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -294,7 +298,9 @@ class QueueView(ButtonMenuPages):
         if self.message is not None:
             await self.message.edit(view=self)
 
-    @button(emoji="\U0001f500", style=ButtonStyle.blurple,row=1,custom_id="view:shuffle")
+    @button(
+        emoji="\U0001f500", style=ButtonStyle.blurple, row=1, custom_id="view:shuffle"
+    )
     async def shuffle(self, _: Button, inter: Interaction):
         inter = MyInter(inter, inter.client)  # type: ignore
         if not inter.guild or not inter.guild.voice_client:
@@ -625,14 +631,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await menu.start(ctx)
 
     @connected()
-    @command(help="Loop a song")
+    @command(help="It hit so hard so you play it again")
     async def loop(self, ctx: MyContext):
         player = ctx.voice_client
         if not player.is_playing:
             return await ctx.send_author_embed("Nothing is playing")
-        current_song = player.current
-        player.queue.insert(0, current_song)
-        await ctx.send("looping song once \U0001f502")
+
+        current = player.current
+        player.queue.insert(0, current)
+        if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+            await ctx.message.add_reaction("\U0001f502")
+        else:
+            await ctx.send_author_embed("Looping once")
 
 
 def setup(bot: MyBot):
