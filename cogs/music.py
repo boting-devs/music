@@ -393,17 +393,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             or not member.guild.voice_client
             or self.bot.user.id == member.id  # type: ignore
         ):
-            log.info(
-                "voice state update from %s to %s with %s by %s",
-                before.channel,
-                after.channel,
-                member.guild.voice_client,
-                member,
-            )
             return
 
-        if c := member.guild.voice_client.current.ctx:  # type: ignore
-            await c.send_author_embed("Disconnecting on no activity")
+        if c := member.guild.voice_client.current:  # type: ignore
+            await c.ctx.send_author_embed("Disconnecting on no listeners")
 
         await member.guild.voice_client.destroy()  # type: ignore
 
