@@ -184,7 +184,7 @@ class PlayButton(View):
         await inter.guild.voice_client.stop()
         await inter.send_author_embed("Stopped")
 
-    @button(emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle")
+    @button(emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle",row=1)
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -192,7 +192,7 @@ class PlayButton(View):
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
 
-    @button(emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue")
+    @button(emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue",row=1)
     async def queue(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -201,7 +201,7 @@ class PlayButton(View):
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
         await menu.start(interaction=inter, ephemeral=True)
 
-    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop")
+    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop",row=1)
     async def loop(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -294,7 +294,7 @@ class QueueView(ButtonMenuPages):
         if self.message is not None:
             await self.message.edit(view=self)
 
-    @button(emoji="\U0001f500", style=ButtonStyle.blurple, row=1)
+    @button(emoji="\U0001f500", style=ButtonStyle.blurple,row=1,custom_id="view:shuffle")
     async def shuffle(self, _: Button, inter: Interaction):
         inter = MyInter(inter, inter.client)  # type: ignore
         if not inter.guild or not inter.guild.voice_client:
