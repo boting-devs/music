@@ -402,7 +402,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             )
             return
 
-        if c := member.guild.voice_client.current:  # type: ignore
+        if c := member.guild.voice_client.current.ctx:  # type: ignore
             await c.send_author_embed("Disconnecting on no activity")
 
         await member.guild.voice_client.destroy()  # type: ignore
