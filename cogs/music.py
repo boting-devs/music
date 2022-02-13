@@ -192,7 +192,7 @@ class PlayButton(View):
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
 
-    @button(emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue")
+    @button(emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue",row=1)
     async def queue(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
