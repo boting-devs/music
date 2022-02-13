@@ -201,7 +201,7 @@ class PlayButton(View):
         menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
         await menu.start(interaction=inter, ephemeral=True)
 
-    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop")
+    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop",row=1)
     async def loop(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
