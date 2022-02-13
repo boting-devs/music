@@ -294,7 +294,7 @@ class QueueView(ButtonMenuPages):
         if self.message is not None:
             await self.message.edit(view=self)
 
-    @button(emoji="\U0001f500", style=ButtonStyle.blurple,row=1)
+    @button(emoji="\U0001f500", style=ButtonStyle.blurple,row=1,custom_id="view:shuffle")
     async def shuffle(self, _: Button, inter: Interaction):
         inter = MyInter(inter, inter.client)  # type: ignore
         if not inter.guild or not inter.guild.voice_client:
