@@ -184,7 +184,7 @@ class PlayButton(View):
         await inter.guild.voice_client.stop()
         await inter.send_author_embed("Stopped")
 
-    @button(emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle")
+    @button(emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle",row=1)
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
