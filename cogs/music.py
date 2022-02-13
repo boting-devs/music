@@ -392,6 +392,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             or not before.channel
             or not member.guild.voice_client
             or self.bot.user.id == member.id  # type: ignore
+            or len(self.bot.listeners.get(before.channel.id, set())) > 0
         ):
             return
 
