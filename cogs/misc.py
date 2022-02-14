@@ -29,6 +29,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         ):
             raise NoPrivateMessage()
 
+        return True
 
     @command(help="Ping command", extras={"example": ".ping"})
     async def ping(self, ctx: MyContext):
