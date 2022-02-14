@@ -13,7 +13,7 @@ from nextcord.ext.tasks import loop
 if TYPE_CHECKING:
     from ..main import MyBot
 
-class Misc(commands.Cog, name="misc", description="Meta commands about the bot!"):
+class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     def __init__(self, bot: MyBot):
         self.bot = bot
 
