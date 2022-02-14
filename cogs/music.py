@@ -122,6 +122,20 @@ async def playing_embed(
     else:
         await ctx.send(embed=embed, view=view)
 
+        if isinstance(track, Playlist):
+            return
+
+        await ctx.bot.db.execute(
+            """INSERT INTO songs (id, spotify, member) 
+            VALUES ($1, $2, $3) 
+            ON CONFLICT (id, spotify, member)
+            DO UPDATE SET
+                amount = songs.amount + 1""",
+            track.identifier,
+            track.spotify,
+            ctx.author.id,
+        )
+
 
 class PlayButton(View):
     def __init__(self):
@@ -271,12 +285,16 @@ class QueueView(ButtonMenuPages):
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user and (
             interaction.user.id
-            == (self.ctx.bot.owner_id if self.ctx else self.interaction.client.owner_id)
+            == (
+                self.ctx.bot.owner_id
+                if self.ctx
+                else self.interaction.client.owner_id  # type: ignore
+            )
             or interaction.user.id
             in (
                 self.ctx.bot.owner_ids
                 if self.ctx
-                else self.interaction.client.owner_ids
+                else self.interaction.client.owner_ids  # type: ignore
             )
         ):
             return True
@@ -398,6 +416,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             or self.bot.user.id == member.id  # type: ignore
             or len(self.bot.listeners.get(before.channel.id, set())) > 0
         ):
+            return
+
+        await sleep(60)
+
+        if len(self.bot.listeners.get(before.channel.id, set())) > 0:
             return
 
         if c := member.guild.voice_client.current:  # type: ignore
