@@ -54,7 +54,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         embed = Embed(title="**Invite Link**", color=self.bot.color)
         embed.add_field(
             name=f"**The bot is currently in {str(len(servers))} servers**",
-            value="**[invite me](https://discord.com/api/oauth2/authorize?client_id=882491278581977179&permissions=274885561408&scope=bot%20applications.commands&response_type=code&redirect_uri=https%3A%2F%2Fboting.xyz)**",
+            value="**[invite me](https://discord.com/api/oauth2/authorize?client_id=882491278581977179&permissions=274919115840&scope=bot)**",
         )
         embed.set_image(url="https://learnenglishfunway.com/wp-content/uploads/2020/12/Music-2.jpg")
         await ctx.send(embed=embed)
