@@ -63,4 +63,4 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         await ctx.send(embed=embed)
 
 def setup(bot: MyBot):
-    bot.add_cog(Music(bot))
+    bot.add_cog(Misc(bot))
