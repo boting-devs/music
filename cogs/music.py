@@ -127,7 +127,7 @@ async def playing_embed(
 
         await ctx.bot.db.execute(
             """INSERT INTO songs (id, spotify, member) 
-            VALUES ($1, $2, $3, $4) 
+            VALUES ($1, $2, $3) 
             ON CONFLICT (id, spotify, member)
             DO UPDATE SET
                 amount = songs.amount + 1""",
