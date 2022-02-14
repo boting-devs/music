@@ -1,17 +1,33 @@
 from __future__ import annotations
 
 from asyncio import sleep
-from os import getenv
+from inspect import signature
+from logging import getLogger
+from random import shuffle
+from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
-import nextcord
-from botbase import MyContext
-from nextcord import Guild, Message
-from nextcord.ext.commands import command,Cog
-from nextcord.ext.tasks import loop
+from bs4 import BeautifulSoup
+from nextcord import ButtonStyle, ClientUser, Embed, Interaction, Member, User
+from nextcord.ext.commands import (
+    BotMissingPermissions,
+    Cog,
+    Context,
+    MissingRequiredArgument,
+    NoPrivateMessage,
+    check,
+    command,
+)
+from nextcord.ext.menus import ButtonMenuPages, ListPageSource
+from nextcord.ui import Button, View, button
+from nextcord.utils import utcnow
+from pomice import Playlist
+
+from .extras.errors import NotConnected, NotInVoice, TooManyTracks, LyricsNotFound
+from .extras.types import MyContext
 
 if TYPE_CHECKING:
-    from ..main import MyBot
+    from ..mmain import MyBot
 
 class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     def __init__(self, bot: MyBot):
