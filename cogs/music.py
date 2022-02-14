@@ -23,7 +23,7 @@ from nextcord.ui import Button, View, button
 from nextcord.utils import utcnow
 from pomice import Playlist
 
-from .extras.errors import NotConnected, NotInVoice, TooManyTracks, LyricsNotFound
+from .extras.errors import NotConnected, NotInVoice, TooManyTracks, LyricsNotFound , NotInSameVoice
 from .extras.types import MyContext, MyInter, Player
 
 if TYPE_CHECKING:
