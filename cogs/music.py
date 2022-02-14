@@ -368,7 +368,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         ) and not ctx.author.voice.channel.permissions_for(ctx.me).administrator:
             raise BotMissingPermissions(["connect", "speak"])
         elif ctx.voice_client is not None:
-            ctx.author.voice.channel.id != ctx.guild.voice_client.channel.id:
+            elif ctx.author.voice.channel.id != ctx.guild.voice_client.channel.id:
                 raise NotInSameVoice()
 
         return True
