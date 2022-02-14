@@ -55,7 +55,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     @command(help="invite link of bot")
     async def invite(self, ctx: MyContext):
         servers = list(self.bot.guilds)
-        embed = nextcord.Embed(title="**Invite Link**", color=self.bot.color)
+        embed = Embed(title="**Invite Link**", color=self.bot.color)
         embed.add_field(
             name=f"**The bot is currently in {str(len(servers))} servers**",
             value="**[invite me](https://discord.com/api/oauth2/authorize?client_id=882491278581977179&permissions=274885561408&scope=bot%20applications.commands&response_type=code&redirect_uri=https%3A%2F%2Fboting.xyz)**",
@@ -67,7 +67,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         help="Vibr support server link", extras={"example": ".support"}
     )
     async def support(self, ctx: MyContext):
-        embed = nextcord.Embed(
+        embed = Embed(
             title="**Support Link**",
         )
         embed.add_field(
