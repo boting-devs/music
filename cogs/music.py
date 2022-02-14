@@ -374,6 +374,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         return True
 
+    @property
+    def emoji(self) -> str:
+        return "🎵"
+
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.views_added:
