@@ -1,13 +1,8 @@
 from __future__ import annotations
 
-from asyncio import sleep
-from inspect import signature
 from logging import getLogger
-from random import shuffle
-from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
-from bs4 import BeautifulSoup
 from nextcord import ButtonStyle, ClientUser, Embed, Interaction, Member, User
 from nextcord.ext.commands import (
     BotMissingPermissions,
@@ -19,9 +14,7 @@ from nextcord.ext.commands import (
     command,
 )
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
-from nextcord.ui import Button, View, button
 from nextcord.utils import utcnow
-from pomice import Playlist
 
 from .extras.errors import NotConnected, NotInVoice, TooManyTracks, LyricsNotFound
 from .extras.types import MyContext
@@ -49,7 +42,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     @property
     def emoji(self) -> str:
         return "⚙️"
-        
+
     @command(help="Ping command", extras={"example": ".ping"})
     async def ping(self, ctx: MyContext):
         await ctx.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")
