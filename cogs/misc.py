@@ -46,7 +46,10 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
             raise NoPrivateMessage()
 
         return True
-
+    @property
+    def emoji(self) -> str:
+        return "⚙️"
+        
     @command(help="Ping command", extras={"example": ".ping"})
     async def ping(self, ctx: MyContext):
         await ctx.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")
