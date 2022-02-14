@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import nextcord
 from botbase import MyContext
 from nextcord import Guild, Message
-from nextcord.ext.commands import command
+from nextcord.ext.commands import command,Cog
 from nextcord.ext.tasks import loop
 
 if TYPE_CHECKING:
