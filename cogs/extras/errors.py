@@ -15,3 +15,6 @@ class TooManyTracks(CheckFailure):
 
 class LyricsNotFound(CheckFailure):
     """Raised when lyrics are not found."""
+
+class NotInSameVoice(CheckFailure):
+    """Raised when bot is not in same voice channel."""
