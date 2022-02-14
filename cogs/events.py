@@ -40,8 +40,8 @@ class Events(Cog):
                     self.bot.listeners[after.channel.id].add(member.id)
             elif before.channel and not after.channel:
                 if before.channel.id in self.bot.listeners:
-                    self.bot.listeners[before.channel.id].remove(member.id)
-                    if not self.bot.listeners[before.channel.id]:
+                    self.bot.listeners.get(before.channel.id, set()).discard(member.id)
+                    if not self.bot.listeners.get(before.channel.id, {1}):
                         del self.bot.listeners[before.channel.id]
 
 
