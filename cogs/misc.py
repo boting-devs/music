@@ -69,6 +69,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     async def support(self, ctx: MyContext):
         embed = Embed(
             title="**Support Link**",
+            color=self.bot.color
         )
         embed.add_field(
             name="**Facing any problem? Join the support server**",
