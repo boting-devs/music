@@ -122,23 +122,20 @@ async def playing_embed(
     else:
         await ctx.send(embed=embed, view=view)
 
-        if track.spotify:
-            if isinstance(track, Playlist):
-                return
+        if isinstance(track, Playlist):
+            return
 
-            await ctx.bot.db.execute(
-                """
-                INSERT INTO songs (id, spotify, member, amount) 
-                VALUES ($1, $2, $3, $4) 
-                ON CONFLICT (id, spotify, member, amount)
-                DO UPDATE SET
-                    amount = songs.amount + 1
-                """,
-                track.identifier,
-                track.spotify,
-                ctx.author.id,
-                1,
-            )
+        await ctx.bot.db.execute(
+            """INSERT INTO songs (id, spotify, member, amount) 
+            VALUES ($1, $2, $3, $4) 
+            ON CONFLICT (id, spotify, member, amount)
+            DO UPDATE SET
+                amount = songs.amount + 1""",
+            track.identifier,
+            track.spotify,
+            ctx.author.id,
+            1,
+        )
 
 
 class PlayButton(View):
