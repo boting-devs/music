@@ -38,6 +38,7 @@ eh: dict[Type[Exception], tuple[str, str]] = {
         "You can only queue up to 100 tracks at a time!",
     ),
     LyricsNotFound: ("No Lyrics Found", "Sorry, could not find lyrics for that track :("),
+    NoInSameVoice: ("Not in same voice channel","You need to be in same voice channel same as bot")
 }
 
 
