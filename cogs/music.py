@@ -23,7 +23,13 @@ from nextcord.ui import Button, View, button
 from nextcord.utils import utcnow
 from pomice import Playlist
 
-from .extras.errors import NotConnected, NotInVoice, TooManyTracks, LyricsNotFound , NotInSameVoice
+from .extras.errors import (
+    NotConnected,
+    NotInVoice,
+    TooManyTracks,
+    LyricsNotFound,
+    NotInSameVoice,
+)
 from .extras.types import MyContext, MyInter, Player
 
 if TYPE_CHECKING:
@@ -368,7 +374,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         ) and not ctx.author.voice.channel.permissions_for(ctx.me).administrator:
             raise BotMissingPermissions(["connect", "speak"])
         elif ctx.voice_client is not None:
-            if ctx.author.voice.channel.id != ctx.guild.voice_client.channel.id:
+            if ctx.author.voice.channel.id != ctx.voice_client.channel.id:
                 raise NotInSameVoice()
 
         return True
