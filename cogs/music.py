@@ -418,6 +418,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def on_voice_state_update(
         self, member: Member, before: VoiceState, after: VoiceState
     ):
+        await sleep(0.5)
         if (
             after.channel
             or not before.channel
