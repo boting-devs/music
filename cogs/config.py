@@ -27,7 +27,7 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
 
     @command(help="Link up your cool Spotify account :)")
     async def spotify(self, ctx: MyContext):
-        await ctx.send_embed(description=urlprompt, image="https://cdn.tooty.xyz/KSzS")
+        await ctx.send_embed(desc=urlprompt, image="https://cdn.tooty.xyz/KSzS")
 
         m = await self.bot.wait_for(
             "message",
