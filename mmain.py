@@ -25,6 +25,7 @@ class MyBot(BotBase):
         self.pool = NodePool()
         self.views_added = False
         self.listeners: dict[int, set[int]] = {}
+        self.spotify_users: dict[int, str] = {}
 
     async def on_ready(self):
         await self.pool.create_node(
