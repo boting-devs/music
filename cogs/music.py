@@ -130,6 +130,7 @@ async def playing_embed(
 
     if queue:
         await ctx.send(embed=embed, content="Queued", view=view)
+        return
     if length:
         channel = ctx.channel
         await channel.send(embed=embed,view=view)
