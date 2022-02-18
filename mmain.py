@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Optional
 import asyncio
 import os
 
@@ -25,7 +26,7 @@ class MyBot(BotBase):
         self.pool = NodePool()
         self.views_added = False
         self.listeners: dict[int, set[int]] = {}
-        self.spotify_users: dict[int, str] = {}
+        self.spotify_users: dict[int, Optional[str]] = {}
 
     async def on_ready(self):
         await self.pool.create_node(

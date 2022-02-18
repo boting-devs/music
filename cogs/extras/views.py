@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from nextcord.ui import Button, View
+from nextcord.ui import Button, View, Select
 
 if TYPE_CHECKING:
     from nextcord import Emoji, PartialEmoji
+
+    from .types import SpotifyPlaylists, Playlist
 
 
 class LinkButtonView(View):
@@ -17,3 +19,17 @@ class LinkButtonView(View):
             self.add_item(Button(label=name, url=url, emoji=emoji))
         else:
             self.add_item(Button(label=name, url=url))
+
+
+class PlaylistView(View):
+    def __init__(self, playlists: SpotifyPlaylists) -> None:
+        items = playlists["items"]
+        chunks = [items[i : i + 10] for i in range(0, len(items), 25)]
+
+        for chunk in chunks:
+            self.add_item(PlaylistSelect(chunk))
+
+
+class PlaylistSelect(Select):
+    def __init__(self, chunk: list[Playlist]) -> None:
+        ...

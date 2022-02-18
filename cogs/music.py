@@ -8,7 +8,6 @@ from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
 from bs4 import BeautifulSoup
-from discord import ChannelType
 from nextcord import ButtonStyle, ClientUser, Embed, Interaction, Member, User
 from nextcord.ext.commands import (
     BotMissingPermissions,
@@ -20,8 +19,8 @@ from nextcord.ext.commands import (
     command,
 )
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
-from nextcord.ui import Button, View, button
-from nextcord.utils import utcnow
+from nextcord.ui import Button, View, button, Select
+from nextcord.utils import utcnow, MISSING
 from pomice import Playlist
 
 from .extras.errors import (
@@ -31,7 +30,7 @@ from .extras.errors import (
     LyricsNotFound,
     NotInSameVoice,
 )
-from .extras.types import MyContext, MyInter, Player
+from .extras.types import MyContext, MyInter, Player, SpotifyPlaylists
 
 if TYPE_CHECKING:
     from nextcord import VoiceState
@@ -61,7 +60,7 @@ async def playing_embed(
     queue: bool = False,
     length: bool = False,
     skipped_by: str | None = None,
-    override_ctx: MyContext | None = None
+    override_ctx: MyContext | None = None,
 ):
     view = PlayButton()
     if isinstance(track, Playlist):
@@ -132,7 +131,7 @@ async def playing_embed(
         await ctx.send(embed=embed, content="Queued", view=view)
     if length:
         channel = ctx.channel
-        await channel.send(embed=embed,view=view)
+        await channel.send(embed=embed, view=view)
     else:
         await ctx.send(embed=embed, view=view)
 
@@ -660,9 +659,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await ctx.send_author_embed("No song is playing")
 
         return await playing_embed(
-            ctx.voice_client.current,
-            length=True,
-            override_ctx=ctx
+            ctx.voice_client.current, length=True, override_ctx=ctx
         )
 
     @connected()
@@ -699,6 +696,23 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.message.add_reaction("\U0001f502")
         else:
             await ctx.send_author_embed("Looping once")
+
+    @connected()
+    @command(help="Play one of your playlists", aliases=["ps"])
+    async def playlists(self, ctx: MyContext):
+        userid = self.bot.spotify_users.get(ctx.author.id, MISSING)
+
+        if userid is MISSING:
+            userid = await self.bot.db.fetchval(
+                "SELECT spotify FROM users WHERE id=$1", ctx.author.id
+            )
+            self.bot.spotify_users[ctx.author.id] = userid
+
+        if userid is None:
+            return await ctx.send_embed(
+                "Unlinked",
+                f"You don't have a Spotify account linked, please use `{ctx.clean_prefix}spotify",
+            )
 
 
 def setup(bot: MyBot):
