@@ -52,30 +52,6 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         embed.set_image(url="https://c.tenor.com/lhlDEs5fNNEAAAAC/music-beat.gif")
         await ctx.send(embed=embed)
 
-    @command(help="Change bot's prefix")
-    async def setprefix(self, ctx: MyContext,*, new_prefix: str):
-        if len(new_prefix) > 4:
-            await ctx.reply("🚫 Please keep the length of prefix 4 or less characters")
-            return
-        else:
-            await self.bot.db.execute(
-                """INSERT INTO guilds (id, prefix) 
-                VALUES ($1, $2) 
-                ON CONFLICT (ID) DO UPDATE 
-                    SET prefix = $2""",
-                ctx.guild.id,  # type: ignore
-                new_prefix,
-            )
-            await ctx.send("Prefix Updated!")
-            self.bot.prefix[ctx.guild.id] = new_prefix  # type: ignore
-
-    @setprefix.error  # type: ignore
-    async def setprefix_error(self, ctx: MyContext, error: Exception):
-        if isinstance(error, MissingPermissions):
-            await ctx.send(
-                "🚫 You dont have permission to change prefix -`Manage server`"
-            )
-
     @Cog.listener()
     async def on_message(self, message: Message):
         assert self.bot.user is not None

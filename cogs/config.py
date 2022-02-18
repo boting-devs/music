@@ -59,6 +59,24 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
 
         await ctx.send_embed("Linked!", f"your Discord has now been linked to {userid}")
 
+    @command(help="Change bot's prefix")
+    async def setprefix(self, ctx: MyContext, *, new_prefix: str):
+        assert ctx.guild is not None
+        if len(new_prefix) > 4:
+            await ctx.reply("🚫 Please keep the length of prefix 4 or less characters")
+            return
+        else:
+            await self.bot.db.execute(
+                """INSERT INTO guilds (id, prefix) 
+                VALUES ($1, $2) 
+                ON CONFLICT (ID) DO UPDATE 
+                    SET prefix = $2""",
+                ctx.guild.id,
+                new_prefix,
+            )
+            await ctx.send("Prefix Updated!")
+            self.bot.prefix[ctx.guild.id] = [new_prefix]
+
 
 def setup(bot: MyBot):
     bot.add_cog(Config(bot))
