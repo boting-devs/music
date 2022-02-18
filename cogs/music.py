@@ -60,6 +60,7 @@ async def playing_embed(
     queue: bool = False,
     length: bool = False,
     skipped_by: str | None = None,
+    override_ctx: MyContext | None = None
 ):
     view = PlayButton()
     if isinstance(track, Playlist):
@@ -86,6 +87,9 @@ async def playing_embed(
                 "%H:%M:%S",
                 gmtime(track.length / 1000),
             )
+
+    if override_ctx:
+        ctx = override_ctx
 
     embed = Embed(
         color=ctx.bot.color,
@@ -651,7 +655,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not ctx.voice_client.is_playing:
             return await ctx.send_author_embed("No song is playing")
 
-        return await playing_embed(ctx.voice_client.current, length=True)
+        return await playing_embed(
+            ctx.voice_client.current,
+            length=True,
+            override_ctx=ctx
+        )
 
     @connected()
     @command(help="Switch things up")
