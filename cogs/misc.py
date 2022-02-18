@@ -84,7 +84,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
                 prefix = await self.bot.get_prefix(message)
                 prefix = prefix[-1]
                 embed =Embed(
-                    title="Hi my name is Chit-Chat",
+                    title="Hi my name is Vibr",
                     description=f"**My prefix is `{prefix}`\nTo view all the commands use `{prefix}help`**",
                     color=self.bot.color,
                 )
