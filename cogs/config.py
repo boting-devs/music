@@ -3,7 +3,7 @@ from __future__ import annotations
 from re import compile as re_compile
 from typing import TYPE_CHECKING
 
-from nextcord.ext.commands import Cog, command
+from nextcord.ext.commands import Cog, command, guild_only
 
 from .extras.types import MyContext
 
@@ -60,6 +60,7 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
         await ctx.send_embed("Linked!", f"your Discord has now been linked to {userid}")
 
     @command(help="Change bot's prefix")
+    @guild_only()
     async def setprefix(self, ctx: MyContext, *, new_prefix: str):
         assert ctx.guild is not None
         if len(new_prefix) > 4:
