@@ -82,6 +82,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         if self.bot.user.mentioned_in(message):
             if message.content in ("<@882491278581977179>", "<@!882491278581977179>"):
                 prefix = await self.bot.get_prefix(message)
+                prefix = prefix[-1]
                 embed =Embed(
                     title="Hi my name is Chit-Chat",
                     description=f"**My prefix is `{prefix}`\nTo view all the commands use `{prefix}help`**",
