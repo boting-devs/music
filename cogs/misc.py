@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from nextcord import Embed
+from nextcord import Embed , Message
 from nextcord.ext.commands import (
     Cog,
     command,
@@ -75,6 +75,20 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
             await ctx.send(
                 "🚫 You dont have permission to change prefix -`Manage server`"
             )
+
+    @Cog.listener()
+    async def on_message(self, message: Message):
+        assert self.bot.user is not None
+        if self.bot.user.mentioned_in(message):
+            if message.content in ("<@882491278581977179>", "<@!882491278581977179>"):
+                prefix = await self.bot.get_prefix(message)
+                prefix = prefix[-1]
+                embed =Embed(
+                    title="Hi my name is Chit-Chat",
+                    description=f"**My prefix is `{prefix}`\nTo view all the commands use `{prefix}help`**",
+                    color=self.bot.color,
+                )
+                await message.channel.send(embed=embed)
 
 
 def setup(bot: MyBot):
