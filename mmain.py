@@ -47,6 +47,7 @@ bot = MyBot(
     intents=intents,
     activity=Activity(type=ActivityType.listening, name="your beats :)"),
     case_insensitive=True,
+    strip_after_prefix=True,
 )
 
 

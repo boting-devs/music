@@ -2,12 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from nextcord import Embed , Message
-from nextcord.ext.commands import (
-    Cog,
-    command,
-    MissingPermissions
-)
+from nextcord import Embed, Message
+from nextcord.ext.commands import Cog, command, MissingPermissions
 
 from .extras.types import MyContext
 
@@ -34,8 +30,8 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         embed.add_field(
             name=f"**The bot is currently in {len(servers)} servers**",
             value="**[invite me](https://discord.com/api/oauth2/authorize?"
-                  "client_id=882491278581977179&permissions=274919115840&scope=bot"
-                  "%20applications.commands)**",
+            "client_id=882491278581977179&permissions=274919115840&scope=bot"
+            "%20applications.commands)**",
         )
         embed.set_image(
             url="https://learnenglishfunway.com/wp-content/uploads/2020/12/Music-2.jpg"
@@ -59,9 +55,9 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
             if message.content in ("<@882491278581977179>", "<@!882491278581977179>"):
                 prefix = await self.bot.get_prefix(message)
                 prefix = prefix[-1]
-                embed =Embed(
+                embed = Embed(
                     title="Hi my name is Vibr",
-                    description=f"**My prefix is `{prefix}`\nTo view all the commands use `{prefix}help`**",
+                    description=f"**My prefix is `{prefix}`\nTo view all the commands use `{prefix} help`**",
                     color=self.bot.color,
                 )
                 await message.channel.send(embed=embed)
