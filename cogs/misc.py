@@ -53,7 +53,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         await ctx.send(embed=embed)
 
     @command(help="Change bot's prefix")
-    async def setprefix(self, ctx: MyContext, new_prefix: str):
+    async def setprefix(self, ctx: MyContext,*, new_prefix: str):
         if len(new_prefix) > 4:
             await ctx.reply("🚫 Please keep the length of prefix 4 or less characters")
             return
