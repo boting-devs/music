@@ -57,7 +57,8 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
                 prefix = prefix[-1]
                 embed = Embed(
                     title="Hi my name is Vibr",
-                    description=f"**My prefix is `{prefix}`\nTo view all the commands use `{prefix} help`**",
+                    description=f"**My prefix is `{prefix}`\n"
+                                f"To view all the commands use `{prefix.strip()} help`**",
                     color=self.bot.color,
                 )
                 await message.channel.send(embed=embed)
