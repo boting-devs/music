@@ -63,8 +63,8 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
                 VALUES ($1, $2) 
                 ON CONFLICT (ID) DO UPDATE 
                     SET prefix = $2""",
-                new_prefix,
                 ctx.guild.id,  # type: ignore
+                new_prefix,
             )
             await ctx.send("Prefix Updated!")
             self.bot.prefix[ctx.guild.id] = new_prefix  # type: ignore
