@@ -597,7 +597,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
                 raise MissingRequiredArgument(
-                    param=signature(self.lyrics).parameters["query"]
+                    param=signature(self.lyrics.callback).parameters["query"]
                 )
 
             assert ctx.voice_client.current.title is not None

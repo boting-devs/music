@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from nextcord.ui import Button, View, Select
+from nextcord import SelectOption
 
 if TYPE_CHECKING:
     from nextcord import Emoji, PartialEmoji
@@ -32,4 +33,12 @@ class PlaylistView(View):
 
 class PlaylistSelect(Select):
     def __init__(self, chunk: list[Playlist]) -> None:
-        ...
+        super().__init__(
+            placeholder="Select a playlist",
+            min_values=1,
+            max_values=1,
+            options=[
+                SelectOption(label=p["name"], description=p["description"])
+                for p in chunk
+            ]
+        )
