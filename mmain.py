@@ -9,6 +9,7 @@ from nextcord import Activity, ActivityType
 from botbase import BotBase
 from dotenv import load_dotenv
 from pomice import NodePool
+from spotipy import Spotify, SpotifyClientCredentials
 
 # REMOVE ON WINDOWS
 import uvloop  # type: ignore
@@ -27,6 +28,8 @@ class MyBot(BotBase):
         self.views_added = False
         self.listeners: dict[int, set[int]] = {}
         self.spotify_users: dict[int, Optional[str]] = {}
+
+        self.spotipy = Spotify(client_credentials_manager=SpotifyClientCredentials())
 
     async def on_ready(self):
         await self.pool.create_node(

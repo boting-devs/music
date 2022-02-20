@@ -18,7 +18,7 @@ from nextcord.ext.commands import (
 )
 from nextcord.utils import utcnow
 
-from .extras.errors import NotInVoice, TooManyTracks, NotConnected, LyricsNotFound, NotInSameVoice
+from .extras.errors import NotInVoice, TooManyTracks, NotConnected, LyricsNotFound, NotInSameVoice, SongNotProvided
 from .extras.views import LinkButtonView
 
 if TYPE_CHECKING:
@@ -38,7 +38,8 @@ eh: dict[Type[Exception], tuple[str, str]] = {
         "You can only queue up to 100 tracks at a time!",
     ),
     LyricsNotFound: ("No Lyrics Found", "Sorry, could not find lyrics for that track :("),
-    NotInSameVoice: ("Not in same voice channel","You need to be in same voice channel same as bot")
+    NotInSameVoice: ("Not in same voice channel","You need to be in same voice channel same as bot"),
+    SongNotProvided: ("No Song Provided", "Please provide a song to search for lyrics"),
 }
 
 

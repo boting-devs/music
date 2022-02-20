@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from asyncio import sleep
-from inspect import signature
 from logging import getLogger
 from random import shuffle
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
+from functools import partial
 
 from bs4 import BeautifulSoup
 from nextcord import ButtonStyle, ClientUser, Embed, Interaction, Member, User
@@ -13,13 +13,12 @@ from nextcord.ext.commands import (
     BotMissingPermissions,
     Cog,
     Context,
-    MissingRequiredArgument,
     NoPrivateMessage,
     check,
     command,
 )
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
-from nextcord.ui import Button, View, button, Select
+from nextcord.ui import Button, View, button
 from nextcord.utils import utcnow, MISSING
 from pomice import Playlist
 
@@ -29,8 +28,10 @@ from .extras.errors import (
     TooManyTracks,
     LyricsNotFound,
     NotInSameVoice,
+    SongNotProvided,
 )
-from .extras.types import MyContext, MyInter, Player, SpotifyPlaylists
+from .extras.types import MyContext, MyInter, Player
+from .extras.views import PlaylistView
 
 if TYPE_CHECKING:
     from nextcord import VoiceState
@@ -596,9 +597,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def lyrics(self, ctx: MyContext, *, query: str = ""):
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
-                raise MissingRequiredArgument(
-                    param=signature(self.lyrics.callback).parameters["query"]
-                )
+                raise SongNotProvided()
 
             assert ctx.voice_client.current.title is not None
             q = ctx.voice_client.current.title[:20]
@@ -714,6 +713,22 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 "Unlinked",
                 f"You don't have a Spotify account linked, please use `{ctx.clean_prefix}spotify",
             )
+
+        loop = self.bot.loop
+        sp = self.bot.spotipy
+        func = partial(sp.user_playlists, userid, limit=125)
+        playlists = await loop.run_in_executor(None, func)
+        view = PlaylistView(playlists)
+
+        m = await ctx.send("Choose a public playlist", view=view)
+        view.message = m
+
+        await view.wait()
+
+        if view.uri is None:
+            return await ctx.send("You took too long...")
+
+        await ctx.invoke(self.play, query=view.uri)
 
 
 def setup(bot: MyBot):
