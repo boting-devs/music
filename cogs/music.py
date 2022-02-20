@@ -79,7 +79,7 @@ async def playing_embed(
 
         ctx: MyContext = track.ctx  # type: ignore
         title = track.title
-        author = track.author =None
+        author = track.author
         if not track.length:
             time = "Unknown"
         else:
@@ -122,11 +122,7 @@ async def playing_embed(
     if skipped_by:
         embed.description = embed.description + "\n skipped by " + skipped_by
 
-    if author == None:
-        embed.set_author(name=str(title), url=track.uri)
-
-    else:
-        embed.set_author(name=str(title) + " - " + str(author), url=track.uri)
+    embed.set_author(name=str(title) + " - " + str(author))
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
