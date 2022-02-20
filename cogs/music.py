@@ -123,7 +123,10 @@ async def playing_embed(
     if skipped_by:
         embed.description = embed.description + "\n skipped by " + skipped_by
 
-    embed.set_author(name=str(title) + " - " + str(author), url=track.uri)
+    embed.set_author(
+        name=str(title) + " - " + str(author),
+        url=track.uri or "https://www.youtube.com/",
+    )
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
@@ -697,7 +700,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await ctx.send_author_embed("Looping once")
 
-    @connected()
     @command(help="Play one of your playlists", aliases=["ps"])
     async def playlists(self, ctx: MyContext):
         userid = self.bot.spotify_users.get(ctx.author.id, MISSING)
@@ -718,6 +720,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         sp = self.bot.spotipy
         func = partial(sp.user_playlists, userid, limit=125)
         playlists = await loop.run_in_executor(None, func)
+        if playlists is None:
+            return await ctx.send_embed(
+                "Error", "Something went wrong, could not find your playlists"
+            )
         view = PlaylistView(playlists)
 
         m = await ctx.send("Choose a public playlist", view=view)

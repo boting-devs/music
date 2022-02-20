@@ -54,11 +54,12 @@ class PlaylistSelect(Select):
                 for p in chunk
             ],
         )
+        assert self.view is not None
         self.view.uri = None
 
     async def callback(self, interaction: Interaction) -> None:
-        self.view.url = self.values[0]
         assert self.view is not None
+        self.view.url = self.values[0]
 
         for child in self.view.children:
             child.disabled = True
