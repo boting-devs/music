@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from logging import getLogger
 
 from nextcord.ui import Button, View, Select
 from nextcord import SelectOption, Interaction
@@ -9,10 +8,7 @@ from nextcord import SelectOption, Interaction
 if TYPE_CHECKING:
     from nextcord import Emoji, PartialEmoji, Message
 
-    from .types import SpotifyPlaylists, Playlist
-
-
-log = getLogger(__name__)
+    from .types import Playlist
 
 
 class LinkButtonView(View):
@@ -46,14 +42,13 @@ class PlaylistView(View):
 
 class PlaylistSelect(Select):
     def __init__(self, chunk: list[Playlist]) -> None:
-        log.info(chunk)
         super().__init__(
             placeholder="Select a playlist",
             min_values=1,
             max_values=1,
             options=[
                 SelectOption(
-                    label=p["name"], description=p["description"], value=p["url"]
+                    label=p["name"], description=p["description"], value=p["external_urls"]["spotify"]
                 )
                 for p in chunk
             ],

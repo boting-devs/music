@@ -732,7 +732,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 )
 
             count += len(playlists["items"])
-            all_playlists.append(playlists["items"])
+            all_playlists+= playlists["items"]
             total = playlists["total"]
 
         view = PlaylistView(all_playlists)
