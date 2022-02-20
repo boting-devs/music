@@ -597,7 +597,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def lyrics(self, ctx: MyContext, *, query: str = ""):
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
-                raise MissingRequiredArgument()
+                raise MissingRequiredArgument(
+                    param=signature(self.lyrics).parameters[query]
+                )
 
             assert ctx.voice_client.current.title is not None
             q = ctx.voice_client.current.title[:20]
