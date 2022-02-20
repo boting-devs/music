@@ -122,10 +122,8 @@ async def playing_embed(
     if skipped_by:
         embed.description = embed.description + "\n skipped by " + skipped_by
 
-    if not track.uri:
-        embed.set_author(name=str(title) + " - " + str(author),url="https://www.youtube.com/")
-    else:
-        embed.set_author(name=str(title) + " - " + str(author),url=track.uri)
+    embed.set_author(name=str(title) + " - " + str(author),url=track.uri or "https://www.youtube.com/")
+
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
