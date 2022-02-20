@@ -738,6 +738,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await view.wait()
 
+        print(f"uri: {view.uri}")
+
         if view.uri is None:
             return await ctx.send("You took too long...")
 

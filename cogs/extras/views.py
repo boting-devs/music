@@ -71,6 +71,8 @@ class PlaylistSelect(Select):
         assert self.view is not None
         self.view.url = self.values[0]
 
+        print(f"values: {self.values}")
+
         for child in self.view.children:
             child.disabled = True
 
