@@ -718,13 +718,24 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         loop = self.bot.loop
         sp = self.bot.spotipy
-        func = partial(sp.user_playlists, userid, limit=125)
-        playlists = await loop.run_in_executor(None, func)
-        if playlists is None:
-            return await ctx.send_embed(
-                "Error", "Something went wrong, could not find your playlists"
-            )
-        view = PlaylistView(playlists)
+
+        all_playlists = []
+        count = 0
+        total = 25
+
+        while count < total:
+            func = partial(sp.user_playlists, userid, limit=50, offset=count)
+            playlists = await loop.run_in_executor(None, func)
+            if playlists is None:
+                return await ctx.send_embed(
+                    "Error", "Something went wrong, could not find your playlists"
+                )
+
+            count += len(playlists["items"])
+            all_playlists.append(playlists["items"])
+            total = playlists["total"]
+
+        view = PlaylistView(all_playlists)
 
         m = await ctx.send("Choose a public playlist", view=view)
         view.message = m

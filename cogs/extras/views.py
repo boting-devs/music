@@ -26,9 +26,8 @@ class PlaylistView(View):
     message: Message
     uri: str | None
 
-    def __init__(self, playlists: SpotifyPlaylists) -> None:
-        items = playlists["items"]
-        chunks = [items[i : i + 10] for i in range(0, len(items), 25)]
+    def __init__(self, playlists: list[Playlist]) -> None:
+        chunks = [playlists[i : i + 10] for i in range(0, len(playlists), 25)]
 
         for chunk in chunks:
             self.add_item(PlaylistSelect(chunk))
