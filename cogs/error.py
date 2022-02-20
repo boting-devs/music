@@ -15,6 +15,7 @@ from nextcord.ext.commands import (
     NoPrivateMessage,
     NotOwner,
     PrivateMessageOnly,
+    MissingRequiredArgument
 )
 from nextcord.utils import utcnow
 
@@ -118,6 +119,15 @@ class Errors(Cog):
             )
             self.format_embed(embed, ctx)
             await ctx.send(embed=embed, view=self.support_view)
+
+        elif isinstance(error,MissingRequiredArgument):
+            embed = Embed(
+                title="Missing Argument",
+                description="**Please play a song or type a song name**",
+                color = self.bot.color,
+                )
+            embed.add_field(name="Example -->",value="```vb lyrics intentions```")
+            await ctx.send(embed=embed,view=self.support_view)
 
         elif type(error) in eh:
             embed = Embed(
