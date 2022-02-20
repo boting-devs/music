@@ -27,6 +27,8 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
 
     @command(help="Link up your cool Spotify account :)")
     async def spotify(self, ctx: MyContext):
+        if not await self.bot.is_owner(ctx.author):
+            return await ctx.send("This is under development, watch this space")
         await ctx.send_embed(desc=urlprompt, image="https://cdn.tooty.xyz/KSzS")
 
         m = await self.bot.wait_for(
