@@ -32,6 +32,8 @@ class PlaylistView(View):
         for chunk in chunks:
             self.add_item(PlaylistSelect(chunk))
 
+        self.uri = None
+
     async def on_timeout(self):
         for child in self.children:
             if isinstance(child, (Button, Select)):
@@ -53,8 +55,6 @@ class PlaylistSelect(Select):
                 for p in chunk
             ],
         )
-        assert self.view is not None
-        self.view.uri = None
 
     async def callback(self, interaction: Interaction) -> None:
         assert self.view is not None
