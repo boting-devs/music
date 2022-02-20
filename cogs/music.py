@@ -79,7 +79,7 @@ async def playing_embed(
 
         ctx: MyContext = track.ctx  # type: ignore
         title = track.title
-        author = track.author
+        author = track.author =None
         if not track.length:
             time = "Unknown"
         else:
