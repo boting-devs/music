@@ -51,8 +51,16 @@ class PlaylistSelect(Select):
             max_values=1,
             options=[
                 SelectOption(
-                    label=p["name"],
-                    description=p["description"],
+                    label=(p["name"] or "No name defined?"),
+                    description=(
+                        (
+                            p["description"]
+                            if len(p["description"]) < 100
+                            else p["description"][:97] + "..."
+                        )
+                        if p["description"]
+                        else None
+                    ),
                     value=p["external_urls"]["spotify"],
                 )
                 for p in chunk

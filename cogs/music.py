@@ -641,10 +641,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         embed.set_thumbnail(url=thumbnail)
         await a.edit(embed=embed)
 
-    @command(help="Hi :3")
-    async def hello(self, ctx: MyContext):
-        await ctx.send_author_embed("hey")
-
     @connected()
     @command(help="When the beat isnt hitting right", aliases=["s"])
     async def skip(self, ctx: MyContext):
