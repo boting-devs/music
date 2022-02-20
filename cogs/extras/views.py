@@ -27,6 +27,7 @@ class PlaylistView(View):
     uri: str | None
 
     def __init__(self, playlists: list[Playlist]) -> None:
+        super().__init__()
         chunks = [playlists[i : i + 10] for i in range(0, len(playlists), 25)]
 
         for chunk in chunks:
@@ -50,7 +51,9 @@ class PlaylistSelect(Select):
             max_values=1,
             options=[
                 SelectOption(
-                    label=p["name"], description=p["description"], value=p["external_urls"]["spotify"]
+                    label=p["name"],
+                    description=p["description"],
+                    value=p["external_urls"]["spotify"],
                 )
                 for p in chunk
             ],
