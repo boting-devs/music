@@ -61,7 +61,7 @@ class PlaylistSelect(Select):
                         if p["description"]
                         else None
                     ),
-                    value=p["external_urls"]["spotify"] or p["uri"],
+                    value=p["external_urls"]["spotify"] or p["url"],
                 )
                 for p in chunk
             ],
