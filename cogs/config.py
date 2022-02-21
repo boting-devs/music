@@ -39,7 +39,7 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
                 and m.channel.id == ctx.channel.id,
             )
         except asyncio.TimeoutError:
-            await ctx.send("🚫 You ran out of time. Try again later")
+            return await ctx.send("🚫 You ran out of time. Try again later")
         url = m.content
 
         match = self.SPOTIFY_URL_RE.match(url)
