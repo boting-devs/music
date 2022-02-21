@@ -9,7 +9,7 @@ from .extras.types import MyContext
 
 if TYPE_CHECKING:
     from ..mmain import MyBot
-
+import asyncio
 
 urlprompt = """
 Please send your spotify profile url to link your account to vibr.
@@ -31,11 +31,15 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
             return await ctx.send("This is under development, watch this space")
         await ctx.send_embed(desc=urlprompt, image="https://cdn.tooty.xyz/KSzS")
 
-        m = await self.bot.wait_for(
-            "message",
-            check=lambda m: m.author.id == ctx.author.id
-            and m.channel.id == ctx.channel.id,
-        )
+        try:
+            m = await self.bot.wait_for(
+                "message",
+                timeout = 300,
+                check=lambda m: m.author.id == ctx.author.id
+                and m.channel.id == ctx.channel.id,
+            )
+        except asyncio.TimeoutError:
+            await ctx.send("🚫 You ran out of time. Try again later")
         url = m.content
 
         match = self.SPOTIFY_URL_RE.match(url)
