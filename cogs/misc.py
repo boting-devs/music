@@ -63,6 +63,13 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
                 )
                 await message.channel.send(embed=embed)
 
+    @command(help="Vote for vibr")
+    async def vote(self,ctx:MyContext):
+        embed = Embed(title="**Vote for Vibr**",color=self.bot.color)
+        embed.add_field(name="Like our bot? Vote for us",value="[click here](https://top.gg/bot/882491278581977179)")
+        embed.set_image(url="https://d30i16bbj53pdg.cloudfront.net/wp-content/uploads/2018/10/vote-for-blog.jpg")
+        await ctx.send(embed=embed) 
+
 
 def setup(bot: MyBot):
     bot.add_cog(Misc(bot))
