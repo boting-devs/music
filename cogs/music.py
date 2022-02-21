@@ -459,6 +459,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         )
 
         channel = ctx.author.voice.channel
+        if ctx.voice_client is not None:
+            if channel.id == ctx.voice_client.channel.id:
+                return await ctx.reply("Already Connected!")
 
         await channel.connect(cls=Player)  # type: ignore
 
