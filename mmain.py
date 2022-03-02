@@ -39,7 +39,7 @@ class MyBot(BotBase):
             password="haha",
             identifier="MAIN",
             spotify_client_id=os.getenv("SPOTIPY_CLIENT_ID"),
-            spotify_client_secret=os.getenv("SPOTIPY_SECRET_SECRET"),
+            spotify_client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
         )
 
 
