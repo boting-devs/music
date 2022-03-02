@@ -38,8 +38,8 @@ class MyBot(BotBase):
             port="6969",
             password="haha",
             identifier="MAIN",
-            spotify_client_id=os.getenv("SPOTIFY_CLIENT"),
-            spotify_client_secret=os.getenv("SPOTIFY_SECRET"),
+            spotify_client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+            spotify_client_secret=os.getenv("SPOTIFY_SECRET_SECRET"),
         )
 
 
