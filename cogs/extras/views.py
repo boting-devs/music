@@ -71,8 +71,6 @@ class PlaylistSelect(Select[PlaylistView]):
         assert self.view is not None
         self.view.uri = self.values[0]
 
-        print(f"values: {self.values}")
-
         for child in self.view.children:
             if isinstance(child, (Button, Select)):
                 child.disabled = True
