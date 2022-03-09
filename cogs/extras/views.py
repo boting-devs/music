@@ -43,7 +43,7 @@ class PlaylistView(View):
         await self.message.edit(view=self)
 
 
-class PlaylistSelect(Select):
+class PlaylistSelect(Select[PlaylistView]):
     def __init__(self, chunk: list[Playlist]) -> None:
         super().__init__(
             placeholder="Select a playlist",
@@ -69,12 +69,13 @@ class PlaylistSelect(Select):
 
     async def callback(self, interaction: Interaction) -> None:
         assert self.view is not None
-        self.view.url = self.values[0]
+        self.view.uri = self.values[0]
 
         print(f"values: {self.values}")
 
         for child in self.view.children:
-            child.disabled = True
+            if isinstance(child, (Button, Select)):
+                child.disabled = True
 
         await interaction.response.edit_message(view=self.view)
 

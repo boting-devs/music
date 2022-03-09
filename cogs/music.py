@@ -701,8 +701,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @command(help="Play one of your playlists", aliases=["ps"])
     async def playlists(self, ctx: MyContext):
-        if not await self.bot.is_owner(ctx.author):
+        if not await self.bot.is_owner(ctx.author):  # type: ignore
             return await ctx.send("This is under development, watch this space")
+
         userid = self.bot.spotify_users.get(ctx.author.id, MISSING)
 
         if userid is MISSING:
@@ -742,8 +743,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         view.message = m
 
         await view.wait()
-
-        print(f"uri: {view.uri}")
 
         if view.uri is None:
             return await ctx.send("You took too long...")
