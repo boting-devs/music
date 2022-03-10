@@ -165,7 +165,7 @@ def admin_owner_or_arg_perms(arg: int, **perms: bool):
             perm for perm, value in perms.items() if getattr(permissions, perm) != value
         ]
 
-        if ctx.bot.is_owner(ctx.author) or permissions.administrator or not missing:
+        if await ctx.bot.is_owner(ctx.author) or permissions.administrator or not missing:
             return True
         else:
             raise MissingPermissions(missing)
