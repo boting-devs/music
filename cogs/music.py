@@ -18,7 +18,7 @@ from nextcord.ext.commands import (
     command,
 )
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
-from nextcord.ui import Button, View, button
+from nextcord.ui import Button, View, button, Select
 from nextcord.utils import utcnow, MISSING
 from pomice import Playlist
 
@@ -737,6 +737,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             all_playlists+= playlists["items"]
             total = playlists["total"]
 
+        if not len(all_playlists):
+            return await ctx.send_embed("No playlists", "You do not have any public playlists!")
+
         view = PlaylistView(all_playlists)
 
         m = await ctx.send("Choose a public playlist", view=view)
@@ -745,7 +748,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await view.wait()
 
         if view.uri is None:
-            return await ctx.send("You took too long...")
+            for child in view.children:
+                if isinstance(child, (Button, Select)):
+                    child.disabled = True
+
+            return await view.message.edit(content="You took too long...", view=view)
 
         await ctx.invoke(self.play, query=view.uri)
 

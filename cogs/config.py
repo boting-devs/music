@@ -27,8 +27,9 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
 
     @command(help="Link up your cool Spotify account :)")
     async def spotify(self, ctx: MyContext):
-        if not await self.bot.is_owner(ctx.author):
+        if not await self.bot.is_owner(ctx.author):  # type: ignore
             return await ctx.send("This is under development, watch this space")
+
         await ctx.send_embed(desc=urlprompt, image="https://cdn.tooty.xyz/KSzS")
 
         try:
@@ -39,7 +40,7 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
                 and m.channel.id == ctx.channel.id,
             )
         except asyncio.TimeoutError:
-            return await ctx.send("🚫 You ran out of time. Try again later")
+            return await ctx.send("🚫 You ran out of time. Try again later when you have your account link")
         url = m.content
 
         match = self.SPOTIFY_URL_RE.match(url)
