@@ -122,6 +122,15 @@ class Errors(Cog):
             self.format_embed(embed, ctx)
             await ctx.send(embed=embed, view=self.support_view)
 
+        elif isinstance(error,MissingRequiredArgument):
+            embed = Embed(
+                title="Missing Argument",
+                description=error,
+                color=self.bot.color,
+            )
+            self.format_embed(embed,ctx)
+            await ctx.send(embed=embed,view=self.support_view)
+
         elif type(error) in eh:
             embed = Embed(
                 title=eh[type(error)][0],
