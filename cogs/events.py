@@ -38,6 +38,9 @@ class Events(Cog):
                     self.bot.listeners[after.channel.id] = {member.id}
                 else:
                     self.bot.listeners[after.channel.id].add(member.id)
+
+                if task := self.bot.listener_tasks.get(member.guild.id):
+                    task.cancel()
             elif before.channel and not after.channel:
                 if before.channel.id in self.bot.listeners:
                     self.bot.listeners.get(before.channel.id, set()).discard(member.id)
