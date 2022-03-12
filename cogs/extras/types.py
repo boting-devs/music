@@ -23,7 +23,7 @@ class FakeGuild(nextcord.Guild):
 
 
 class MyInter(botbase.MyInter):
-    guild: FakeGuild | None
+    guild: FakeGuild
 
 
 class SpotifyPlaylists(TypedDict):

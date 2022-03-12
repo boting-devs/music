@@ -168,6 +168,7 @@ class PlayButton(View):
             return False
         elif (
             not inter.user.voice
+            or not inter.user.voice.channel
             or inter.user.voice.channel.id != inter.guild.voice_client.channel.id
         ):
             await inter.send_embed(
@@ -347,7 +348,12 @@ class QueueView(ButtonMenuPages):
                 "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
             )
             return
-        elif inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
+        elif (
+            not inter.user
+            or not inter.user.voice
+            or not inter.user.voice.channel
+            or inter.user.voice.channel.id != inter.guild.voice_client.channel.id
+        ):
             await inter.send_embed(
                 "Not in Voice",
                 "You need to be in the same vc as the bot!",
@@ -440,15 +446,24 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         ):
             return
 
-        await sleep(60)
+        async def task():
+            await sleep(60)
 
-        if len(self.bot.listeners.get(before.channel.id, set())) > 0:
-            return
+            assert before.channel
 
-        if c := member.guild.voice_client.current:  # type: ignore
-            await c.ctx.send_author_embed("Disconnecting on no listeners")
+            if len(self.bot.listeners.get(before.channel.id, set())) > 0:
+                self.bot.listener_tasks.pop(member.guild.id)
+                return
 
-        await member.guild.voice_client.destroy()  # type: ignore
+            if c := member.guild.voice_client.current:  # type: ignore
+                await c.ctx.send_author_embed("Disconnecting on no listeners")
+
+            await member.guild.voice_client.destroy()  # type: ignore
+
+            self.bot.listener_tasks.pop(member.guild.id)
+
+        t = self.bot.loop.create_task(task())
+        self.bot.listener_tasks[member.guild.id] = t
 
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
     async def join(self, ctx: MyContext):
@@ -734,11 +749,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 )
 
             count += len(playlists["items"])
-            all_playlists+= playlists["items"]
+            all_playlists += playlists["items"]
             total = playlists["total"]
 
         if not len(all_playlists):
-            return await ctx.send_embed("No playlists", "You do not have any public playlists!")
+            return await ctx.send_embed(
+                "No playlists", "You do not have any public playlists!"
+            )
 
         view = PlaylistView(all_playlists)
 
