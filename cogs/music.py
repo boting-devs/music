@@ -752,7 +752,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         if not len(all_playlists):
             return await ctx.send_embed(
-                "No playlists", "You do not have any public playlists! \nPlease refer this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/"
+                "No playlists", "**You do not have any public playlists!** \nPlease refer this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/"
             )
 
         view = PlaylistView(all_playlists)
