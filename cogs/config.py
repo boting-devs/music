@@ -25,6 +25,11 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
     def __init__(self, bot: MyBot):
         self.bot = bot
 
+    @property
+    def emoji(self) -> str:
+        return "🛠"
+
+
     @command(help="Link up your cool Spotify account :)")
     async def spotify(self, ctx: MyContext):
 
