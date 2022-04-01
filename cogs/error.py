@@ -5,11 +5,9 @@ from traceback import format_exception
 from typing import TYPE_CHECKING
 
 from botbase import MyContext, MyInter
-from nextcord import Color, Embed
+from nextcord import Color, Embed, ApplicationInvokeError
 from nextcord.ext.application_checks import (
     ApplicationBotMissingPermissions as ABotMissingPermissions,
-)
-from nextcord.ext.application_checks import (
     ApplicationMissingPermissions as AMissingPermissions,
 )
 from nextcord.ext.commands import (
@@ -97,7 +95,7 @@ class Errors(Cog):
     @Cog.listener()
     async def on_command_error(self, ctx: MyContext | MyInter, error: Exception):
         assert self.support_view is not None
-        if isinstance(error, CommandInvokeError):
+        if isinstance(error, (CommandInvokeError, ApplicationInvokeError)):
             error = error.original
 
         if isinstance(error, CommandNotFound):
