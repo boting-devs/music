@@ -90,15 +90,19 @@ async def playing_embed(
         embed.set_thumbnail(url=track.thumbnail)
 
     if isinstance(ctx, MyInter) and ctx.response.is_done():
-        ctx = ctx.channel  # type: ignore
-        # ok im not proud of this one
+        ch = ctx.channel
+    else:
+        ch = ctx
 
     if queue:
-        await ctx.send(embed=embed, content="Queued", view=view)
+        await ch.send(embed=embed, content="Queued", view=view)  # type: ignore
+        # why on earth can that be a voice channel
     elif length:
-        await ctx.send(embed=embed, view=view)
+        await ch.send(embed=embed, view=view)  # type: ignore
+        # why on earth can that be a voice channel
     else:
-        await ctx.send(embed=embed, view=view)
+        await ch.send(embed=embed, view=view)  # type: ignore
+        # why on earth can that be a voice channel
 
         if isinstance(track, Playlist):
             return
