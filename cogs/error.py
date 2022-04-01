@@ -4,7 +4,7 @@ from logging import getLogger
 from traceback import format_exception
 from typing import TYPE_CHECKING
 
-from botbase import MyContext
+from botbase import MyContext, MyInter
 from nextcord import Color, Embed
 from nextcord.ext.commands import (
     BotMissingPermissions,
@@ -15,11 +15,22 @@ from nextcord.ext.commands import (
     NoPrivateMessage,
     NotOwner,
     PrivateMessageOnly,
-    MissingRequiredArgument
+    MissingRequiredArgument,
 )
 from nextcord.utils import utcnow
+from nextcord.ext.application_checks import (
+    ApplicationMissingPermissions as AMissingPermissions,
+    ApplicationBotMissingPermissions as ABotMissingPermissions,
+)
 
-from .extras.errors import NotInVoice, TooManyTracks, NotConnected, LyricsNotFound, NotInSameVoice, SongNotProvided
+from .extras.errors import (
+    NotInVoice,
+    TooManyTracks,
+    NotConnected,
+    LyricsNotFound,
+    NotInSameVoice,
+    SongNotProvided,
+)
 from .extras.views import LinkButtonView
 
 if TYPE_CHECKING:
@@ -29,7 +40,7 @@ if TYPE_CHECKING:
 
 
 log = getLogger(__name__)
-eh: dict[Type[Exception], tuple[str, str]] = {
+ehh: dict[Type[Exception], tuple[str, str]] = {
     NoPrivateMessage: ("Server Only", "This command can only be used in servers!"),
     PrivateMessageOnly: ("DMs Only", "This command can only be used in DMs!"),
     NotOwner: ("Owner Only", "This command can only be used by my owner!"),
@@ -38,11 +49,21 @@ eh: dict[Type[Exception], tuple[str, str]] = {
         "Too Many Tracks",
         "You can only queue up to 100 tracks at a time!",
     ),
-    LyricsNotFound: ("No Lyrics Found", "Sorry, could not find lyrics for that track :("),
-    NotInSameVoice: ("Not in same voice channel","You need to be in same voice channel same as bot"),
+    LyricsNotFound: (
+        "No Lyrics Found",
+        "Sorry, could not find lyrics for that track :(",
+    ),
+    NotInSameVoice: (
+        "Not in same voice channel",
+        "You need to be in same voice channel same as bot",
+    ),
     SongNotProvided: ("No Song Provided", "Please provide a song to search for lyrics"),
-    NotConnected: ("Not Connected", "This command requires the bot to be connected to a vc")
+    NotConnected: (
+        "Not Connected",
+        "This command requires the bot to be connected to a vc",
+    ),
 }
+eh: dict[str, tuple[str, str]] = {e.__name__: msg for e, msg in ehh.items()}
 
 
 class Errors(Cog):
@@ -60,15 +81,19 @@ class Errors(Cog):
         )
 
     @staticmethod
-    def format_embed(embed: Embed, ctx: MyContext) -> None:
+    def format_embed(embed: Embed, ctx: MyContext | MyInter) -> None:
         embed.timestamp = utcnow()
         embed.set_footer(
             text="report in the link below if this is weird |"
-            f" do help {ctx.clean_prefix}{ctx.command} for info"
+            f" do {ctx.clean_prefix}help {ctx.command} for info"
         )
 
     @Cog.listener()
-    async def on_command_error(self, ctx: MyContext, error: Exception):
+    async def on_application_command_error(self, inter: MyInter, error: Exception):
+        await self.on_command_error(inter, error)
+
+    @Cog.listener()
+    async def on_command_error(self, ctx: MyContext | MyInter, error: Exception):
         assert self.support_view is not None
         if isinstance(error, CommandInvokeError):
             error = error.original
@@ -89,12 +114,12 @@ class Errors(Cog):
             return
 
         elif isinstance(error, NotConnected):
-            if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+            if ctx.channel.permissions_for(ctx.me).add_reactions and isinstance(ctx, MyContext):  # type: ignore
                 await ctx.message.add_reaction("\U0000274c")
             else:
                 await ctx.send("I'm not even connected")
 
-        elif isinstance(error, MissingPermissions):
+        elif isinstance(error, (MissingPermissions, AMissingPermissions)):
             perms = ", ".join(
                 f"`{p.replace('_', ' ').capitalize()}`"
                 for p in error.missing_permissions
@@ -108,7 +133,7 @@ class Errors(Cog):
             self.format_embed(embed, ctx)
             await ctx.send(embed=embed, view=self.support_view)
 
-        elif isinstance(error, BotMissingPermissions):
+        elif isinstance(error, (BotMissingPermissions, ABotMissingPermissions)):
             perms = ", ".join(
                 f"`{p.replace('_', ' ').capitalize()}`"
                 for p in error.missing_permissions
@@ -122,19 +147,23 @@ class Errors(Cog):
             self.format_embed(embed, ctx)
             await ctx.send(embed=embed, view=self.support_view)
 
-        elif isinstance(error,MissingRequiredArgument):
+        elif isinstance(error, MissingRequiredArgument):
             embed = Embed(
                 title="Missing Argument",
                 description=error,
                 color=self.bot.color,
             )
-            self.format_embed(embed,ctx)
-            await ctx.send(embed=embed,view=self.support_view)
+            self.format_embed(embed, ctx)
+            await ctx.send(embed=embed, view=self.support_view)
 
         elif type(error) in eh:
+            name = type(error).__name__
+            if name.startswith("Application"):
+                name = name.lstrip("Application")
+
             embed = Embed(
-                title=eh[type(error)][0],
-                description=eh[type(error)][1],
+                title=eh[name][0],
+                description=eh[name][1],
                 color=Color.red(),
             )
             self.format_embed(embed, ctx)
@@ -151,6 +180,11 @@ class Errors(Cog):
             )
             await ctx.send(embed=embed, view=self.support_view)
             painchannel = await self.bot.getch_channel(self.bot.logchannel)
+            content = (
+                ctx.message.content
+                if isinstance(ctx, MyContext)
+                else ctx.data and ctx.data.get("name")
+            )
             if ctx.guild is None:
                 channel = "dm"
                 name = "dm"
@@ -162,7 +196,7 @@ class Errors(Cog):
             tb = "\n".join(format_exception(type(error), error, error.__traceback__))
             await painchannel.send_embed(  # type: ignore
                 desc=f"command {ctx.command} gave ```py\n{tb}```, "
-                f"invoke: {ctx.message.content} in "
+                f"invoke: {content} in "
                 f"{channel} ({name}) in {guild} by {ctx.author}"
             )
             log.error(

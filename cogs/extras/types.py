@@ -16,6 +16,7 @@ class Player(pomice.Player):
 
 class MyContext(botbase.MyContext):
     voice_client: Player
+    guild: FakeGuild
 
 
 class FakeGuild(nextcord.Guild):
@@ -24,6 +25,7 @@ class FakeGuild(nextcord.Guild):
 
 class MyInter(botbase.MyInter):
     guild: FakeGuild
+    voice_client: Player
 
 
 class SpotifyPlaylists(TypedDict):

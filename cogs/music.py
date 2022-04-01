@@ -1,41 +1,27 @@
 from __future__ import annotations
 
 from asyncio import sleep
-from logging import getLogger
 from random import shuffle
-from time import gmtime, strftime
-from typing import TYPE_CHECKING
 from functools import partial
+from logging import getLogger
+from typing import TYPE_CHECKING, Union
 
-from bs4 import BeautifulSoup
-from nextcord import ButtonStyle, ClientUser, Embed, Interaction, Member, User
-from nextcord.ext.commands import (
-    BotMissingPermissions,
-    Cog,
-    Context,
-    NoPrivateMessage,
-    check,
-    command,
-)
-from nextcord.ext.menus import ButtonMenuPages, ListPageSource
-from nextcord.ui import Button, View, button, Select
-from nextcord.utils import utcnow, MISSING
 from pomice import Playlist
+from bs4 import BeautifulSoup
+from nextcord.utils import MISSING
+from nextcord.ui import Button, Select
+from nextcord import ClientUser, Embed, Member, SlashOption, User, slash_command
+from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
 
-from .extras.errors import (
-    NotConnected,
-    NotInVoice,
-    TooManyTracks,
-    LyricsNotFound,
-    NotInSameVoice,
-    SongNotProvided,
-)
+from .extras.checks import connected
+from .extras.views import PlaylistView, QueueView, QueueSource, PlayButton
+from .extras.playing_embed import playing_embed
 from .extras.types import MyContext, MyInter, Player
-from .extras.views import PlaylistView
+from .extras.errors import LyricsNotFound, NotInSameVoice, NotInVoice, SongNotProvided, TooManyTracks
 
 if TYPE_CHECKING:
-    from nextcord import VoiceState
     from pomice import Track
+    from nextcord import VoiceState
 
     from ..mmain import MyBot
 
@@ -44,338 +30,26 @@ log = getLogger(__name__)
 
 API_URL = "https://api.genius.com/search/"
 TKN = "E4Eq5BhA2Xq6U99o1swO5IWcS7BBKyx1lCzyApT1wbyEqhItNaK5PpukKpUKrt3G"
-
-
-def connected():
-    async def extended_check(ctx: Context) -> bool:
-        if ctx.voice_client is None:
-            raise NotConnected()
-
-        return True
-
-    return check(extended_check)
-
-
-async def playing_embed(
-    track: Track | Playlist,
-    queue: bool = False,
-    length: bool = False,
-    skipped_by: str | None = None,
-    override_ctx: MyContext | None = None,
-):
-    view = PlayButton()
-    if isinstance(track, Playlist):
-        assert track.tracks[0].ctx is not None
-
-        ctx: MyContext = track.tracks[0].ctx  # type: ignore
-
-        title = track.name
-        author = "Multiple Authors"
-        time = strftime(
-            "%H:%M:%S",
-            gmtime(sum(t.length for t in track.tracks if t.length is not None) / 1000),
-        )
-    else:
-        assert track.ctx is not None
-
-        ctx: MyContext = track.ctx  # type: ignore
-        title = track.title
-        author = track.author
-        if not track.length:
-            time = "Unknown"
-        else:
-            time = strftime(
-                "%H:%M:%S",
-                gmtime(track.length / 1000),
-            )
-
-    if override_ctx:
-        ctx = override_ctx
-
-    embed = Embed(
-        color=ctx.bot.color,
-        timestamp=utcnow(),
-    )
-
-    if length:
-        if isinstance(track, Playlist):
-            tr = track.tracks[0]
-        else:
-            tr = track
-
-        c = ctx.voice_client.position
-        assert tr.length is not None
-        t = tr.length
-        current = strftime("%H:%M:%S", gmtime(c // 1000))
-        total = strftime("%H:%M:%S", gmtime(t // 1000))
-        pos = round(c / t * 12)
-        line = (
-            ("\U00002501" * (pos - 1 if pos > 0 else 0))
-            + "\U000025cf"
-            + ("\U00002501" * (12 - pos))
-        )
-        # if 2/12, then get 1 before, then dot then 12 - 2 to pad to 12
-        timing = f"{current} {line} {total}"
-        embed.description = ctx.author.mention + "\n" + timing
-    else:
-        embed.description = f"{time} - {ctx.author.mention}"
-
-    if skipped_by:
-        embed.description = embed.description + "\n skipped by " + skipped_by
-
-    embed.set_author(
-        name=str(title) + " - " + str(author),
-        url=track.uri or "https://www.youtube.com/",
-    )
-
-    if track.thumbnail:
-        embed.set_thumbnail(url=track.thumbnail)
-
-    if queue:
-        await ctx.send(embed=embed, content="Queued", view=view)
-        return
-    if length:
-        channel = ctx.channel
-        await channel.send(embed=embed, view=view)
-    else:
-        await ctx.send(embed=embed, view=view)
-
-        if isinstance(track, Playlist):
-            return
-
-        await ctx.bot.db.execute(
-            """INSERT INTO songs (id, spotify, member) 
-            VALUES ($1, $2, $3) 
-            ON CONFLICT (id, spotify, member)
-            DO UPDATE SET
-                amount = songs.amount + 1""",
-            track.identifier,
-            track.spotify,
-            ctx.author.id,
-        )
-
-
-class PlayButton(View):
-    def __init__(self):
-        super().__init__(timeout=None)
-
-    async def interaction_check(self, inter: Interaction) -> bool:
-        inter = MyInter(inter, inter.client)  # type: ignore
-        if not inter.guild or not inter.guild.voice_client:
-            await inter.send_embed(
-                "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
-            )
-            return False
-        elif (
-            not inter.user.voice
-            or not inter.user.voice.channel
-            or inter.user.voice.channel.id != inter.guild.voice_client.channel.id
-        ):
-            await inter.send_embed(
-                "Not in Voice",
-                "You need to be in the same vc as the bot!",
-                ephemeral=True,
-            )
-            return False
-
-        return True
-
-    @button(
-        emoji="\U000023ef\U0000fe0f", style=ButtonStyle.blurple, custom_id="view:pp"
-    )
-    async def playpause(self, _: Button, inter: Interaction):
-        assert inter.guild is not None
-        inter = MyInter(inter, inter.client)  # type: ignore
-
-        if not inter.guild.voice_client.is_paused:
-            await inter.guild.voice_client.set_pause(True)
-            await inter.send_author_embed("Paused")
-        else:
-            await inter.guild.voice_client.set_pause(False)
-            await inter.send_author_embed("Resumed")
-
-    @button(emoji="\U000023ed", style=ButtonStyle.blurple, custom_id="view:next")
-    async def skip(self, _: Button, inter: Interaction):
-        inter = MyInter(inter, inter.client)  # type: ignore
-        assert inter.guild is not None
-        if not inter.guild.voice_client.queue:
-            return await inter.send_embed("Nothing in queue", ephemeral=True)
-
-        toplay = inter.guild.voice_client.queue.pop(0)
-        await inter.guild.voice_client.play(toplay)
-        await playing_embed(toplay, skipped_by=inter.user.mention)
-
-    @button(emoji="\U000023f9", style=ButtonStyle.blurple, custom_id="view:stop")
-    async def stop(self, _: Button, inter: Interaction):
-        assert inter.guild is not None
-        inter = MyInter(inter, inter.client)  # type: ignore
-
-        if not inter.guild.voice_client.is_playing:
-            return await inter.send_embed("No song is playing", ephemeral=True)
-
-        inter.guild.voice_client.queue = []
-        await inter.guild.voice_client.stop()
-        await inter.send_author_embed("Stopped")
-
-    @button(
-        emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle", row=1
-    )
-    async def shuffle(self, _: Button, inter: Interaction):
-        assert inter.guild is not None
-        inter = MyInter(inter, inter.client)  # type: ignore
-
-        shuffle(inter.guild.voice_client.queue)
-        await inter.send_author_embed("Shuffled the queue")
-
-    @button(
-        emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue", row=1
-    )
-    async def queue(self, _: Button, inter: Interaction):
-        assert inter.guild is not None
-        inter = MyInter(inter, inter.client)  # type: ignore
-        current = inter.guild.voice_client.current
-        queue = inter.guild.voice_client.queue
-        if not queue:
-            return await inter.send_embed("Nothing in queue")
-
-        menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
-        await menu.start(interaction=inter, ephemeral=True)
-
-    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop", row=1)
-    async def loop(self, _: Button, inter: Interaction):
-        assert inter.guild is not None
-        inter = MyInter(inter, inter.client)  # type: ignore
-
-        if not inter.guild.voice_client.is_playing:
-            return await inter.send_embed("No song is playing", ephemeral=True)
-        current_song = inter.guild.voice_client.current
-        inter.guild.voice_client.queue.insert(0, current_song)
-        await inter.send_author_embed("looping song once \U0001f502")
-
-
-class MyMenu(ButtonMenuPages):
-    ctx: MyContext
-
-
-class QueueSource(ListPageSource):
-    def __init__(self, now: Track, queue: list[Track]):
-        super().__init__(entries=queue, per_page=10)
-        self.queue = queue
-        self.now = now
-        self.title = f"Queue of {len(queue)} songs"
-
-    def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
-        add = self.queue.index(tracks[0]) + 1
-        desc = "\n".join(
-            f"**{i + add}.** [{t.title}]({t.uri}) by "
-            f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
-            for i, t in enumerate(tracks)
-        )
-        if tracks[0] == self.queue[0]:
-            c = self.now
-            desc = (
-                f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
-                f"\U0001f3b6 Up Next:\n" + desc
-            )
-        embed = Embed(
-            description=desc,
-            color=menu.ctx.bot.color if menu.ctx else menu.interaction.client.color,  # type: ignore
-        )
-
-        maximum = self.get_max_pages()
-        if maximum > 1:
-            c = sum((t.length / 1000 if t.length else 0) for t in self.queue)
-            a = strftime("%H:%M:%S", gmtime(round(c)))
-            embed.set_footer(
-                text=f"Page {menu.current_page + 1}/{maximum} "
-                f"({len(self.queue)} tracks - total {a})"
-            )
-
-        embed.set_author(name=self.title)
-
-        return embed
-
-
-class QueueView(ButtonMenuPages):
-    def __init__(self, source: ListPageSource, ctx: MyContext | MyInter) -> None:
-        super().__init__(source=source, style=ButtonStyle.blurple)
-        self.ctx = ctx
-
-    async def interaction_check(self, interaction: Interaction) -> bool:
-        if interaction.user and (
-            interaction.user.id
-            == (
-                self.ctx.bot.owner_id
-                if self.ctx
-                else self.interaction.client.owner_id  # type: ignore
-            )
-            or interaction.user.id
-            in (
-                self.ctx.bot.owner_ids
-                if self.ctx
-                else self.interaction.client.owner_ids  # type: ignore
-            )
-        ):
-            return True
-        if self.ctx and self.ctx.command is not None:
-            await interaction.response.send_message(
-                f"This menu is for {self.ctx.author.mention}, "
-                f"use {self.ctx.command.name} to have a menu to yourself.",
-                ephemeral=True,
-            )
-        else:
-            await interaction.response.send_message(
-                f"This menu is for {self.ctx.author.mention}.",
-                ephemeral=True,
-            )
-        return False
-
-    async def on_timeout(self):
-        for child in self.children:
-            if isinstance(child, Button):
-                child.disabled = True
-
-        if self.message is not None:
-            await self.message.edit(view=self)
-
-    @button(
-        emoji="\U0001f500", style=ButtonStyle.blurple, row=1, custom_id="view:shuffle"
-    )
-    async def shuffle(self, _: Button, inter: Interaction):
-        inter = MyInter(inter, inter.client)  # type: ignore
-        if not inter.guild or not inter.guild.voice_client:
-            await inter.send_embed(
-                "Not in Voice", "The bot needs to be connected to a vc!", ephemeral=True
-            )
-            return
-        elif (
-            not inter.user
-            or not inter.user.voice
-            or not inter.user.voice.channel
-            or inter.user.voice.channel.id != inter.guild.voice_client.channel.id
-        ):
-            await inter.send_embed(
-                "Not in Voice",
-                "You need to be in the same vc as the bot!",
-                ephemeral=True,
-            )
-            return
-
-        inter = MyInter(inter, inter.client)  # type: ignore
-
-        shuffle(inter.guild.voice_client.queue)
-        await inter.send_author_embed("Shuffled the queue")
-        player = inter.guild.voice_client
-        await self.change_source(QueueSource(player.current, player.queue))
+TEST = [802586580766162964, 939509053623795732]
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
+    BYPASS = ("lyrics",)
+
     def __init__(self, bot: MyBot):
         self.bot = bot
 
-    def cog_check(self, ctx: MyContext) -> bool:
-        assert ctx.command is not None
-        if ctx.command.extras.get("bypass"):
+    def cog_application_command_check(self, ctx: MyInter) -> bool:
+        return self.cog_check(ctx)
+
+    def cog_check(self, ctx: MyContext | MyInter) -> bool:
+        cmd = (
+            ctx.command and ctx.command.name
+            if isinstance(ctx, MyContext)
+            else ctx.data and ctx.data.get("name")
+        )
+
+        if cmd in self.BYPASS:
             return True
 
         if (
@@ -465,8 +139,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         t = self.bot.loop.create_task(task())
         self.bot.listener_tasks[member.guild.id] = t
 
+    @slash_command(
+        name="join", description="Make me join your voice channel!", guild_ids=TEST
+    )
+    async def join_(self, ctx: MyInter):
+        return await self.join(ctx)  # type: ignore
+
     @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
-    async def join(self, ctx: MyContext):
+    async def join(self, ctx: Union[MyContext, MyInter]):
         assert (
             isinstance(ctx.author, Member)
             and ctx.author.voice is not None
@@ -484,7 +164,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         self.bot.loop.create_task(self.leave_check(ctx))
 
-    async def leave_check(self, ctx: MyContext):
+    async def leave_check(self, ctx: MyContext | MyInter):
         await sleep(60)
 
         if not ctx.voice_client:
@@ -494,8 +174,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Disconnecting on no activity")
             await ctx.voice_client.destroy()
 
+    @slash_command(name="play", description="Play some tunes!", guild_ids=TEST)
+    async def play_(
+        self, ctx: MyInter, query: str = SlashOption(description="Query/link to search")
+    ):
+        return await self.play(ctx, query=query)  # type: ignore
+
     @command(help="Play some tunes!", aliases=["p"])
-    async def play(self, ctx: MyContext, *, query: str):
+    async def play(self, ctx: Union[MyContext, MyInter], *, query: str):
         assert (
             isinstance(ctx.author, Member)
             and ctx.author.voice is not None
@@ -503,13 +189,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         )
 
         if not ctx.voice_client:
-            if cmd := self.bot.get_command("join"):
-                await ctx.invoke(cmd)  # type: ignore
+            await self.join(ctx)  # type: ignore
 
         await ctx.send(f"Searching `{query}`")
 
         player = ctx.voice_client
-        result = await player.get_tracks(query=query, ctx=ctx)
+        result = await player.get_tracks(query=query, ctx=ctx)  # type: ignore
 
         if not result:
             return await ctx.send_author_embed("No tracks found")
@@ -550,48 +235,72 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.queue += toplay
 
     @connected()
+    @slash_command(name="pause", description="Pause the tunes", guild_ids=TEST)
+    async def pause_(self, ctx: MyInter):
+        return await self.pause(ctx)  # type: ignore
+
+    @connected()
     @command(help="Pause the tunes", aliases=["hold"])
-    async def pause(self, ctx: MyContext):
+    async def pause(self, ctx: Union[MyContext, MyInter]):
         player = ctx.voice_client
         if not player.is_playing:
             return await ctx.send_author_embed("No song is playing")
         await player.set_pause(True)
-        if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+
+        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f8\U0000fe0f")
         else:
             await ctx.send_author_embed("Paused")
 
     @connected()
+    @slash_command(name="resume", description="Continue the bangers", guild_ids=TEST)
+    async def resume_(self, ctx: MyInter):
+        return await self.resume(ctx)  # type: ignore
+
+    @connected()
     @command(help="Continue the bangers", aliases=["start"])
-    async def resume(self, ctx: MyContext):
+    async def resume(self, ctx: Union[MyContext, MyInter]):
         player = ctx.voice_client
         if not player.is_playing:
             return await ctx.send_author_embed("No song is playing")
         await player.set_pause(False)
-        if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+
+        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000025b6\U0000fe0f")
         else:
             await ctx.send_author_embed("Resumed")
 
     @connected()
+    @slash_command(name="stp[", description="Sto, wait a minute...", guild_ids=TEST)
+    async def stop_(self, ctx: MyInter):
+        return await self.stop(ctx)  # type: ignore
+
+    @connected()
     @command(help="Stop, wait a minute...")
-    async def stop(self, ctx: MyContext):
+    async def stop(self, ctx: Union[MyContext, MyInter]):
         player = ctx.voice_client
         if not player.is_playing:
             return await ctx.send_author_embed("No song is playing")
         player.queue = []
         await player.stop()
-        if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+
+        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f9\U0000fe0f")
         else:
             await ctx.send_author_embed("Stopped")
+
+    @connected()
+    @slash_command(name="disconnect", description="Bye bye :(", guild_ids=TEST)
+    async def disconnect_(self, ctx: MyInter):
+        return await self.disconnect(ctx)  # type: ignore
 
     @connected()
     @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff"])
     async def disconnect(self, ctx: MyContext):
         player = ctx.voice_client
         await player.destroy()
-        if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+
+        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             if ctx.invoked_with == "die":
                 await ctx.message.add_reaction("\U0001f480")
             elif ctx.invoked_with == "fuckoff":
@@ -602,20 +311,41 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Bye :(")
 
     @connected()
-    @command(help="Set volume")
-    async def volume(self, ctx: MyContext, *, number: int):
+    @slash_command(name="volume", description="Turn up the beats", guild_ids=TEST)
+    async def volume_(
+        self,
+        ctx: MyInter,
+        volume: int = SlashOption(
+            description="Volume, in %", min_value=1, max_value=500
+        ),
+    ):
+        return await self.pause(ctx, number=volume)  # type: ignore
+
+    @connected()
+    @command(help="Turn up the beats")
+    async def volume(self, ctx: Union[MyContext, MyInter], *, number: int):
         if not 1 <= number <= 500:
-            return await ctx.reply("🚫 The allowed range is between 1 & 500")
+            return await ctx.send("🚫 The allowed range is between 1 & 500")
         else:
             player = ctx.voice_client
             await player.set_volume(number)
-            if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+
+            if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
                 await ctx.message.add_reaction("\U0001f4e2")
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-    @command(help="Sing along to your favourite tunes!", extras={"bypass": True})
-    async def lyrics(self, ctx: MyContext, *, query: str = ""):
+    @connected()
+    @slash_command(name="pause", description="Pause the current track.", guild_ids=TEST)
+    async def lyrics_(
+        self,
+        ctx: MyInter,
+        query: str = SlashOption(description="Song name", required=False),
+    ):
+        return await self.lyrics(ctx, query=query)  # type: ignore
+
+    @command(help="Sing along to your favourite tunes!")
+    async def lyrics(self, ctx: Union[MyContext, MyInter], *, query: str = ""):
         if not query:
             if ctx.voice_client is None or ctx.voice_client.current is None:
                 raise SongNotProvided()
@@ -657,11 +387,22 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         embed = Embed(title=title, description=lyrics, color=self.bot.color)
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
-        await a.edit(embed=embed)
+
+        if a is not None:
+            await a.edit(embed=embed)
+        elif not isinstance(ctx, MyContext):
+            await ctx.edit_original_message(embed=embed)
 
     @connected()
-    @command(help="When the beat isnt hitting right", aliases=["s"])
-    async def skip(self, ctx: MyContext):
+    @slash_command(
+        name="skip", description="When the beat isn't hitting right", guild_ids=TEST
+    )
+    async def skip_(self, ctx: MyInter):
+        return self.skip(ctx)  # type: ignore
+
+    @connected()
+    @command(help="When the beat isn't hitting right", aliases=["s"])
+    async def skip(self, ctx: Union[MyContext, MyInter]):
         if not ctx.voice_client.queue:
             return await ctx.send_author_embed("Nothing in queue")
 
@@ -670,8 +411,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await playing_embed(toplay, skipped_by=ctx.author.mention)
 
     @connected()
+    @slash_command(
+        name="nowplaying", description="Show the current beats", guild_ids=TEST
+    )
+    async def nowplaying_(self, ctx: MyInter):
+        return self.nowplaying(ctx)  # type: ignore
+
+    @connected()
     @command(help="Show the current beats", aliases=["np"])
-    async def nowplaying(self, ctx: MyContext):
+    async def nowplaying(self, ctx: Union[MyContext, MyInter]):
         if not ctx.voice_client.is_playing:
             return await ctx.send_author_embed("No song is playing")
 
@@ -680,14 +428,24 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         )
 
     @connected()
+    @slash_command(name="shuffle", description="Switch things up", guild_ids=TEST)
+    async def shuffle_(self, ctx: MyInter):
+        return self.shuffle(ctx)  # type: ignore
+
+    @connected()
     @command(help="Switch things up")
-    async def shuffle(self, ctx: MyContext):
+    async def shuffle(self, ctx: Union[MyContext, MyInter]):
         shuffle(ctx.voice_client.queue)
 
-        if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U0001f500")
         else:
             await ctx.send_author_embed("Shuffled the queue")
+
+    @connected()
+    @slash_command(name="queue", description="Show the queue of tunes", guild_ids=TEST)
+    async def queue_(self, ctx: MyInter):
+        return self.queue(ctx)  # type: ignore
 
     @connected()
     @command(help="Show the queue of the beats", aliases=["q"])
@@ -701,22 +459,38 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await menu.start(ctx)
 
     @connected()
+    @slash_command(
+        name="loop", description="It hit so hard you play it again", guild_ids=TEST
+    )
+    async def loop_(self, inter: MyInter):
+        return await self.loop(inter)  # type: ignore
+
+    @connected()
     @command(help="It hit so hard so you play it again")
-    async def loop(self, ctx: MyContext):
+    async def loop(self, ctx: Union[MyContext, MyInter]):
         player = ctx.voice_client
         if not player.is_playing:
             return await ctx.send_author_embed("Nothing is playing")
 
         current = player.current
         player.queue.insert(0, current)
-        if ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+
+        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U0001f502")
         else:
             await ctx.send_author_embed("Looping once")
 
-    @command(help="Play one of your playlists", aliases=["ps"])
-    async def playlists(self, ctx: MyContext):
+    @connected()
+    @slash_command(
+        name="playlists",
+        description="Play one of your amazing playlists",
+        guild_ids=TEST,
+    )
+    async def playlists_(self, inter: MyInter):
+        return await self.playlists(inter)  # type: ignore
 
+    @command(help="Play one of your playlists", aliases=["ps"])
+    async def playlists(self, ctx: Union[MyContext, MyInter]):
         userid = self.bot.spotify_users.get(ctx.author.id, MISSING)
 
         if userid is MISSING:
@@ -752,12 +526,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         if not len(all_playlists):
             return await ctx.send_embed(
-                "No playlists", "**You do not have any public playlists!** \nPlease refer this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/"
+                "No playlists",
+                "**You do not have any public playlists!** \nPlease refer this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/",
             )
 
         view = PlaylistView(all_playlists)
 
         m = await ctx.send("Choose a public playlist", view=view)
+        if not m and isinstance(ctx, MyInter):
+            m = await ctx.original_message()
+
+        assert m is not None
+
         view.message = m
 
         await view.wait()
@@ -769,7 +549,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             return await view.message.edit(content="You took too long...", view=view)
 
-        await ctx.invoke(self.play, query=view.uri)
+        await self.play(ctx, query=view.uri)  # type: ignore
 
 
 def setup(bot: MyBot):
