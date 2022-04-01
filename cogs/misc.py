@@ -5,11 +5,10 @@ from typing import TYPE_CHECKING, Union
 from nextcord.ext.commands import Cog, command
 from nextcord import Embed, Message, slash_command
 
-from .extras.types import MyContext
+from .extras.types import MyContext, MyInter
 
 if TYPE_CHECKING:
-    from ..mmain import MyBot
-    from .extras.types import MyInter
+    from ..mmain import MyBo
 
 
 TEST = [802586580766162964, 939509053623795732]
