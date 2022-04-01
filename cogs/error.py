@@ -157,6 +157,7 @@ class Errors(Cog):
             await ctx.send(embed=embed, view=self.support_view)
 
         elif type(error).__name__.lstrip("Application") in eh:
+            name = type(error).__name__.lstrip("Application")
 
             embed = Embed(
                 title=eh[name][0],
