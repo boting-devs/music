@@ -102,8 +102,8 @@ class Errors(Cog):
             return
 
         if (
-            ctx.cog is not None
-            and ctx.cog.qualified_name == "Jishaku"
+            (cog := getattr(ctx, "cog", None))
+            and cog.qualified_name == "Jishaku"
             and not isinstance(error, NotOwner)
         ):
             embed = Embed(
