@@ -271,7 +271,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Resumed")
 
     @connected()
-    @slash_command(name="stp[", description="Sto, wait a minute...", guild_ids=TEST)
+    @slash_command(name="stop", description="Sto, wait a minute...", guild_ids=TEST)
     async def stop_(self, ctx: MyInter):
         return await self.stop(ctx)  # type: ignore
 
