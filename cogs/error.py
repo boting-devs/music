@@ -6,30 +6,32 @@ from typing import TYPE_CHECKING
 
 from botbase import MyContext, MyInter
 from nextcord import Color, Embed
+from nextcord.ext.application_checks import (
+    ApplicationBotMissingPermissions as ABotMissingPermissions,
+)
+from nextcord.ext.application_checks import (
+    ApplicationMissingPermissions as AMissingPermissions,
+)
 from nextcord.ext.commands import (
     BotMissingPermissions,
     Cog,
     CommandInvokeError,
     CommandNotFound,
     MissingPermissions,
+    MissingRequiredArgument,
     NoPrivateMessage,
     NotOwner,
     PrivateMessageOnly,
-    MissingRequiredArgument,
 )
 from nextcord.utils import utcnow
-from nextcord.ext.application_checks import (
-    ApplicationMissingPermissions as AMissingPermissions,
-    ApplicationBotMissingPermissions as ABotMissingPermissions,
-)
 
 from .extras.errors import (
-    NotInVoice,
-    TooManyTracks,
-    NotConnected,
     LyricsNotFound,
+    NotConnected,
     NotInSameVoice,
+    NotInVoice,
     SongNotProvided,
+    TooManyTracks,
 )
 from .extras.views import LinkButtonView
 

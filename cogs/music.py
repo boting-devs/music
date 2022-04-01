@@ -43,11 +43,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return self.cog_check(ctx)
 
     def cog_check(self, ctx: MyContext | MyInter) -> bool:
-        cmd = (
-            ctx.command and ctx.command.name
-            if isinstance(ctx, MyContext)
-            else ctx.data and ctx.data.get("name")
-        )
+        cmde = ctx.command
+        if not cmde:
+            return False
+
+        cmd = cmde.name
 
         if cmd in self.BYPASS:
             return True
