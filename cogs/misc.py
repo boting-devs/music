@@ -8,7 +8,7 @@ from nextcord import Embed, Message, slash_command
 from .extras.types import MyContext, MyInter
 
 if TYPE_CHECKING:
-    from ..mmain import MyBo
+    from ..mmain import MyBot
 
 
 TEST = [802586580766162964, 939509053623795732]
