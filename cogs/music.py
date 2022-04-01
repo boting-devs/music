@@ -17,7 +17,13 @@ from .extras.checks import connected
 from .extras.views import PlaylistView, QueueView, QueueSource, PlayButton
 from .extras.playing_embed import playing_embed
 from .extras.types import MyContext, MyInter, Player
-from .extras.errors import LyricsNotFound, NotInSameVoice, NotInVoice, SongNotProvided, TooManyTracks
+from .extras.errors import (
+    LyricsNotFound,
+    NotInSameVoice,
+    NotInVoice,
+    SongNotProvided,
+    TooManyTracks,
+)
 
 if TYPE_CHECKING:
     from pomice import Track
@@ -43,11 +49,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return self.cog_check(ctx)
 
     def cog_check(self, ctx: MyContext | MyInter) -> bool:
-        cmde = ctx.command
-        if not cmde:
-            return False
-
-        cmd = cmde.name
+        cmd = str(ctx.command)
 
         if cmd in self.BYPASS:
             return True
@@ -336,7 +338,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
     @connected()
-    @slash_command(name="lyrics", description="Sing along to your favourite tunes!", guild_ids=TEST)
+    @slash_command(
+        name="lyrics", description="Sing along to your favourite tunes!", guild_ids=TEST
+    )
     async def lyrics_(
         self,
         ctx: MyInter,
