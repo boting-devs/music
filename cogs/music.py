@@ -337,7 +337,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-    @connected()
     @slash_command(
         name="lyrics", description="Sing along to your favourite tunes!", guild_ids=TEST
     )
