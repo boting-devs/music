@@ -7,7 +7,7 @@ from pomice import Playlist
 from nextcord import Embed
 from nextcord.utils import utcnow
 
-from .views import PlayButton
+from . import views
 
 if TYPE_CHECKING:
     from pomice import Track
@@ -22,7 +22,7 @@ async def playing_embed(
     skipped_by: str | None = None,
     override_ctx: MyContext | MyInter | None = None,
 ):
-    view = PlayButton()
+    view = views.PlayButton()
     if isinstance(track, Playlist):
         assert track.tracks[0].ctx is not None
 
