@@ -90,13 +90,14 @@ async def playing_embed(
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
 
+    if isinstance(ctx, MyInter) and ctx.response.is_done():
+        ctx = ctx.channel  # type: ignore
+        # ok im not proud of this one
+
     if queue:
         await ctx.send(embed=embed, content="Queued", view=view)
-        return
-    if length:
-        channel = ctx.channel
-        await channel.send(embed=embed, view=view)  # type: ignore
-        # type ignore for category channel for some mf reason
+    elif length:
+        await ctx.send(embed=embed, view=view)
     else:
         await ctx.send(embed=embed, view=view)
 
