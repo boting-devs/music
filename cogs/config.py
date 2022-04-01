@@ -8,11 +8,10 @@ from botbase import admin_owner_guild_perms
 from nextcord import slash_command, SlashOption
 from nextcord.ext.commands import Cog, command, guild_only
 
-from .extras.types import MyContext
+from .extras.types import MyContext, MyInter
 
 if TYPE_CHECKING:
     from ..mmain import MyBot
-    from .extras.types import MyInter
 
 
 urlprompt = """
