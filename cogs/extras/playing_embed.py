@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from pomice import Track
 
 
-
 async def playing_embed(
     track: Track | Playlist,
     queue: bool = False,
