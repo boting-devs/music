@@ -193,7 +193,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not ctx.voice_client:
             await self.join(ctx)  # type: ignore
 
-        await ctx.send(f"Searching `{query}`")
+        if isinstance(ctx, MyInter) and ctx.response.is_done():
+            await ctx.channel.send(f"Searching `{query}`")  # type: ignore
+        else:
+            await ctx.send(f"Searching `{query}`")
 
         player = ctx.voice_client
         result = await player.get_tracks(query=query, ctx=ctx)  # type: ignore
