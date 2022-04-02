@@ -203,7 +203,7 @@ class QueueSource(ListPageSource):
             f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
             for i, t in enumerate(tracks)
         )
-        if tracks[0] == self.queue[0]:
+        if tracks[0].track_id == self.queue[0].track_id:
             c = self.now
             desc = (
                 f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
