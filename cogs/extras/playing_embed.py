@@ -94,6 +94,7 @@ async def playing_embed(
     else:
         ch = ctx
 
+    print(isinstance(ctx, MyInter))
     if isinstance(ctx, MyInter):
         print(ctx.response.is_done())
         print(id(ctx))
