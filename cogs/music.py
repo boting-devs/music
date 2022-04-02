@@ -325,7 +325,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             description="Volume, in %", min_value=1, max_value=500
         ),
     ):
-        return await self.pause(ctx, number=volume)  # type: ignore
+        return await self.volume(ctx, number=volume)  # type: ignore
 
     @connected()
     @command(help="Turn up the beats")
