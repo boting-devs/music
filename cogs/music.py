@@ -12,6 +12,7 @@ from nextcord.utils import MISSING
 from nextcord.ui import Button, Select
 from nextcord import ClientUser, Embed, Member, SlashOption, User, slash_command
 from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
+from botbase import MyContext as BBMyContext, MyInter as BBMyInter
 
 from .extras.checks import connected
 from .extras.views import PlaylistView, QueueView, QueueSource, PlayButton
@@ -193,7 +194,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not ctx.voice_client:
             await self.join(ctx)  # type: ignore
 
-        if isinstance(ctx, MyInter) and ctx.response.is_done():
+        if isinstance(ctx, BBMyInter) and ctx.response.is_done():
             await ctx.channel.send(f"Searching `{query}`")  # type: ignore
         else:
             await ctx.send(f"Searching `{query}`")
@@ -252,7 +253,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await ctx.send_author_embed("No song is playing")
         await player.set_pause(True)
 
-        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f8\U0000fe0f")
         else:
             await ctx.send_author_embed("Paused")
@@ -270,7 +271,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await ctx.send_author_embed("No song is playing")
         await player.set_pause(False)
 
-        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000025b6\U0000fe0f")
         else:
             await ctx.send_author_embed("Resumed")
@@ -289,7 +290,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player.queue = []
         await player.stop()
 
-        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U000023f9\U0000fe0f")
         else:
             await ctx.send_author_embed("Stopped")
@@ -305,7 +306,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = ctx.voice_client
         await player.destroy()
 
-        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             if ctx.invoked_with == "die":
                 await ctx.message.add_reaction("\U0001f480")
             elif ctx.invoked_with == "fuckoff":
@@ -335,7 +336,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player = ctx.voice_client
             await player.set_volume(number)
 
-            if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+            if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
                 await ctx.message.add_reaction("\U0001f4e2")
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
@@ -396,7 +397,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         if a is not None:
             await a.edit(embed=embed)
-        elif not isinstance(ctx, MyContext):
+        elif not isinstance(ctx, BBMyContext):
             await ctx.edit_original_message(embed=embed)
 
     @connected()
@@ -443,7 +444,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def shuffle(self, ctx: Union[MyContext, MyInter]):
         shuffle(ctx.voice_client.queue)
 
-        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U0001f500")
         else:
             await ctx.send_author_embed("Shuffled the queue")
@@ -481,7 +482,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         current = player.current
         player.queue.insert(0, current)
 
-        if isinstance(ctx, MyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
+        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
             await ctx.message.add_reaction("\U0001f502")
         else:
             await ctx.send_author_embed("Looping once")
@@ -539,7 +540,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         view = PlaylistView(all_playlists)
 
         m = await ctx.send("Choose a public playlist", view=view)
-        if not m and isinstance(ctx, MyInter):
+        if not m and isinstance(ctx, BBMyInter):
             m = await ctx.original_message()
 
         assert m is not None
