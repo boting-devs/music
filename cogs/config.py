@@ -64,7 +64,7 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
         )
         self.bot.spotify_users[ctx.author.id] = userid
 
-        await ctx.send_embed("Linked!", f"your Discord has now been linked to {userid}")
+        await ctx.send_embed("Linked!", f"your Discord has now been linked to {userid}", ephemeral=True)
 
     @command(help="Link up your cool Spotify account :)")
     async def spotify(self, ctx: MyContext):
