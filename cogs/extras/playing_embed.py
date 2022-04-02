@@ -95,6 +95,9 @@ async def playing_embed(
     else:
         ch = ctx
 
+    print(ch)
+    print(isinstance(ctx, BBMyInter))
+
     if queue:
         await ch.send(embed=embed, content="Queued", view=view)  # type: ignore
         # why on earth can that be a voice channel
