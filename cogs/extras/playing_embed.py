@@ -94,8 +94,10 @@ async def playing_embed(
     else:
         ch = ctx
 
-    print(type(ch))
-    print(isinstance(ctx, MyInter) and ctx.response.is_done())
+    if isinstance(ctx, MyInter):
+        print(ctx.response.is_done())
+        print(id(ctx))
+        print(id(ctx.response))
 
     if queue:
         await ch.send(embed=embed, content="Queued", view=view)  # type: ignore
