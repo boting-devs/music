@@ -6,6 +6,7 @@ from time import gmtime, strftime
 from pomice import Playlist
 from nextcord import Embed
 from nextcord.utils import utcnow
+from botbase import MyInter as BBMyInter
 
 from . import views
 from .types import MyInter, MyContext
@@ -89,20 +90,10 @@ async def playing_embed(
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
 
-    if isinstance(ctx, MyInter) and ctx.response.is_done():
+    if isinstance(ctx, BBMyInter) and ctx.response.is_done():
         ch = ctx.channel
     else:
         ch = ctx
-
-    print(type(ctx))
-    print(isinstance(ctx, MyContext))
-    print(isinstance(ctx, MyInter))
-    print(not isinstance(ctx, MyContext))
-    print(not isinstance(ctx, MyInter))
-    if isinstance(ctx, MyInter):
-        print(ctx.response.is_done())
-        print(id(ctx))
-        print(id(ctx.response))
 
     if queue:
         await ch.send(embed=embed, content="Queued", view=view)  # type: ignore
