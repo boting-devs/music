@@ -405,7 +405,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         name="skip", description="When the beat isn't hitting right", guild_ids=TEST
     )
     async def skip_(self, ctx: MyInter):
-        return self.skip(ctx)  # type: ignore
+        return await self.skip(ctx)  # type: ignore
 
     @connected()
     @command(help="When the beat isn't hitting right", aliases=["s"])
@@ -422,7 +422,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         name="nowplaying", description="Show the current beats", guild_ids=TEST
     )
     async def nowplaying_(self, ctx: MyInter):
-        return self.nowplaying(ctx)  # type: ignore
+        return await self.nowplaying(ctx)  # type: ignore
 
     @connected()
     @command(help="Show the current beats", aliases=["np"])
@@ -437,7 +437,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected()
     @slash_command(name="shuffle", description="Switch things up", guild_ids=TEST)
     async def shuffle_(self, ctx: MyInter):
-        return self.shuffle(ctx)  # type: ignore
+        return await self.shuffle(ctx)  # type: ignore
 
     @connected()
     @command(help="Switch things up")
@@ -452,7 +452,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected()
     @slash_command(name="queue", description="Show the queue of tunes", guild_ids=TEST)
     async def queue_(self, ctx: MyInter):
-        return self.queue(ctx)  # type: ignore
+        return await self.queue(ctx)  # type: ignore
 
     @connected()
     @command(help="Show the queue of the beats", aliases=["q"])
