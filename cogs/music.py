@@ -415,7 +415,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         toplay = ctx.voice_client.queue.pop(0)
         await ctx.voice_client.play(toplay)
-        await playing_embed(toplay, skipped_by=ctx.author.mention)
+        await playing_embed(toplay, skipped_by=ctx.author.mention, override_ctx=ctx)
 
     @connected()
     @slash_command(
