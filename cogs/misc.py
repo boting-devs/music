@@ -22,7 +22,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     def emoji(self) -> str:
         return "⚙️"
 
-    @slash_command(name="ping", description="Pong!", guild_ids=TEST)
+    @slash_command(name="ping", description="Pong!")
     async def ping_(self, inter: MyInter):
         return await self.ping(inter)  # type: ignore
 
@@ -30,7 +30,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     async def ping(self, ctx: Union[MyContext, MyInter]):
         await ctx.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")
 
-    @slash_command(name="invite", description="Invite me!", guild_ids=TEST)
+    @slash_command(name="invite", description="Invite me!")
     async def invite_(self, inter: MyInter):
         return await self.invite(inter)  # type: ignore
 
@@ -49,7 +49,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         )
         await ctx.send(embed=embed)
 
-    @slash_command(name="support", description="Get some help", guild_ids=TEST)
+    @slash_command(name="support", description="Get some help")
     async def support_(self, inter: MyInter):
         return await self.support(inter)  # type: ignore
 
@@ -78,7 +78,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
                 )
                 await message.channel.send(embed=embed)
 
-    @slash_command(name="vote", description="Vote for meee", guild_ids=TEST)
+    @slash_command(name="vote", description="Vote for meee")
     async def vote_(self, inter: MyInter):
         return await self.vote(inter)  # type: ignore
 

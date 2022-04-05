@@ -33,9 +33,7 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
     def emoji(self) -> str:
         return "🛠"
 
-    @slash_command(
-        name="spotify", description="Link your spotify account :)", guild_ids=TEST
-    )
+    @slash_command(name="spotify", description="Link your spotify account :)")
     async def spotify_(
         self,
         ctx: MyInter,
@@ -64,7 +62,9 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
         )
         self.bot.spotify_users[ctx.author.id] = userid
 
-        await ctx.send_embed("Linked!", f"your Discord has now been linked to {userid}", ephemeral=True)
+        await ctx.send_embed(
+            "Linked!", f"your Discord has now been linked to {userid}", ephemeral=True
+        )
 
     @command(help="Link up your cool Spotify account :)")
     async def spotify(self, ctx: MyContext):

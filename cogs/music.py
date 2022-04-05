@@ -142,9 +142,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         t = self.bot.loop.create_task(task())
         self.bot.listener_tasks[member.guild.id] = t
 
-    @slash_command(
-        name="join", description="Make me join your voice channel!", guild_ids=TEST
-    )
+    @slash_command(name="join", description="Make me join your voice channel!")
     async def join_(self, ctx: MyInter):
         return await self.join(ctx)  # type: ignore
 
@@ -177,7 +175,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Disconnecting on no activity")
             await ctx.voice_client.destroy()
 
-    @slash_command(name="play", description="Play some tunes!", guild_ids=TEST)
+    @slash_command(name="play", description="Play some tunes!")
     async def play_(
         self, ctx: MyInter, query: str = SlashOption(description="Query/link to search")
     ):
@@ -241,7 +239,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.queue += toplay
 
     @connected()
-    @slash_command(name="pause", description="Pause the tunes", guild_ids=TEST)
+    @slash_command(name="pause", description="Pause the tunes")
     async def pause_(self, ctx: MyInter):
         return await self.pause(ctx)  # type: ignore
 
@@ -259,7 +257,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Paused")
 
     @connected()
-    @slash_command(name="resume", description="Continue the bangers", guild_ids=TEST)
+    @slash_command(name="resume", description="Continue the bangers")
     async def resume_(self, ctx: MyInter):
         return await self.resume(ctx)  # type: ignore
 
@@ -277,7 +275,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Resumed")
 
     @connected()
-    @slash_command(name="stop", description="Sto, wait a minute...", guild_ids=TEST)
+    @slash_command(name="stop", description="Sto, wait a minute...")
     async def stop_(self, ctx: MyInter):
         return await self.stop(ctx)  # type: ignore
 
@@ -296,7 +294,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Stopped")
 
     @connected()
-    @slash_command(name="disconnect", description="Bye bye :(", guild_ids=TEST)
+    @slash_command(name="disconnect", description="Bye bye :(")
     async def disconnect_(self, ctx: MyInter):
         return await self.disconnect(ctx)  # type: ignore
 
@@ -317,7 +315,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Bye :(")
 
     @connected()
-    @slash_command(name="volume", description="Turn up the beats", guild_ids=TEST)
+    @slash_command(name="volume", description="Turn up the beats")
     async def volume_(
         self,
         ctx: MyInter,
@@ -341,9 +339,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             else:
                 await ctx.send_author_embed(f"Volume set to `{number}%`")
 
-    @slash_command(
-        name="lyrics", description="Sing along to your favourite tunes!", guild_ids=TEST
-    )
+    @slash_command(name="lyrics", description="Sing along to your favourite tunes!")
     async def lyrics_(
         self,
         ctx: MyInter,
@@ -401,9 +397,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.edit_original_message(embed=embed)
 
     @connected()
-    @slash_command(
-        name="skip", description="When the beat isn't hitting right", guild_ids=TEST
-    )
+    @slash_command(name="skip", description="When the beat isn't hitting right")
     async def skip_(self, ctx: MyInter):
         return await self.skip(ctx)  # type: ignore
 
@@ -418,9 +412,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await playing_embed(toplay, skipped_by=ctx.author.mention, override_ctx=ctx)
 
     @connected()
-    @slash_command(
-        name="nowplaying", description="Show the current beats", guild_ids=TEST
-    )
+    @slash_command(name="nowplaying", description="Show the current beats")
     async def nowplaying_(self, ctx: MyInter):
         return await self.nowplaying(ctx)  # type: ignore
 
@@ -435,7 +427,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         )
 
     @connected()
-    @slash_command(name="shuffle", description="Switch things up", guild_ids=TEST)
+    @slash_command(name="shuffle", description="Switch things up")
     async def shuffle_(self, ctx: MyInter):
         return await self.shuffle(ctx)  # type: ignore
 
@@ -450,7 +442,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await ctx.send_author_embed("Shuffled the queue")
 
     @connected()
-    @slash_command(name="queue", description="Show the queue of tunes", guild_ids=TEST)
+    @slash_command(name="queue", description="Show the queue of tunes")
     async def queue_(self, ctx: MyInter):
         return await self.queue(ctx)  # type: ignore
 
@@ -466,9 +458,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await menu.start(ctx)
 
     @connected()
-    @slash_command(
-        name="loop", description="It hit so hard you play it again", guild_ids=TEST
-    )
+    @slash_command(name="loop", description="It hit so hard you play it again")
     async def loop_(self, inter: MyInter):
         return await self.loop(inter)  # type: ignore
 
@@ -491,7 +481,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @slash_command(
         name="playlists",
         description="Play one of your amazing playlists",
-        guild_ids=TEST,
     )
     async def playlists_(self, inter: MyInter):
         return await self.playlists(inter)  # type: ignore
