@@ -6,7 +6,7 @@ from asyncio import sleep
 from nextcord.ext.commands import Cog
 
 if TYPE_CHECKING:
-    from nextcord import VoiceState, Member
+    from nextcord import VoiceState, Member, Guild
 
     from ..mmain import MyBot
 
@@ -47,6 +47,15 @@ class Events(Cog):
                     self.bot.listeners.get(before.channel.id, set()).discard(member.id)
                     if not self.bot.listeners.get(before.channel.id, {1}):
                         del self.bot.listeners[before.channel.id]
+
+    @Cog.listener()
+    async def on_guild_available(self, guild: Guild):
+        for m, vs in guild._voice_states.items():
+            if vs.channel:
+                if vs.channel.id not in self.bot.listeners:
+                    self.bot.listeners[vs.channel.id] = {m}
+                else:
+                    self.bot.listeners[vs.channel.id].add(m)
 
 
 def setup(bot: MyBot) -> None:
