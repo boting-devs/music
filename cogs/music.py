@@ -448,14 +448,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @connected()
     @command(help="Show the queue of the beats", aliases=["q"])
-    async def queue(self, ctx: MyContext):
+    async def queue(self, ctx: Union[MyContext, MyInter]):
         current = ctx.voice_client.current
         queue = ctx.voice_client.queue
         if not queue:
             return await ctx.send_author_embed("Nothing in queue")
 
         menu = QueueView(source=QueueSource(current, queue), ctx=ctx)
-        await menu.start(ctx)
+        if isinstance(ctx, MyInter):
+            await menu.start(interaction=ctx)
+        else:
+            await menu.start(ctx)
 
     @connected()
     @slash_command(name="loop", description="It hit so hard you play it again")
