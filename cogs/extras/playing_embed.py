@@ -77,11 +77,14 @@ async def playing_embed(
         # if 2/12, then get 1 before, then dot then 12 - 2 to pad to 12
         timing = f"{current} {line} {total}"
         embed.description = ctx.author.mention + "\n" + timing
+    elif save:
+        embed.description =f"Song time: `{time}`"
     else:
         embed.description = f"{time} - {ctx.author.mention}"
 
     if skipped_by:
         embed.description = embed.description + "\n skipped by " + skipped_by
+
 
     embed.set_author(
         name=str(title) + " - " + str(author),
