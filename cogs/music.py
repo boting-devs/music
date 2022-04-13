@@ -550,6 +550,16 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await self.play(ctx, query=view.uri)  # type: ignore
 
+    @command()
+    async def save(self,ctx: Union[MyContext, MyInter]):
+        if not ctx.voice_client.is_playing:
+            return await ctx.send_author_embed("No song is playing")
+
+        return await playing_embed(
+            ctx.voice_client.current,override_ctx=ctx
+        )
+
+
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
