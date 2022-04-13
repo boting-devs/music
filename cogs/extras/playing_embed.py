@@ -19,6 +19,7 @@ async def playing_embed(
     track: Track | Playlist,
     queue: bool = False,
     length: bool = False,
+    save: bool = False,
     skipped_by: str | None = None,
     override_ctx: MyContext | MyInter | None = None,
 ):
@@ -101,6 +102,8 @@ async def playing_embed(
     elif length:
         await ch.send(embed=embed, view=view)  # type: ignore
         # why on earth can that be a voice channel
+    elif save:
+        await ctx.author.send(embed=embed)
     else:
         await ch.send(embed=embed, view=view)  # type: ignore
         # why on earth can that be a voice channel
