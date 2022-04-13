@@ -556,7 +556,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await ctx.send_author_embed("No song is playing")
 
         return await playing_embed(
-            ctx.voice_client.current,override_ctx=ctx
+            ctx.voice_client.current
         )
 
 
