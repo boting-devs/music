@@ -549,8 +549,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await view.message.edit(content="You took too long...", view=view)
 
         await self.play(ctx, query=view.uri)  # type: ignore
+    @connected()
+    @slash_command(name="Save", description="Save song in dm")
+    async def save_(self, ctx: MyInter):
+        return await self.save(ctx)
 
-    @command()
+    @command(help="Get a dm from bot of song your playing!")
     async def save(self,ctx: Union[MyContext, MyInter]):
         if not ctx.voice_client.is_playing:
             return await ctx.send_author_embed("No song is playing")
