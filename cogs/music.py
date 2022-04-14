@@ -570,7 +570,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def forward(self,ctx:Union[MyContext,MyInter],num:int):
         player = ctx.voice_client
         logging.info(player.position)
-        await player.seek(num)
+        #await player.seek(num)
         await ctx.send_author_embed(f"Volume set to `{num}`")
 
         
