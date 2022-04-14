@@ -572,7 +572,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = ctx.voice_client
         c = player.position
         num = c+ (num*1000)
-        current = strftime("%H:%M:%S", gmtime((c // 1000)+num))
+        current = strftime("%H:%M:%S", gmtime((num // 1000)))
         await player.seek(num)
         await ctx.send_author_embed(f"Position seeked to `{current}`")
 
