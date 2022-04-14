@@ -554,6 +554,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def save_(self, ctx: MyInter):
         return await self.save(ctx)
 
+    @connected()
     @command(help="Get a dm from bot of song your playing!")
     async def save(self,ctx: Union[MyContext, MyInter]):
         if not ctx.voice_client.is_playing:
