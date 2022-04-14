@@ -550,19 +550,27 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await self.play(ctx, query=view.uri)  # type: ignore
     @connected()
-    @slash_command(name="Save", description="Save song in dm")
-    async def save_(self, ctx: MyInter):
-        return await self.save(ctx)
+    @slash_command(name="Grab", description="Sends the current playing song through direct messages")
+    async def grab_(self, ctx: MyInter):
+        return await self.grab(ctx)
 
     @connected()
-    @command(help="Get a dm from bot of song your playing!")
-    async def save(self,ctx: Union[MyContext, MyInter]):
+    @command(help="Sends the current playing song through direct messages")
+    async def grab(self,ctx: Union[MyContext, MyInter]):
         if not ctx.voice_client.is_playing:
             return await ctx.send_author_embed("No song is playing")
 
         return await playing_embed(
             ctx.voice_client.current, save=True, override_ctx=ctx
         )
+
+    @connected()
+    @command(help="Seeks forward by certain amount")
+    async def forward(self,ctx:Union[MyContext,MyInter],position:int):
+        player = ctx.voice_client
+        await player.seek(position)
+        await ctx.send_author_embed(f"Volume set to `{position}`")
+
         
 
 
