@@ -570,10 +570,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Seeks forward by certain amount")
     async def forward(self,ctx:Union[MyContext,MyInter],num:int):
         player = ctx.voice_client
-        num = player.position+ (num*1000)
+        c = player.position
+        num = c+ (num*1000)
+        current = strftime("%H:%M:%S", gmtime((c // 1000)+num))
         await player.seek(num)
-        c = ctx.voice_client.position
-        current = strftime("%H:%M:%S", gmtime(c // 1000))
         await ctx.send_author_embed(f"Position seeked to `{current}`")
 
         
