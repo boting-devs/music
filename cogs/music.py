@@ -6,6 +6,7 @@ from functools import partial
 from logging import getLogger
 from typing import TYPE_CHECKING, Union
 
+import logging
 from pomice import Playlist
 from bs4 import BeautifulSoup
 from nextcord.utils import MISSING
@@ -568,7 +569,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Seeks forward by certain amount")
     async def forward(self,ctx:Union[MyContext,MyInter],position:int):
         player = ctx.voice_client
-        print(position)
+        logging.info(position)
         await player.seek(position)
         await ctx.send_author_embed(f"Volume set to `{position}`")
 
