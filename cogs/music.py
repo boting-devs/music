@@ -14,6 +14,7 @@ from nextcord.ui import Button, Select
 from nextcord import ClientUser, Embed, Member, SlashOption, User, slash_command
 from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
 from botbase import MyContext as BBMyContext, MyInter as BBMyInter
+from time import gmtime, strftime
 
 from .extras.checks import connected
 from .extras.views import PlaylistView, QueueView, QueueSource, PlayButton
@@ -571,7 +572,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = ctx.voice_client
         num = player.position+ (num*1000)
         await player.seek(num)
-        await ctx.send_author_embed(f"Volume set to `{num}`")
+        c = ctx.voice_client.position
+        current = strftime("%H:%M:%S", gmtime(c // 1000))
+        await ctx.send_author_embed(f"Position seeked to `{current}`")
 
         
 
