@@ -567,11 +567,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @connected()
     @command(help="Seeks forward by certain amount")
-    async def forward(self,ctx:Union[MyContext,MyInter],position:int):
+    async def forward(self,ctx:Union[MyContext,MyInter],num:int):
         player = ctx.voice_client
-        logging.info(position)
-        await player.seek(position)
-        await ctx.send_author_embed(f"Volume set to `{position}`")
+        logging.info(player.position)
+        await player.seek(num)
+        await ctx.send_author_embed(f"Volume set to `{num}`")
 
         
 
