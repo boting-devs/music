@@ -569,7 +569,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Seeks forward by certain amount")
     async def forward(self,ctx:Union[MyContext,MyInter],num:int):
         player = ctx.voice_client
-        num = (player.position/100) + num
+        num = player.position+ (num*100)
         await player.seek(num)
         await ctx.send_author_embed(f"Volume set to `{num}`")
 
