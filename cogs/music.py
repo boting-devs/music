@@ -567,6 +567,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         )
 
     @connected()
+    @slash_command(name="Forward",description="Seeks forward by certain amount")
+    async def forward_(self,ctx:MyInter):
+        return await self.forward(ctx)
+    @connected()
     @command(help="Seeks forward by certain amount")
     async def forward(self,ctx:Union[MyContext,MyInter],num:int):
         player = ctx.voice_client
@@ -574,7 +578,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         num = c+ (num*1000)
         current = strftime("%H:%M:%S", gmtime((num // 1000)))
         await player.seek(num)
-        await ctx.send_author_embed(f"Position seeked to `{current}`")
+        await ctx.send_author_embed(f"Position seeked to {current}")
 
         
 
