@@ -8,6 +8,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - "--build-arg"
+        - "USER=${USER}"
     volumes:
       - ./logs:/bot/logs
       - /var/run/postgresql:/var/run/postgresql
