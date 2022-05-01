@@ -1,4 +1,7 @@
 FROM --platform=amd64 python:3.9-slim-buster
+ARG user
+
+USER ${user}
 
 WORKDIR /bot
 
