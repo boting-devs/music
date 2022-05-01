@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "vibr"
+version = "0.1.0"
+description = "A music bot you can vibe with :)"
+authors = ["ooliver1 <oliverwilkes2006@icloud.com>", "Arnavop <arnavkamramalout@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+nextcord = {extras = ["speed"], version = "^2.0.0-alpha.10"}
+python-dotenv = "^0.20.0"
+ooliver-botbase = "^1.14.5"
+pomice = "^1.1.6"
+spotipy = "^2.19.0"
+uvloop = "^0.16.0"
+beautifulsoup4 = "^4.11.1"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+isort = "^5.10.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
