@@ -5,19 +5,20 @@ services:
     container_name: vibr
     env_file: .env
     restart: unless-stopped
+    depends_on:
+      - lavalink
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - "--build-arg"
-        - "USER=${USER}"
     volumes:
       - ./logs:/bot/logs
       - /var/run/postgresql:/var/run/postgresql
       - ./vibr:/bot/vibr
+    links:
+      - lavalink
   lavalink:
     container_name: lavalink
     restart: unless-stopped
     build:
-      context: .
-      dockerfile: lavalink/Dockerfile
+      context: lavalink
+      dockerfile: Dockerfile
