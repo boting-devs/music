@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  bot:
+    container_name: vibr
+    env_file: .env
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs:/bot/logs
+      - /var/run/postgresql:/var/run/postgresql
+      - ./vibr:/bot/vibr
+  lavalink:
+    container_name: lavalink
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: lavalink/Dockerfile
