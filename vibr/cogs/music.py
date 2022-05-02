@@ -140,6 +140,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 self.bot.listener_tasks.pop(member.guild.id, None)
                 return
 
+            if not member.guild.voice_client:
+                self.bot.listener_tasks.pop(member.guild.id, None)
+                return
+
             if c := member.guild.voice_client.current:  # type: ignore
                 await c.ctx.send_author_embed("Disconnecting on no listeners")
 
