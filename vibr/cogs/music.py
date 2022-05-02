@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 from nextcord import ClientUser, Embed, Member, SlashOption, User, slash_command
 from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
 from nextcord.ui import Button, Select
-from nextcord.utils import MISSING
+from nextcord.utils import MISSING, utcnow
 from pomice import Playlist
 
 from .extras.checks import connected
@@ -125,6 +125,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         ):
             return
 
+        if (
+            member.guild.id in self.bot.whitelisted_guilds
+            and self.bot.whitelisted_guilds[member.guild.id] > utcnow()
+        ):
+            return
+
         async def task():
             await sleep(60)
 
@@ -168,6 +174,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         self.bot.loop.create_task(self.leave_check(ctx))
 
     async def leave_check(self, ctx: MyContext | MyInter):
+        if (
+            ctx.guild.id in self.bot.whitelisted_guilds
+            and self.bot.whitelisted_guilds[ctx.guild.id] > utcnow()
+        ):
+            return
+
         async def task():
             await sleep(60)
 

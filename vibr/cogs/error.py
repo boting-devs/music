@@ -177,33 +177,36 @@ class Errors(Cog):
                 color=Color.red(),
             )
             await ctx.send(embed=embed, view=self.support_view)
-            painchannel = await self.bot.getch_channel(self.bot.logchannel)
-            content = (
-                ctx.message.content
-                if isinstance(ctx, MyContext)
-                else ctx.data and ctx.data.get("name")
-            )
-            if ctx.guild is None:
-                channel = "dm"
-                name = "dm"
-                guild = "dm"
-            else:
-                channel = ctx.channel.mention  # type: ignore
-                name = ctx.channel.name  # type: ignore
-                guild = ctx.guild.name
-            tb = "\n".join(format_exception(type(error), error, error.__traceback__))
-            await painchannel.send_embed(  # type: ignore
-                desc=f"command {ctx.command} gave ```py\n{tb}```, "
-                f"invoke: {content} in "
-                f"{channel} ({name}) in {guild} by {ctx.author}"
-            )
-            log.error(
-                "Command %s raised %s: %s",
-                ctx.command,
-                type(error).__name__,
-                error,
-                exc_info=True,
-            )
+            if self.bot.logchannel is not None:
+                painchannel = await self.bot.getch_channel(self.bot.logchannel)
+                content = (
+                    ctx.message.content
+                    if isinstance(ctx, MyContext)
+                    else ctx.data and ctx.data.get("name")
+                )
+                if ctx.guild is None:
+                    channel = "dm"
+                    name = "dm"
+                    guild = "dm"
+                else:
+                    channel = ctx.channel.mention  # type: ignore
+                    name = ctx.channel.name  # type: ignore
+                    guild = ctx.guild.name
+                tb = "\n".join(
+                    format_exception(type(error), error, error.__traceback__)
+                )
+                await painchannel.send_embed(  # type: ignore
+                    desc=f"command {ctx.command} gave ```py\n{tb}```, "
+                    f"invoke: {content} in "
+                    f"{channel} ({name}) in {guild} by {ctx.author}"
+                )
+                log.error(
+                    "Command %s raised %s: %s",
+                    ctx.command,
+                    type(error).__name__,
+                    error,
+                    exc_info=True,
+                )
 
 
 def setup(bot: MyBot):

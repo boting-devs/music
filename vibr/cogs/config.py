@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from asyncio import TimeoutError as AsyncTimeoutError
+from datetime import timedelta
 from re import compile as re_compile
 from typing import TYPE_CHECKING
 
 from botbase import admin_owner_guild_perms
-from nextcord import SlashOption, slash_command
-from nextcord.ext.commands import Cog, command, guild_only
+from nextcord import Guild, SlashOption, slash_command
+from nextcord.ext.commands import Cog, command, guild_only, is_owner
+from nextcord.utils import utcnow, format_dt
 
 from .extras.types import MyContext, MyInter
 
@@ -125,6 +127,25 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
             )
             await ctx.send("Prefix Updated!")
             self.bot.prefix[ctx.guild.id] = [new_prefix]
+
+    @is_owner()
+    @command(hidden=True)
+    async def whitelist(self, ctx: MyContext, guild: Guild, forever: bool = False):
+        if forever:
+            time = utcnow() + timedelta(weeks=9999)
+        else:
+            time = utcnow() + timedelta(weeks=1)
+
+        await self.bot.db.execute(
+            """INSERT INTO guilds (id, whitelisted) 
+            VALUES ($1, $2) 
+            ON CONFLICT (id) DO UPDATE 
+                SET whitelisted=$2""",
+            guild.id,
+            time,
+        )
+        self.bot.whitelisted_guilds[guild.id] = time
+        await ctx.send(f"Whitelisted until {format_dt(time)}")
 
 
 def setup(bot: MyBot):

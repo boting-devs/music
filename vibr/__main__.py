@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+from datetime import datetime
 from typing import Optional
 
 import nextcord
@@ -9,7 +10,7 @@ import uvloop
 from botbase import BotBase
 from dotenv import load_dotenv
 from nextcord import Activity, ActivityType
-from pomice import NodePool, NodeConnectionFailure
+from pomice import NodeConnectionFailure, NodePool
 from spotipy import Spotify, SpotifyClientCredentials
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -26,8 +27,17 @@ class MyBot(BotBase):
         self.spotify_users: dict[int, Optional[str]] = {}
         self.listener_tasks: dict[int, asyncio.Task[None]] = {}
         self.activity_tasks: dict[int, asyncio.Task[None]] = {}
+        self.whitelisted_guilds: dict[int, datetime] = {}
 
         self.spotipy = Spotify(client_credentials_manager=SpotifyClientCredentials())
+
+    async def startup(self, *args, **kwargs):
+        await super().startup(*args, **kwargs)
+
+        for row in await self.db.fetch(
+            "SELECT id, whitelisted FROM guilds WHERE whitelisted IS NOT NULL"
+        ):
+            self.whitelisted_guilds[row.get("id")] = row.get("whitelisted")
 
     async def on_ready(self):
         await asyncio.sleep(10)
