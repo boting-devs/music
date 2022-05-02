@@ -1,25 +1,22 @@
 from __future__ import annotations
 
 from asyncio import sleep
-from random import shuffle
 from functools import partial
 from logging import getLogger
+from random import shuffle
+from time import gmtime, strftime
 from typing import TYPE_CHECKING, Union
 
-import logging
-from pomice import Playlist
+from botbase import MyContext as BBMyContext
+from botbase import MyInter as BBMyInter
 from bs4 import BeautifulSoup
-from nextcord.utils import MISSING
-from nextcord.ui import Button, Select
 from nextcord import ClientUser, Embed, Member, SlashOption, User, slash_command
 from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
-from botbase import MyContext as BBMyContext, MyInter as BBMyInter
-from time import gmtime, strftime
+from nextcord.ui import Button, Select
+from nextcord.utils import MISSING
+from pomice import Playlist
 
 from .extras.checks import connected
-from .extras.views import PlaylistView, QueueView, QueueSource, PlayButton
-from .extras.playing_embed import playing_embed
-from .extras.types import MyContext, MyInter, Player
 from .extras.errors import (
     LyricsNotFound,
     NotInSameVoice,
@@ -27,10 +24,13 @@ from .extras.errors import (
     SongNotProvided,
     TooManyTracks,
 )
+from .extras.playing_embed import playing_embed
+from .extras.types import MyContext, MyInter, Player
+from .extras.views import PlayButton, PlaylistView, QueueSource, QueueView
 
 if TYPE_CHECKING:
-    from pomice import Track
     from nextcord import VoiceState
+    from pomice import Track
 
     from ..__main__ import MyBot
 
@@ -131,7 +131,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             assert before.channel
 
             if len(self.bot.listeners.get(before.channel.id, set())) > 0:
-                self.bot.listener_tasks.pop(member.guild.id)
+                self.bot.listener_tasks.pop(member.guild.id, None)
                 return
 
             if c := member.guild.voice_client.current:  # type: ignore
@@ -139,7 +139,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             await member.guild.voice_client.destroy()  # type: ignore
 
-            self.bot.listener_tasks.pop(member.guild.id)
+            self.bot.listener_tasks.pop(member.guild.id, None)
 
         t = self.bot.loop.create_task(task())
         self.bot.listener_tasks[member.guild.id] = t
@@ -168,14 +168,30 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         self.bot.loop.create_task(self.leave_check(ctx))
 
     async def leave_check(self, ctx: MyContext | MyInter):
-        await sleep(60)
+        async def task():
+            await sleep(60)
 
-        if not ctx.voice_client:
-            return
+            if not ctx.voice_client:
+                self.bot.activity_tasks.pop(ctx.guild.id, None)
+                return
 
-        if not ctx.voice_client.is_playing:
-            await ctx.send_author_embed("Disconnecting on no activity")
-            await ctx.voice_client.destroy()
+            if not ctx.voice_client.is_playing:
+                await ctx.send_author_embed("Disconnecting on no activity")
+                await ctx.voice_client.destroy()
+
+            self.bot.activity_tasks.pop(ctx.guild.id, None)
+
+        t = self.bot.loop.create_task(task())
+        self.bot.activity_tasks[ctx.guild.id] = t
+
+    @Cog.listener()
+    async def on_command_completion(self, ctx: MyContext):
+        if (
+            ctx.command
+            and ctx.command.cog
+            and ctx.command.cog.qualified_name == self.qualified_name
+        ):
+            self.bot.activity_tasks.pop(ctx.guild.id, None)
 
     @slash_command(name="play", description="Play some tunes!")
     async def play_(

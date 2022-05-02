@@ -25,6 +25,7 @@ class MyBot(BotBase):
         self.listeners: dict[int, set[int]] = {}
         self.spotify_users: dict[int, Optional[str]] = {}
         self.listener_tasks: dict[int, asyncio.Task[None]] = {}
+        self.activity_tasks: dict[int, asyncio.Task[None]] = {}
 
         self.spotipy = Spotify(client_credentials_manager=SpotifyClientCredentials())
 
