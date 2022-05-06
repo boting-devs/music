@@ -8,7 +8,6 @@ from nextcord import Embed
 from nextcord.utils import utcnow
 from botbase import MyInter as BBMyInter
 
-from . import views
 from .types import MyInter, MyContext
 
 if TYPE_CHECKING:
@@ -23,6 +22,7 @@ async def playing_embed(
     skipped_by: str | None = None,
     override_ctx: MyContext | MyInter | None = None,
 ):
+    from . import views  # circular
     view = views.PlayButton()
     if isinstance(track, Playlist):
         assert track.tracks[0].ctx is not None

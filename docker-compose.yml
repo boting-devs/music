@@ -14,11 +14,11 @@ services:
       - ./logs:/bot/logs
       - /var/run/postgresql:/var/run/postgresql
       - ./vibr:/bot/vibr
-    links:
-      - lavalink
+    network_mode: host
   lavalink:
     container_name: lavalink
     restart: unless-stopped
     build:
       context: lavalink
       dockerfile: Dockerfile
+    network_mode: host

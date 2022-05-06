@@ -46,7 +46,7 @@ class MyBot(BotBase):
             try:
                 await self.pool.create_node(
                     bot=self,
-                    host="lavalink",
+                    host="localhost",
                     port="6969",
                     password="haha",
                     identifier="MAIN",
