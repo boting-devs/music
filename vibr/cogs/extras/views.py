@@ -234,19 +234,10 @@ class QueueView(ButtonMenuPages):
         self.ctx = ctx
 
     async def interaction_check(self, interaction: Interaction) -> bool:
-        if interaction.user and (
-            interaction.user.id
-            in (
-                (self.ctx.bot.owner_id, self.ctx.author.id)
-                if self.ctx
-                else (self.interaction.client.owner_id, self.ctx.author.id)  # type: ignore
-            )
-            or interaction.user.id
-            in (
-                list(self.ctx.bot.owner_ids) + [self.ctx.author.id]
-                if self.ctx
-                else list(self.interaction.client.owner_ids) + [self.ctx.author.id]  # type: ignore
-            )
+        if interaction.user and interaction.user.id in (
+            list(self.ctx.bot.owner_ids) + [self.ctx.author.id]
+            if self.ctx
+            else list(self.interaction.client.owner_ids) + [self.ctx.author.id]  # type: ignore
         ):
             return True
         if self.ctx and self.ctx.command is not None:
