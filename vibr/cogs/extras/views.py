@@ -236,16 +236,16 @@ class QueueView(ButtonMenuPages):
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user and (
             interaction.user.id
-            == (
-                self.ctx.bot.owner_id
+            in (
+                (self.ctx.bot.owner_id, self.ctx.author.id)
                 if self.ctx
-                else self.interaction.client.owner_id  # type: ignore
+                else (self.interaction.client.owner_id, self.ctx.author.id)  # type: ignore
             )
             or interaction.user.id
             in (
-                self.ctx.bot.owner_ids
+                list(self.ctx.bot.owner_ids) + [self.ctx.author.id]
                 if self.ctx
-                else self.interaction.client.owner_ids  # type: ignore
+                else list(self.interaction.client.owner_ids) + [self.ctx.author.id]  # type: ignore
             )
         ):
             return True
