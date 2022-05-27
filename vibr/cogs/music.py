@@ -625,7 +625,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await ctx.send_author_embed(f"Position seeked to {current}")
 
     @connected()
-    @command(help="Remove song from queue",aliases=["clear"])
+    @command(help="Remove song from queue",aliases=["clear","rem"])
     async def remove(self,ctx:Union[MyContext,MyInter],num:int):
         player = ctx.voice_client
         try:
