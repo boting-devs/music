@@ -160,7 +160,7 @@ class Errors(Cog):
         elif isinstance(error,TrackLoadError):
             embed=Embed(
                 title="An error occured",
-                description=error,
+                description=f"**{error}**",
                 color=self.bot.color,
             )
             self.format_embed(embed, ctx)
