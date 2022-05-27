@@ -628,10 +628,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Remove song from queue",aliases=["clear"])
     async def remove(self,ctx:Union[MyContext,MyInter],num:int):
         player = ctx.voice_client
-        if num < 1 and num > len(player.queue):
+        try:
+            song_n=(player.queue[num-1])
+            player.queue.pop(num-1)
+        except IndexError:
             return await ctx.send("Please write the correct number!")
-        song_n=(player.queue[num-1])
-        player.queue.pop(num-1)
         await ctx.send_author_embed(f"{song_n} removed from queue")
 
 def setup(bot: MyBot):
