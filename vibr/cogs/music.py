@@ -632,7 +632,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             song_n=(player.queue[num-1])
             player.queue.pop(num-1)
         except IndexError:
-            return await ctx.send("Please write the correct number!")
+            return await ctx.reply("Please write the correct number present in your queue range!")
         await ctx.send_author_embed(f"{song_n} removed from queue")
 
 def setup(bot: MyBot):
