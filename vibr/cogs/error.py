@@ -4,6 +4,7 @@ from logging import getLogger
 from traceback import format_exception
 from typing import TYPE_CHECKING
 
+
 from botbase import MyContext, MyInter
 from nextcord import Color, Embed, ApplicationInvokeError
 from nextcord.ext.application_checks import (
@@ -32,7 +33,7 @@ from .extras.errors import (
     TooManyTracks,
 )
 from .extras.views import LinkButtonView
-
+from pomice.exceptions import TrackLoadError
 if TYPE_CHECKING:
     from typing import Type
 
@@ -155,6 +156,16 @@ class Errors(Cog):
             )
             self.format_embed(embed, ctx)
             await ctx.send(embed=embed, view=self.support_view)
+
+        elif isinstance(error,TrackLoadError):
+            embed=Embed(
+                title="An error occured",
+                description=error,
+                color=self.bot.color,
+            )
+            self.format_embed(embed, ctx)
+            await ctx.send(embed=embed, view=self.support_view)
+            
 
         elif type(error).__name__.lstrip("Application") in eh:
             name = type(error).__name__.lstrip("Application")
