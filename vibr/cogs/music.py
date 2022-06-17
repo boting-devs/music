@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Union
 from botbase import MyContext as BBMyContext
 from botbase import MyInter as BBMyInter
 from bs4 import BeautifulSoup
-from nextcord import ClientUser, Embed, Member, SlashOption, User, slash_command
+from nextcord import ClientUser, Embed, Member, SlashOption, User, slash_command, PartialInteractionMessage
 from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
@@ -100,7 +100,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             if (
                 player.ctx.guild.id in self.bot.whitelisted_guilds
-                and self.bot.whitelisted_guilds[ctx.guild.id] > utcnow()
+                and self.bot.whitelisted_guilds[player.ctx.guild.id] > utcnow()
             ):
                 return
 
@@ -572,7 +572,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         view = PlaylistView(all_playlists)
 
         m = await ctx.send("Choose a public playlist", view=view)
-        if not m and isinstance(ctx, BBMyInter):
+        if (not m and isinstance(ctx, BBMyInter)) or (isinstance(m, PartialInteractionMessage) and isinstance(ctx, BBMyInter)):
             m = await ctx.original_message()
 
         assert m is not None
@@ -625,15 +625,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await ctx.send_author_embed(f"Position seeked to {current}")
 
     @connected()
-    @command(help="Remove song from queue",aliases=["clear","rem"])
-    async def remove(self,ctx:Union[MyContext,MyInter],num:int):
+    @command(help="Remove song from queue", aliases=["clear", "rem"])
+    async def remove(self, ctx: Union[MyContext, MyInter], num: int):
         player = ctx.voice_client
         try:
-            song_n=(player.queue[num-1])
-            player.queue.pop(num-1)
+            song_n = player.queue[num - 1]
+            player.queue.pop(num - 1)
         except IndexError:
-            return await ctx.reply("Please write the correct number present in your queue range!")
+            return await ctx.reply(
+                "Please write the correct number present in your queue range!"
+            )
         await ctx.send_author_embed(f"{song_n} removed from queue")
+
 
 def setup(bot: MyBot):
     bot.add_cog(Music(bot))
