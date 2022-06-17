@@ -95,7 +95,6 @@ class Errors(Cog):
 
     @Cog.listener()
     async def on_command_error(self, ctx: MyContext | MyInter, error: Exception):
-        assert self.support_view is not None
         if isinstance(error, (CommandInvokeError, ApplicationInvokeError)):
             error = error.original
 
