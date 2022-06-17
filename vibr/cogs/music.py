@@ -99,7 +99,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await playing_embed(toplay)
         else:
             if (
-                ctx.guild.id in self.bot.whitelisted_guilds
+                player.ctx.guild.id in self.bot.whitelisted_guilds
                 and self.bot.whitelisted_guilds[ctx.guild.id] > utcnow()
             ):
                 return
