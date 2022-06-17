@@ -8,7 +8,7 @@ authors = ["ooliver1 <oliverwilkes2006@icloud.com>", "Arnavop <arnavkamramalout@
 python = "^3.9"
 nextcord = {extras = ["speed"], version = "^2.0.0-alpha.10"}
 python-dotenv = "^0.20.0"
-ooliver-botbase = "^1.17.6"
+ooliver-botbase = "^1.17.7"
 pomice = "^1.1.6"
 spotipy = "^2.19.0"
 uvloop = "^0.16.0"
