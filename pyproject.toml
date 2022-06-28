@@ -6,7 +6,7 @@ authors = ["ooliver1 <oliverwilkes2006@icloud.com>", "Arnavop <arnavkamramalout@
 
 [tool.poetry.dependencies]
 python = "^3.9"
-nextcord = {git = "https://github.com/nextcord/nextcord", extras = ["speed"]}
+nextcord = {git = "https://github.com/nextcord/nextcord", rev = "baa2a57f8eb8a443a94d28078901e1337a20645d", extras = ["speed"]}
 python-dotenv = "^0.20.0"
 ooliver-botbase = "^1.17.7"
 pomice = {git = "https://github.com/ooliver1/pomice", rev = "main"}
