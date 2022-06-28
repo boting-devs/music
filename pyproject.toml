@@ -9,7 +9,7 @@ python = "^3.9"
 nextcord = {git = "https://github.com/nextcord/nextcord", extras = ["speed"]}
 python-dotenv = "^0.20.0"
 ooliver-botbase = "^1.17.7"
-pomice = "^1.1.6"
+pomice = {git = "https://github.com/ooliver1/pomice", rev = "main"}
 spotipy = "^2.19.0"
 uvloop = "^0.16.0"
 beautifulsoup4 = "^4.11.1"
