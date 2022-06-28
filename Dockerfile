@@ -2,7 +2,7 @@ FROM --platform=amd64 python:3.9-slim-buster
 
 WORKDIR /bot
 
-RUN apt update && apt install gcc git && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install gcc git -y && rm -rf /var/lib/apt/lists/*
 
 RUN pip install poetry
 
