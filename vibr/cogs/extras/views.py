@@ -214,14 +214,14 @@ class QueueSource(ListPageSource):
             color=menu.ctx.bot.color if menu.ctx else menu.interaction.client.color,  # type: ignore
         )
 
-        maximum = self.get_max_pages()
-        if maximum > 0:
-            c = sum((t.length / 1000 if t.length else 0) for t in self.queue)
-            a = strftime("%H:%M:%S", gmtime(round(c)))
-            embed.set_footer(
-                text=f"Page {menu.current_page + 1}/{maximum} "
-                f"({len(self.queue)} tracks - total {a})"
-            )
+        #maximum = self.get_max_pages()
+        #if maximum > 0:
+        c = sum((t.length / 1000 if t.length else 0) for t in self.queue)
+        a = strftime("%H:%M:%S", gmtime(round(c)))
+        embed.set_footer(
+            text=f"Page {menu.current_page + 1}/{maximum} "
+            f"({len(self.queue)} tracks - total {a})"
+        )
 
         embed.set_author(name=self.title)
 
