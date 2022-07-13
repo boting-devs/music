@@ -12,7 +12,7 @@ from .types import MyInter
 from .playing_embed import playing_embed
 
 if TYPE_CHECKING:
-    from nextcord import Emoji, PartialEmoji, Message
+    from nextcord import Emoji, PartialEmoji, Message, InteractionMessage, PartialInteractionMessage
     from pomice import Track
 
     from .types import Playlist, MyContext
@@ -30,7 +30,7 @@ class LinkButtonView(View):
 
 
 class PlaylistView(View):
-    message: Message
+    message: Message | InteractionMessage | PartialInteractionMessage
     uri: str | None
 
     def __init__(self, playlists: list[Playlist]) -> None:
@@ -241,9 +241,13 @@ class QueueView(ButtonMenuPages):
         ):
             return True
         if self.ctx and self.ctx.command is not None:
+            cmd = self.ctx.command
+            if not isinstance(cmd, str):
+                cmd = cmd.name
+
             await interaction.response.send_message(
                 f"This menu is for {self.ctx.author.mention}, "
-                f"use {self.ctx.command.name} to have a menu to yourself.",
+                f"use {cmd} to have a menu to yourself.",
                 ephemeral=True,
             )
         else:

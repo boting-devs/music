@@ -6,10 +6,10 @@ authors = ["ooliver1 <oliverwilkes2006@icloud.com>", "Arnavop <arnavkamramalout@
 
 [tool.poetry.dependencies]
 python = "^3.9"
-nextcord = {extras = ["speed"], version = "^2.0.0-alpha.10"}
+nextcord = {git = "https://github.com/nextcord/nextcord", rev = "baa2a57f8eb8a443a94d28078901e1337a20645d", extras = ["speed"]}
 python-dotenv = "^0.20.0"
-ooliver-botbase = "^1.14.6"
-pomice = "^1.1.6"
+ooliver-botbase = "^1.17.7"
+pomice = {git = "https://github.com/ooliver1/pomice", rev = "main"}
 spotipy = "^2.19.0"
 uvloop = "^0.16.0"
 beautifulsoup4 = "^4.11.1"
