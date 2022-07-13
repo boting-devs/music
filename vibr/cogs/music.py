@@ -445,6 +445,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="When the beat isn't hitting right", aliases=["s"])
     async def skip(self, ctx: Union[MyContext, MyInter]):
         if not ctx.voice_client.queue:
+            player = ctx.voice_client
             await player.stop()
             return await ctx.send_author_embed("Nothing in queue. Stopping the music") 
 
