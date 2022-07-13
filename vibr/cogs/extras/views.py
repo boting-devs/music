@@ -214,8 +214,8 @@ class QueueSource(ListPageSource):
             color=menu.ctx.bot.color if menu.ctx else menu.interaction.client.color,  # type: ignore
         )
 
-        #maximum = self.get_max_pages()
-        #if maximum > 0:
+        maximum = self.get_max_pages()
+        #if maximum > 1:
         c = sum((t.length / 1000 if t.length else 0) for t in self.queue)
         a = strftime("%H:%M:%S", gmtime(round(c)))
         embed.set_footer(
