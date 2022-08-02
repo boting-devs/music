@@ -10,9 +10,9 @@ from nextcord.ext.commands import Cog
 if TYPE_CHECKING:
     from nextcord import Guild, Member, VoiceState
 
-    from ..__main__ import MyBot
+    from ..__main__ import Vibr
 
-    Context = MyContext[MyBot]
+    Context = MyContext[Vibr]
 
 
 slash_description = (
@@ -29,7 +29,7 @@ slash_description = (
 
 
 class Events(Cog):
-    def __init__(self, bot: MyBot):
+    def __init__(self, bot: Vibr):
         self.bot = bot
 
     @Cog.listener()
@@ -83,5 +83,5 @@ class Events(Cog):
             )
 
 
-def setup(bot: MyBot) -> None:
+def setup(bot: Vibr) -> None:
     bot.add_cog(Events(bot))

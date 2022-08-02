@@ -10,7 +10,15 @@ from typing import TYPE_CHECKING, Union
 from botbase import MyContext as BBMyContext
 from botbase import MyInter as BBMyInter
 from bs4 import BeautifulSoup
-from nextcord import ClientUser, Embed, Member, SlashOption, User, slash_command, PartialInteractionMessage
+from nextcord import (
+    ClientUser,
+    Embed,
+    Member,
+    SlashOption,
+    User,
+    slash_command,
+    PartialInteractionMessage,
+)
 from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
@@ -32,7 +40,7 @@ if TYPE_CHECKING:
     from nextcord import VoiceState
     from pomice import Track
 
-    from ..__main__ import MyBot
+    from ..__main__ import Vibr
 
 
 log = getLogger(__name__)
@@ -45,7 +53,7 @@ TEST = [802586580766162964, 939509053623795732]
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
     BYPASS = ("lyrics",)
 
-    def __init__(self, bot: MyBot):
+    def __init__(self, bot: Vibr):
         self.bot = bot
 
     def cog_application_command_check(self, ctx: MyInter) -> bool:
@@ -447,7 +455,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not ctx.voice_client.queue:
             player = ctx.voice_client
             await player.stop()
-            return await ctx.send_author_embed("Nothing in queue. Stopping the music") 
+            return await ctx.send_author_embed("Nothing in queue. Stopping the music")
 
         toplay = ctx.voice_client.queue.pop(0)
         await ctx.voice_client.play(toplay)
@@ -574,7 +582,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         view = PlaylistView(all_playlists)
 
         m = await ctx.send("Choose a public playlist", view=view)
-        if (not m and isinstance(ctx, BBMyInter)) or (isinstance(m, PartialInteractionMessage) and isinstance(ctx, BBMyInter)):
+        if (not m and isinstance(ctx, BBMyInter)) or (
+            isinstance(m, PartialInteractionMessage) and isinstance(ctx, BBMyInter)
+        ):
             m = await ctx.original_message()
 
         assert m is not None
@@ -640,5 +650,5 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await ctx.send_author_embed(f"{song_n} removed from queue")
 
 
-def setup(bot: MyBot):
+def setup(bot: Vibr):
     bot.add_cog(Music(bot))

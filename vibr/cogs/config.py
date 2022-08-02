@@ -13,7 +13,7 @@ from nextcord.utils import utcnow, format_dt
 from .extras.types import MyContext, MyInter
 
 if TYPE_CHECKING:
-    from ..__main__ import MyBot
+    from ..__main__ import Vibr
 
 
 urlprompt = """
@@ -28,7 +28,7 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
         r"^https?:\/\/open.spotify.com\/user\/(?P<id>(?:(?!\?).)*).*$"
     )
 
-    def __init__(self, bot: MyBot):
+    def __init__(self, bot: Vibr):
         self.bot = bot
 
     @property
@@ -148,5 +148,5 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
         await ctx.send(f"Whitelisted until {format_dt(time)}")
 
 
-def setup(bot: MyBot):
+def setup(bot: Vibr):
     bot.add_cog(Config(bot))

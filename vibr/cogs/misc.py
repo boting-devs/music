@@ -8,14 +8,14 @@ from nextcord import Embed, Message, slash_command
 from .extras.types import MyContext, MyInter
 
 if TYPE_CHECKING:
-    from ..__main__ import MyBot
+    from ..__main__ import Vibr
 
 
 TEST = [802586580766162964, 939509053623795732]
 
 
 class Misc(Cog, name="misc", description="Meta commands about the bot!"):
-    def __init__(self, bot: MyBot):
+    def __init__(self, bot: Vibr):
         self.bot = bot
 
     @property
@@ -95,5 +95,5 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         await ctx.send(embed=embed)
 
 
-def setup(bot: MyBot):
+def setup(bot: Vibr):
     bot.add_cog(Misc(bot))

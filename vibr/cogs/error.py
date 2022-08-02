@@ -34,10 +34,11 @@ from .extras.errors import (
 )
 from .extras.views import LinkButtonView
 from pomice.exceptions import TrackLoadError
+
 if TYPE_CHECKING:
     from typing import Type
 
-    from ..__main__ import MyBot
+    from ..__main__ import Vibr
 
 
 log = getLogger(__name__)
@@ -68,7 +69,7 @@ eh: dict[str, tuple[str, str]] = {e.__name__: msg for e, msg in ehh.items()}
 
 
 class Errors(Cog):
-    def __init__(self, bot: MyBot):
+    def __init__(self, bot: Vibr):
         self.bot = bot
         self.support_view = None
         self.bot.loop.create_task(self.init())
@@ -156,15 +157,14 @@ class Errors(Cog):
             self.format_embed(embed, ctx)
             await ctx.send(embed=embed, view=self.support_view)
 
-        elif isinstance(error,TrackLoadError):
-            embed=Embed(
+        elif isinstance(error, TrackLoadError):
+            embed = Embed(
                 title="An error occured",
                 description=f"**{error}**",
                 color=self.bot.color,
             )
             self.format_embed(embed, ctx)
             await ctx.send(embed=embed, view=self.support_view)
-            
 
         elif type(error).__name__.lstrip("Application") in eh:
             name = type(error).__name__.lstrip("Application")
@@ -219,5 +219,5 @@ class Errors(Cog):
                 )
 
 
-def setup(bot: MyBot):
+def setup(bot: Vibr):
     bot.add_cog(Errors(bot))
