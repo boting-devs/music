@@ -79,7 +79,7 @@ class Events(Cog):
         if not await self.bot.is_owner(ctx.author):  # type: ignore
             await ctx.send_embed(
                 title="Prefix Commands Will Stop Working Soon",
-                description=slash_description,
+                desc=slash_description,
             )
 
 
