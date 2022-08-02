@@ -1,14 +1,31 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from asyncio import sleep
+from typing import TYPE_CHECKING
 
+from botbase import MyContext
+from nextcord import Embed
 from nextcord.ext.commands import Cog
 
 if TYPE_CHECKING:
-    from nextcord import VoiceState, Member, Guild
+    from nextcord import Guild, Member, VoiceState
 
     from ..__main__ import MyBot
+
+    Context = MyContext[MyBot]
+
+
+slash_description = (
+    "As Discord is forcing [slash commands]"
+    "(<https://support.discord.com/hc/en-us/articles/1500000368501-Slash-Commands-FAQ>) "
+    "by the 31st of August, Vibr has to do the same. This message is to let you know "
+    "that slash commands will not work past the 31st of August, so you will need to start "
+    "using slash commands sooner rather than later. If somehow the slash commands do not show, "
+    "check with a moderator of this server to see if everyone has the "
+    "`Use Application Commands` permission in the preferred commands channel. "
+    "If that still does not work, you can reinvite vibr (no need to kick) with "
+    "[this link](https://discord.com/oauth2/authorize?client_id=882491278581977179&permissions=3427392&scope=bot%20applications.commands)"
+)
 
 
 class Events(Cog):
@@ -56,6 +73,14 @@ class Events(Cog):
                     self.bot.listeners[vs.channel.id] = {m}
                 else:
                     self.bot.listeners[vs.channel.id].add(m)
+
+    @Cog.listener()
+    async def on_command_completion(self, ctx: Context):
+        if not await self.bot.is_owner(ctx.author):  # type: ignore
+            await ctx.send_embed(
+                title="Prefix Commands Will Stop Working Soon",
+                description=slash_description,
+            )
 
 
 def setup(bot: MyBot) -> None:
