@@ -74,13 +74,13 @@ class Events(Cog):
                 else:
                     self.bot.listeners[vs.channel.id].add(m)
 
-    @Cog.listener()
-    async def on_command_completion(self, ctx: Context):
-        if not await self.bot.is_owner(ctx.author):  # type: ignore
-            await ctx.send_embed(
-                title="Prefix Commands Will Stop Working Soon",
-                desc=slash_description,
-            )
+    # @Cog.listener()
+    # async def on_command_completion(self, ctx: Context):
+    #     if not await self.bot.is_owner(ctx.author):  # type: ignore
+    #         await ctx.send_embed(
+    #             title="Prefix Commands Will Stop Working Soon",
+    #             desc=slash_description,
+    #         )
 
 
 def setup(bot: Vibr) -> None:
