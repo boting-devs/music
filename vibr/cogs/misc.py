@@ -115,7 +115,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         )
         await ctx.send(embed=embed)
 
-    @slash_command(name="Notifications",description="Recent announcements/notifications")
+    @slash_command(name="notifications",description="Recent announcements/notifications")
     async def notifications_(self,inter:MyInter):
         return await self.notifications(inter)
 
