@@ -94,6 +94,11 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         )
         await ctx.send(embed=embed)
 
+    @command(hidden = True)
+    async def notif_create(self,ctx:Union[MyContext,MyInter],notification):
+        await self.bot.db.execute("INSERT INTO notifications(notification) VALUES($1)",notification)
+        await ctx.send("Saved in db")
+
 
 def setup(bot: Vibr):
     bot.add_cog(Misc(bot))
