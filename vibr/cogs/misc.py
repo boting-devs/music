@@ -98,7 +98,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         await self.bot.db.execute("INSERT INTO notifications(notification) VALUES($1)",notification)
         await ctx.send("Saved in db")
 
-    @command(hidden=True)
+    @command(help="Vibr notifications")
     async def notifications(self,ctx:Union[MyContext,MyInter]):
         outp=[]
         notifs = await self.bot.db.fetch("SELECT notification,datetime FROM notifications ORDER BY id DESC")
