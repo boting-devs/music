@@ -99,6 +99,21 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         await self.bot.db.execute("INSERT INTO notifications(notification) VALUES($1)",notification)
         await ctx.send("Saved in db")
 
+    @command(hidden=True)
+    async def notifications(self,ctx:Union[MyContext,MyInter]):
+        outp=[]
+        notifs = await self.bot.db.execute("SELECT notification,datetime FROM notifications ORDER BY id DESC")
+        outp.append(notifs)
+        embed = Embed(title="Vibr's Notifications",description="List of vibr's important announcements/notifications",color=self.bot.color)
+        stop = 10
+        for (index,value) in enumerate(notifs[:stop],start=1):
+            embed.description += f'\n{index}) **{value["notification"]}'
+        embed.set_footer(
+            text=f"Requested by {ctx.author.name}",
+            icon_url=ctx.author.display_avatar.url,
+        )
+        await ctx.send(embed=embed)
+
 
 def setup(bot: Vibr):
     bot.add_cog(Misc(bot))
