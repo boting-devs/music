@@ -105,7 +105,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         notifs = await self.bot.db.execute("SELECT notification,datetime FROM notifications ORDER BY id DESC")
         outp.append(notifs)
         embed = Embed(title="Vibr's Notifications",description="List of vibr's important announcements/notifications",color=self.bot.color)
-        stop = 10
+        stop = 2
         for (index,value) in enumerate(notifs[:stop],start=1):
             embed.description += f'\n{index}) **{value["notification"]}'
         embed.set_footer(
