@@ -107,7 +107,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         embed = Embed(title="Vibr's Notifications",description="**__List of vibr's important announcements/notifications__**",color=self.bot.color)
         stop = 10
         for (index,value) in enumerate(notifs[:stop],start=1):
-            embed.add_field(name=f'{index}) **{value["notification"]}**',value=f'{value["datetime[:10]"]}',inline=False)
+            embed.add_field(name=f'{index}) **{value["notification"]}**',value=f'{value["datetime"][:10]}',inline=False)
         embed.set_footer(
             text=f"Requested by {ctx.author.name}",
             icon_url=ctx.author.display_avatar.url,
