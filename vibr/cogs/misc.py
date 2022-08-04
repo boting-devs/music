@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union
 
-from nextcord.ext.commands import Cog, command
+from nextcord.ext.commands import Cog, command , is_owner
 from nextcord import Embed, Message, slash_command
 from .extras.types import MyContext, MyInter
 
@@ -94,9 +94,11 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         await ctx.send(embed=embed)
 
     @command(hidden = True)
+    @is_owner()
     async def notif_create(self,ctx:Union[MyContext,MyInter],notification):
         await self.bot.db.execute("INSERT INTO notifications(notification) VALUES($1)",notification)
         await ctx.send("Saved in db")
+
 
     @command(help="Vibr notifications")
     async def notifications(self,ctx:Union[MyContext,MyInter]):
@@ -112,6 +114,10 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
             icon_url=ctx.author.display_avatar.url,
         )
         await ctx.send(embed=embed)
+
+    @slash_command(name="Notifications",description="Recent announcements/notifications")
+    async def notifications_(self,inter:MyInter):
+        return await self.notifications(inter)
 
 
 def setup(bot: Vibr):
