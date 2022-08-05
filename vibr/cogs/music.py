@@ -347,7 +347,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return await self.disconnect(ctx)  # type: ignore
 
     @connected()
-    @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff"])
+    @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff","fuckyou"])
     async def disconnect(self, ctx: MyContext):
         player = ctx.voice_client
         await player.destroy()
