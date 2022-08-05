@@ -349,6 +349,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await ctx.message.add_reaction("\U0001f480")
             elif ctx.invoked_with == "fuckoff":
                 await ctx.message.add_reaction("\U00002639\U0000fe0f")
+            elif ctx.invoked_with == "fuckyou":
+                await ctx.message.add_reaction("\U0001f595")
             else:
                 await ctx.message.add_reaction("\U0001f44b")
         else:
