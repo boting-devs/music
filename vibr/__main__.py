@@ -18,7 +18,7 @@ load_dotenv()
 nextcord.http._modify_api_version(9)  # get back content until september
 
 
-class MyBot(BotBase):
+class Vibr(BotBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -64,7 +64,7 @@ intents = nextcord.Intents.none()
 intents.guilds = True
 intents.messages = True
 intents.voice_states = True
-bot = MyBot(
+bot = Vibr(
     intents=intents,
     activity=Activity(type=ActivityType.listening, name="your beats :)"),
 )
