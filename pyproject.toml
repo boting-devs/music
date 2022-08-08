@@ -6,7 +6,7 @@ authors = ["ooliver1 <oliverwilkes2006@icloud.com>", "Arnavop <arnavkamramalout@
 
 [tool.poetry.dependencies]
 python = "^3.9"
-nextcord = "^2.1.0"
+nextcord = {version = "^2.1.0", extras = ["speed"]}
 python-dotenv = "^0.20.0"
 ooliver-botbase = "^1.17.7"
 pomice = {git = "https://github.com/ooliver1/pomice", rev = "main"}
