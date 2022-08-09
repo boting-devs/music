@@ -651,6 +651,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             )
         await ctx.send_author_embed(f"{song_n} removed from queue")
 
+    @connected()
+    @command(help="Clear the queue keeping the current song playing",aliases=["cq"])
+    async def clearqueue(self,ctx:Union[MyContext,MyInter]):
+        player  = ctx.voice_client
+        player.queue.clear()
+        await ctx.send_author_embed("Cleared the queue")
+
 
 def setup(bot: Vibr):
     bot.add_cog(Music(bot))
