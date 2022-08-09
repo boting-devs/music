@@ -629,7 +629,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return await self.forward(ctx)  # type: ignore
 
     @connected()
-    @command(help="Seeks forward by certain amount")
+    @command(help="Seeks forward by certain amount",aliases = ["fwd"])
     async def forward(self, ctx: Union[MyContext, MyInter], num: int):
         player = ctx.voice_client
         c = player.position
