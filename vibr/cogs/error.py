@@ -97,7 +97,7 @@ class Errors(Cog):
 
     @Cog.listener()
     async def on_command_error(self, ctx: MyContext | MyInter, error: Exception):
-        await ctx.send("TESTING: error")
+        log.error("h")
         if isinstance(error, (CommandInvokeError, ApplicationInvokeError)):
             error = error.original
 
