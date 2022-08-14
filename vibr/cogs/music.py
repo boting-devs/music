@@ -24,7 +24,7 @@ from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
 from pomice import Playlist
 
-from .extras.checks import connected
+from .extras.checks import connected, connected_a
 from .extras.errors import (
     LyricsNotFound,
     NotInSameVoice,
@@ -286,7 +286,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if toplay:
             player.queue += toplay
 
-    @connected()
+    @connected_a()
     @slash_command(name="pause", description="Pause the tunes")
     async def pause_(self, ctx: MyInter):
         return await self.pause(ctx)  # type: ignore
@@ -304,7 +304,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await ctx.send_author_embed("Paused")
 
-    @connected()
+    @connected_a()
     @slash_command(name="resume", description="Continue the bangers")
     async def resume_(self, ctx: MyInter):
         return await self.resume(ctx)  # type: ignore
@@ -322,7 +322,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await ctx.send_author_embed("Resumed")
 
-    @connected()
+    @connected_a()
     @slash_command(name="stop", description="Sto, wait a minute...")
     async def stop_(self, ctx: MyInter):
         return await self.stop(ctx)  # type: ignore
@@ -341,7 +341,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await ctx.send_author_embed("Stopped")
 
-    @connected()
+    @connected_a()
     @slash_command(name="disconnect", description="Bye bye :(")
     async def disconnect_(self, ctx: MyInter):
         return await self.disconnect(ctx)  # type: ignore
@@ -366,7 +366,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await ctx.send_author_embed("Bye :(")
 
-    @connected()
+    @connected_a()
     @slash_command(name="volume", description="Turn up the beats")
     async def volume_(
         self,
@@ -448,7 +448,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         elif not isinstance(ctx, BBMyContext):
             await ctx.edit_original_message(embed=embed)
 
-    @connected()
+    @connected_a()
     @slash_command(name="skip", description="When the beat isn't hitting right")
     async def skip_(self, ctx: MyInter):
         return await self.skip(ctx)  # type: ignore
@@ -465,7 +465,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await ctx.voice_client.play(toplay)
         await playing_embed(toplay, skipped_by=ctx.author.mention, override_ctx=ctx)
 
-    @connected()
+    @connected_a()
     @slash_command(name="nowplaying", description="Show the current beats")
     async def nowplaying_(self, ctx: MyInter):
         return await self.nowplaying(ctx)  # type: ignore
@@ -480,7 +480,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             ctx.voice_client.current, length=True, override_ctx=ctx
         )
 
-    @connected()
+    @connected_a()
     @slash_command(name="shuffle", description="Switch things up")
     async def shuffle_(self, ctx: MyInter):
         return await self.shuffle(ctx)  # type: ignore
@@ -495,7 +495,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await ctx.send_author_embed("Shuffled the queue")
 
-    @connected()
+    @connected_a()
     @slash_command(name="queue", description="Show the queue of tunes")
     async def queue_(self, ctx: MyInter):
         return await self.queue(ctx)  # type: ignore
@@ -514,7 +514,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await menu.start(ctx)
 
-    @connected()
+    @connected_a()
     @slash_command(name="loop", description="It hit so hard you play it again")
     async def loop_(self, inter: MyInter):
         return await self.loop(inter)  # type: ignore
@@ -534,7 +534,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await ctx.send_author_embed("Looping once")
 
-    @connected()
+    @connected_a()
     @slash_command(
         name="playlists",
         description="Play one of your amazing playlists",
@@ -606,7 +606,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await self.play(ctx, query=view.uri)  # type: ignore
 
-    @connected()
+    @connected_a()
     @slash_command(
         name="grab",
         description="Sends the current playing song through direct messages",
@@ -625,7 +625,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             ctx.voice_client.current, save=True, override_ctx=ctx
         )
 
-    @connected()
+    @connected_a()
     @slash_command(name="forward", description="Seeks forward by certain amount")
     async def forward_(self, ctx: MyInter):
         return await self.forward(ctx)  # type: ignore
