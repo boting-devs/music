@@ -474,6 +474,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @command(help="Show the current beats", aliases=["np"])
     async def nowplaying(self, ctx: Union[MyContext, MyInter]):
         if not ctx.voice_client.is_playing:
+            await ctx.send("TESTING: nothing playing")
             return await ctx.send_author_embed("No song is playing")
 
         return await playing_embed(
