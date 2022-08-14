@@ -4,11 +4,12 @@ from logging import getLogger
 from traceback import format_exception
 from typing import TYPE_CHECKING
 
-
 from botbase import MyContext, MyInter
-from nextcord import Color, Embed, ApplicationInvokeError
+from nextcord import ApplicationInvokeError, Color, Embed
 from nextcord.ext.application_checks import (
     ApplicationBotMissingPermissions as ABotMissingPermissions,
+)
+from nextcord.ext.application_checks import (
     ApplicationMissingPermissions as AMissingPermissions,
 )
 from nextcord.ext.commands import (
@@ -23,6 +24,7 @@ from nextcord.ext.commands import (
     PrivateMessageOnly,
 )
 from nextcord.utils import utcnow
+from pomice.exceptions import TrackLoadError
 
 from .extras.errors import (
     LyricsNotFound,
@@ -33,7 +35,6 @@ from .extras.errors import (
     TooManyTracks,
 )
 from .extras.views import LinkButtonView
-from pomice.exceptions import TrackLoadError
 
 if TYPE_CHECKING:
     from typing import Type

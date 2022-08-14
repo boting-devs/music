@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from botbase import admin_owner_guild_perms
 from nextcord import Guild, SlashOption, slash_command
 from nextcord.ext.commands import Cog, command, guild_only, is_owner
-from nextcord.utils import utcnow, format_dt
+from nextcord.utils import format_dt, utcnow
 
 from .extras.types import MyContext, MyInter
 

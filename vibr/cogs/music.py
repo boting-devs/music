@@ -14,10 +14,10 @@ from nextcord import (
     ClientUser,
     Embed,
     Member,
+    PartialInteractionMessage,
     SlashOption,
     User,
     slash_command,
-    PartialInteractionMessage,
 )
 from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
 from nextcord.ui import Button, Select
@@ -347,7 +347,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return await self.disconnect(ctx)  # type: ignore
 
     @connected()
-    @command(help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff","fuckyou"])
+    @command(
+        help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff", "fuckyou"]
+    )
     async def disconnect(self, ctx: MyContext):
         player = ctx.voice_client
         await player.destroy()
@@ -629,7 +631,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return await self.forward(ctx)  # type: ignore
 
     @connected()
-    @command(help="Seeks forward by certain amount",aliases = ["fwd"])
+    @command(help="Seeks forward by certain amount", aliases=["fwd"])
     async def forward(self, ctx: Union[MyContext, MyInter], num: int):
         player = ctx.voice_client
         c = player.position
@@ -652,9 +654,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await ctx.send_author_embed(f"{song_n} removed from queue")
 
     @connected()
-    @command(help="Clear the queue keeping the current song playing",aliases=["cq"])
-    async def clearqueue(self,ctx:Union[MyContext,MyInter]):
-        player  = ctx.voice_client
+    @command(help="Clear the queue keeping the current song playing", aliases=["cq"])
+    async def clearqueue(self, ctx: Union[MyContext, MyInter]):
+        player = ctx.voice_client
         if not player.queue:
             await ctx.send_author_embed("Queue is empty")
         else:

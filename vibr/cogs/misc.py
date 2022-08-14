@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union
 
-from nextcord.ext.commands import Cog, command , is_owner
 from nextcord import Embed, Message, slash_command
+from nextcord.ext.commands import Cog, command, is_owner
+
 from .extras.types import MyContext, MyInter
 
 if TYPE_CHECKING:
@@ -93,30 +94,43 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         )
         await ctx.send(embed=embed)
 
-    @command(hidden = True)
+    @command(hidden=True)
     @is_owner()
-    async def notif_create(self,ctx:Union[MyContext,MyInter],notification):
-        await self.bot.db.execute("INSERT INTO notifications(notification) VALUES($1)",notification)
+    async def notif_create(self, ctx: Union[MyContext, MyInter], notification):
+        await self.bot.db.execute(
+            "INSERT INTO notifications(notification) VALUES($1)", notification
+        )
         await ctx.send("Saved in db")
 
-
     @command(help="Vibr notifications")
-    async def notifications(self,ctx:Union[MyContext,MyInter]):
-        outp=[]
-        notifs = await self.bot.db.fetch("SELECT notification,datetime FROM notifications ORDER BY id DESC")
+    async def notifications(self, ctx: Union[MyContext, MyInter]):
+        outp = []
+        notifs = await self.bot.db.fetch(
+            "SELECT notification,datetime FROM notifications ORDER BY id DESC"
+        )
         outp.append(notifs)
-        embed = Embed(title="Vibr's Notifications",description="**__List of vibr's important announcements/notifications__**",color=self.bot.color)
+        embed = Embed(
+            title="Vibr's Notifications",
+            description="**__List of vibr's important announcements/notifications__**",
+            color=self.bot.color,
+        )
         stop = 10
-        for (index,value) in enumerate(notifs[:stop],start=1):
-            embed.add_field(name=f'{index}) **{value["notification"]}**',value=f'{value["datetime"].strftime("%d-%m-%y")}',inline=False)
+        for (index, value) in enumerate(notifs[:stop], start=1):
+            embed.add_field(
+                name=f'{index}) **{value["notification"]}**',
+                value=f'{value["datetime"].strftime("%d-%m-%y")}',
+                inline=False,
+            )
         embed.set_footer(
             text=f"Requested by {ctx.author.name}",
             icon_url=ctx.author.display_avatar.url,
         )
         await ctx.send(embed=embed)
 
-    @slash_command(name="notifications",description="Recent announcements/notifications")
-    async def notifications_(self,inter:MyInter):
+    @slash_command(
+        name="notifications", description="Recent announcements/notifications"
+    )
+    async def notifications_(self, inter: MyInter):
         return await self.notifications(inter)
 
 
