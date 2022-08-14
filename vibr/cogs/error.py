@@ -24,7 +24,7 @@ from nextcord.ext.commands import (
     PrivateMessageOnly,
 )
 from nextcord.utils import utcnow
-from pomice.exceptions import TrackLoadError
+from pomice.exceptions import NoNodesAvailable, TrackLoadError
 
 from .extras.errors import (
     LyricsNotFound,
@@ -64,6 +64,10 @@ ehh: dict[Type[Exception], tuple[str, str]] = {
     NotConnected: (
         "Not Connected",
         "This command requires the bot to be connected to a vc",
+    ),
+    NoNodesAvailable: (
+        "There was an issue playing this song",
+        "This was not a user error, the bot may have recently rebooted. Please try again in a few seconds.",
     ),
 }
 eh: dict[str, tuple[str, str]] = {e.__name__: msg for e, msg in ehh.items()}
