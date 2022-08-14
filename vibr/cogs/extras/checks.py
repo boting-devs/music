@@ -19,7 +19,8 @@ __all__ = ("connected",)
 def connected_p(func: Callable[[Callable], Any]):
     def decorator():
         async def extended_check(ctx: MyContext | MyInter) -> bool:
-            if ctx.guild.voice_client is None:
+            if ctx.voice_client is None:
+                __import__("logging").getLogger(__name__).error("h")
                 raise NotConnected()
 
             return True
