@@ -314,18 +314,14 @@ class NotificationSource(ListPageSource):
         super().__init__(entries=notifications, per_page=3)
         self.title = f"Bot notifications (total: {len(notifications)})"
 
-    def format_page(self, menu: MyMenu, notifications: list[Notification]) -> Embed:
-        desc = "\n".join(n.format() for n in notifications)
-
+    def format_page(self, menu: MyMenu, notification: Notification) -> Embed:
         embed = Embed(
-            description=desc,
+            description=notification.format(),
             color=menu.ctx.bot.color if menu.ctx else menu.interaction.client.color,  # type: ignore
         )
 
-        maximum = self.get_max_pages()
-        embed.set_footer(text=f"Page {menu.current_page + 1}/{maximum}")
-
         embed.set_author(name=self.title)
+        embed.set_footer(text=notification.time.strftime("%d-%m-%y"))
 
         return embed
 

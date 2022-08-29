@@ -106,4 +106,4 @@ class Notification:
         self.time = data["datetime"]
 
     def format(self) -> str:
-        return f"{self.id}. **{self.title}** ({self.time.strftime('%d-%m-%y')})\n{self.message}"
+        return f"{self.id}. **{self.title}**\n{self.message}"
