@@ -3,8 +3,7 @@ from __future__ import annotations
 from asyncio import sleep
 from typing import TYPE_CHECKING
 
-from botbase import MyContext
-from nextcord import Embed
+from botbase import MyContext, MyInter
 from nextcord.ext.commands import Cog
 
 if TYPE_CHECKING:
@@ -13,19 +12,6 @@ if TYPE_CHECKING:
     from ..__main__ import Vibr
 
     Context = MyContext[Vibr]
-
-
-slash_description = (
-    "As Discord is forcing [slash commands]"
-    "(<https://support.discord.com/hc/en-us/articles/1500000368501-Slash-Commands-FAQ>) "
-    "by the 31st of August, Vibr has to do the same. This message is to let you know "
-    "that slash commands will not work past the 31st of August, so you will need to start "
-    "using slash commands sooner rather than later. If somehow the slash commands do not show, "
-    "check with a moderator of this server to see if everyone has the "
-    "`Use Application Commands` permission in the preferred commands channel. "
-    "If that still does not work, you can reinvite vibr (no need to kick) with "
-    "[this link](https://discord.com/oauth2/authorize?client_id=882491278581977179&permissions=3427392&scope=bot%20applications.commands)"
-)
 
 
 class Events(Cog):
@@ -75,12 +61,40 @@ class Events(Cog):
                     self.bot.listeners[vs.channel.id].add(m)
 
     @Cog.listener()
-    async def on_command_completion(self, ctx: Context):
-        if not await self.bot.is_owner(ctx.author):  # type: ignore
-            await ctx.send_embed(
-                title="Prefix Commands Will Stop Working Soon",
-                desc=slash_description,
+    async def on_application_command_completion(self, inter: MyInter):
+        await self.on_command_completion(inter)
+
+    @Cog.listener()
+    async def on_command_completion(self, ctx: MyContext | MyInter):
+        if (
+            not await self.bot.is_owner(ctx.author)  # type: ignore
+            and ctx.author.id not in self.bot.notified_users
+        ):
+            is_notified = await self.bot.db.fetchval(
+                "SELECT notified FROM users WHERE id=$1", ctx.author.id
             )
+
+            if not is_notified:
+                latest = await self.bot.db.fetchrow(
+                    "SELECT * FROM notifications ORDER BY id DESC LIMIT 1"
+                )
+
+                await ctx.author.send(
+                    f"You have a new notification with the title **{latest['title']}** "
+                    f"from {latest['datetime'].strftime('%y-%m-%d')}. "
+                    "You can view all notifications with </notifications:1004841251549478992>."
+                )
+
+                await self.bot.db.execute(
+                    """INSERT INTO users (id, notified)
+                    VALUES ($1, $2)
+                    ON CONFLICT (id) DO UPDATE
+                        SET notified = $2""",
+                    ctx.author.id,
+                    True,
+                )
+
+            self.bot.notified_users.add(ctx.author.id)
 
 
 def setup(bot: Vibr) -> None:
