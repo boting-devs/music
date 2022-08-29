@@ -244,7 +244,7 @@ class MyView(View):
         if interaction.user and interaction.user.id in (
             list(self.ctx.bot.owner_ids) + [self.ctx.author.id]
             if self.ctx
-            else list(self.interaction.client.owner_ids) + [self.ctx.author.id]  # type: ignore
+            else list(self.interaction.client.owner_ids) + [self.interaction.user.id]  # type: ignore
         ):
             return True
         if self.ctx and self.ctx.command is not None:
