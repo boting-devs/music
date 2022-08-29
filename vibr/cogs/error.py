@@ -23,7 +23,7 @@ from nextcord.ext.commands import (
     NotOwner,
     PrivateMessageOnly,
 )
-from nextcord.utils import utcnow
+from nextcord.utils import utcnow, MISSING
 from pomice.exceptions import NoNodesAvailable, TrackLoadError
 
 from .extras.errors import (
@@ -76,7 +76,7 @@ eh: dict[str, tuple[str, str]] = {e.__name__: msg for e, msg in ehh.items()}
 class Errors(Cog):
     def __init__(self, bot: Vibr):
         self.bot = bot
-        self.support_view = None
+        self.support_view = MISSING
         self.bot.loop.create_task(self.init())
 
     async def init(self):
