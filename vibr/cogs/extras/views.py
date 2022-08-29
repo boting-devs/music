@@ -311,7 +311,7 @@ class QueueView(MyView, ButtonMenuPages):
 
 class NotificationSource(ListPageSource):
     def __init__(self, notifications: list[Notification]):
-        super().__init__(entries=notifications, per_page=3)
+        super().__init__(entries=notifications, per_page=1)
         self.title = f"Bot notifications (total: {len(notifications)})"
 
     def format_page(self, menu: MyMenu, notification: Notification) -> Embed:
@@ -321,7 +321,7 @@ class NotificationSource(ListPageSource):
         )
 
         embed.set_author(name=self.title)
-        embed.set_footer(text=notification.time.strftime("%d-%m-%y"))
+        embed.set_footer(text=notification.time.strftime("%y-%m-%d"))
 
         return embed
 
