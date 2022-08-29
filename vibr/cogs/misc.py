@@ -101,7 +101,9 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         self, ctx: Union[MyContext, MyInter], title: str, *, notification: str
     ):
         await self.bot.db.execute(
-            "INSERT INTO notifications(title, notification) VALUES ($1)", title, notification
+            "INSERT INTO notifications(title, notification) VALUES ($1, $2)",
+            title,
+            notification,
         )
         await ctx.send("Saved in db")
         await self.bot.db.execute("UPDATE users SET notified=false")
