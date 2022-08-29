@@ -114,7 +114,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     async def notifications(self, inter: MyInter):
         notifs = await self.bot.db.fetch("SELECT * FROM notifications ORDER BY id DESC")
         menu = NotificationView(source=NotificationSource(notifs), ctx=inter)
-        await menu.start(interaction=inter)
+        await menu.start(interaction=inter, ephemeral=True)
 
 
 def setup(bot: Vibr):
