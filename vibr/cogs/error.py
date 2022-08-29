@@ -23,7 +23,7 @@ from nextcord.ext.commands import (
     NotOwner,
     PrivateMessageOnly,
 )
-from nextcord.utils import utcnow, MISSING
+from nextcord.utils import MISSING, utcnow
 from pomice.exceptions import NoNodesAvailable, TrackLoadError
 
 from .extras.errors import (
@@ -188,7 +188,10 @@ class Errors(Cog):
         else:
             embed = Embed(
                 title="Unexpected Error.",
-                description=f"```py\n{type(error).__name__}: {error}```my dev has been notified",
+                description=(
+                    f"```py\n{type(error).__name__}: {error}```my dev has been notified\n"
+                    "**This is not a user error, retrying likely will not work."
+                ),
                 color=Color.red(),
             )
             await ctx.send(embed=embed, view=self.support_view)
