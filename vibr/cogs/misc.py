@@ -6,6 +6,7 @@ from nextcord import Embed, Message, slash_command
 from nextcord.ext.commands import Cog, command, is_owner
 
 from .extras.types import MyContext, MyInter
+from .extras.views import NotificationSource, NotificationView
 
 if TYPE_CHECKING:
     from ..__main__ import Vibr
@@ -96,42 +97,22 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
 
     @command(hidden=True)
     @is_owner()
-    async def notif_create(self, ctx: Union[MyContext, MyInter], notification):
+    async def notif_create(
+        self, ctx: Union[MyContext, MyInter], title: str, *, notification: str
+    ):
         await self.bot.db.execute(
-            "INSERT INTO notifications(notification) VALUES($1)", notification
+            "INSERT INTO notifications(notification) VALUES ($1)", notification
         )
         await ctx.send("Saved in db")
+        await self.bot.db.execute("UPDATE users SET notified=false")
+        self.bot.notified_users.clear()
+        await ctx.send("Set all users to un-notified")
 
-    @command(help="Vibr notifications")
-    async def notifications(self, ctx: Union[MyContext, MyInter]):
-        outp = []
-        notifs = await self.bot.db.fetch(
-            "SELECT notification,datetime FROM notifications ORDER BY id DESC"
-        )
-        outp.append(notifs)
-        embed = Embed(
-            title="Vibr's Notifications",
-            description="**__List of vibr's important announcements/notifications__**",
-            color=self.bot.color,
-        )
-        stop = 10
-        for (index, value) in enumerate(notifs[:stop], start=1):
-            embed.add_field(
-                name=f'{index}) **{value["notification"]}**',
-                value=f'{value["datetime"].strftime("%d-%m-%y")}',
-                inline=False,
-            )
-        embed.set_footer(
-            text=f"Requested by {ctx.author.name}",
-            icon_url=ctx.author.display_avatar.url,
-        )
-        await ctx.send(embed=embed)
-
-    @slash_command(
-        name="notifications", description="Recent announcements/notifications"
-    )
-    async def notifications_(self, inter: MyInter):
-        return await self.notifications(inter)
+    @slash_command(description="Recent announcements/notifications")
+    async def notifications(self, inter: MyInter):
+        notifs = await self.bot.db.fetch("SELECT * FROM notifications ORDER BY id DESC")
+        menu = NotificationView(source=NotificationSource(notifs), ctx=inter)
+        await menu.start(interaction=inter)
 
 
 def setup(bot: Vibr):

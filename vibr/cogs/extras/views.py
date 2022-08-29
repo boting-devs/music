@@ -12,10 +12,16 @@ from .types import MyInter
 from .playing_embed import playing_embed
 
 if TYPE_CHECKING:
-    from nextcord import Emoji, PartialEmoji, Message, InteractionMessage, PartialInteractionMessage
+    from nextcord import (
+        Emoji,
+        PartialEmoji,
+        Message,
+        InteractionMessage,
+        PartialInteractionMessage,
+    )
     from pomice import Track
 
-    from .types import Playlist, MyContext
+    from .types import Playlist, MyContext, Notification
 
 
 class LinkButtonView(View):
@@ -215,7 +221,7 @@ class QueueSource(ListPageSource):
         )
 
         maximum = self.get_max_pages()
-        #if maximum > 1:
+        # if maximum > 1:
         c = sum((t.length / 1000 if t.length else 0) for t in self.queue)
         a = strftime("%H:%M:%S", gmtime(round(c)))
         embed.set_footer(
@@ -228,10 +234,11 @@ class QueueSource(ListPageSource):
         return embed
 
 
-class QueueView(ButtonMenuPages):
-    def __init__(self, source: ListPageSource, ctx: MyContext | MyInter) -> None:
-        super().__init__(source=source, style=ButtonStyle.blurple)
-        self.ctx = ctx
+class MyView(View):
+    """A collection of on_timeout: disable buttons and interaction_check: author"""
+
+    ctx: MyContext | MyInter
+    message: Message
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user and interaction.user.id in (
@@ -265,6 +272,12 @@ class QueueView(ButtonMenuPages):
         if self.message is not None:
             await self.message.edit(view=self)
 
+
+class QueueView(MyView, ButtonMenuPages):
+    def __init__(self, source: ListPageSource, ctx: MyContext | MyInter) -> None:
+        super().__init__(source=source, style=ButtonStyle.blurple)
+        self.ctx = ctx
+
     @button(
         emoji="\U0001f500", style=ButtonStyle.blurple, row=1, custom_id="view:shuffle"
     )
@@ -294,3 +307,30 @@ class QueueView(ButtonMenuPages):
         await inter.send_author_embed("Shuffled the queue")
         player = inter.guild.voice_client
         await self.change_source(QueueSource(player.current, player.queue))
+
+
+class NotificationSource(ListPageSource):
+    def __init__(self, notifications: list[Notification]):
+        super().__init__(entries=notifications, per_page=3)
+        self.title = f"Bot notifications (total: {len(notifications)})"
+
+    def format_page(self, menu: MyMenu, notifications: list[Notification]) -> Embed:
+        desc = "\n".join(n.format() for n in notifications)
+
+        embed = Embed(
+            description=desc,
+            color=menu.ctx.bot.color if menu.ctx else menu.interaction.client.color,  # type: ignore
+        )
+
+        maximum = self.get_max_pages()
+        embed.set_footer(text=f"Page {menu.current_page + 1}/{maximum}")
+
+        embed.set_author(name=self.title)
+
+        return embed
+
+
+class NotificationView(MyView, ButtonMenuPages):
+    def __init__(self, source: ListPageSource, ctx: MyContext | MyInter) -> None:
+        super().__init__(source=source, style=ButtonStyle.blurple)
+        self.ctx = ctx

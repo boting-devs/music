@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Optional
 
 import nextcord
+import nextcord.http
 import uvloop
 from botbase import BotBase
 from dotenv import load_dotenv
@@ -29,6 +30,15 @@ class Vibr(BotBase):
         self.listener_tasks: dict[int, asyncio.Task[None]] = {}
         self.activity_tasks: dict[int, asyncio.Task[None]] = {}
         self.whitelisted_guilds: dict[int, datetime] = {}
+        self.notified_users: set[int] = set()
+        """A set of all users who have been notified, this is a cache.
+        
+        If a user needs to be checked on if they have been notified,
+        if they are not in this set then they will be found in the db and either:
+
+        - Added to this set as it is True.
+        - Notified, then added to this set.
+        """
 
         self.spotipy = Spotify(client_credentials_manager=SpotifyClientCredentials())
 

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import datetime
 from typing import TypedDict
 
 import botbase
-import pomice
 import nextcord
+import pomice
 
 
 class Player(pomice.Player):
@@ -90,3 +91,21 @@ class Followers(TypedDict):
 
 class ExtUrl(TypedDict):
     spotify: str
+
+
+class NotificationDict(TypedDict):
+    id: int
+    title: str
+    notification: str
+    datetime: datetime.datetime
+
+
+class Notification:
+    def __init__(self, data: NotificationDict) -> None:
+        self.id = data["id"]
+        self.title = data["title"]
+        self.message = data["notification"]
+        self.time = data["datetime"]
+
+    def format(self) -> str:
+        return f"**{self.id}. {self.title} ({self.time.strftime('%d-%m-%y')})**\n{self.message}"
