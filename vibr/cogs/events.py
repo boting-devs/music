@@ -66,10 +66,7 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_command_completion(self, ctx: MyContext | MyInter):
-        if (
-            not await self.bot.is_owner(ctx.author)  # type: ignore
-            and ctx.author.id not in self.bot.notified_users
-        ):
+        if ctx.author.id not in self.bot.notified_users:
             is_notified = await self.bot.db.fetchval(
                 "SELECT notified FROM users WHERE id=$1", ctx.author.id
             )
