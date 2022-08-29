@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Union
 from nextcord import Embed, Message, slash_command
 from nextcord.ext.commands import Cog, command, is_owner
 
-from .extras.types import MyContext, MyInter
+from .extras.types import MyContext, MyInter, Notification
 from .extras.views import NotificationSource, NotificationView
 
 if TYPE_CHECKING:
@@ -113,7 +113,9 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     @slash_command(description="Recent announcements/notifications")
     async def notifications(self, inter: MyInter):
         notifs = await self.bot.db.fetch("SELECT * FROM notifications ORDER BY id DESC")
-        menu = NotificationView(source=NotificationSource(notifs), ctx=inter)
+        menu = NotificationView(
+            source=NotificationSource(list(map(Notification, notifs))), ctx=inter
+        )
         await menu.start(interaction=inter, ephemeral=True)
 
 
