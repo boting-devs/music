@@ -82,7 +82,7 @@ class Events(Cog):
                 await ctx.send(
                     f"{ctx.author.mention} You have a new notification with the title "
                     f"**{latest['title']}** "
-                    f"from {latest['datetime'].strftime('%y-%m-%d')}. "
+                    f"from `{latest['datetime'].strftime('%y-%m-%d')}`. "
                     "You can view all notifications with </notifications:1004841251549478992>."
                 )
 
