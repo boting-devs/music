@@ -5,9 +5,8 @@ from functools import partial
 from logging import getLogger
 from random import shuffle
 from time import gmtime, strftime
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
-from botbase import MyContext as BBMyContext
 from botbase import MyInter as BBMyInter
 from bs4 import BeautifulSoup
 from nextcord import (
@@ -15,16 +14,15 @@ from nextcord import (
     Embed,
     Member,
     PartialInteractionMessage,
-    SlashOption,
     User,
     slash_command,
 )
-from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage, command
+from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
 from pomice import Playlist
 
-from .extras.checks import connected, connected_a
+from .extras.checks import connected
 from .extras.errors import (
     LyricsNotFound,
     NotInSameVoice,
@@ -33,7 +31,7 @@ from .extras.errors import (
     TooManyTracks,
 )
 from .extras.playing_embed import playing_embed
-from .extras.types import MyContext, MyInter, Player
+from .extras.types import MyInter, Player
 from .extras.views import PlayButton, PlaylistView, QueueSource, QueueView
 
 if TYPE_CHECKING:
@@ -56,37 +54,30 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     def __init__(self, bot: Vibr):
         self.bot = bot
 
-    def cog_application_command_check(self, ctx: MyInter) -> bool:
-        return self.cog_check(ctx)
-
-    def cog_check(self, ctx: MyContext | MyInter) -> bool:
-        cmd = str(ctx.command)
+    def cog_application_command_check(self, inter: MyInter) -> bool:
+        cmd = inter.application_command.qualified_name  # type: ignore
 
         if cmd in self.BYPASS:
             return True
 
         if (
-            ctx.guild is None
-            or isinstance(ctx.author, User)
-            or isinstance(ctx.me, ClientUser)
+            inter.guild is None
+            or isinstance(inter.user, User)
+            or isinstance(inter.me, ClientUser)
         ):
             raise NoPrivateMessage()
-        elif ctx.author.voice is None or ctx.author.voice.channel is None:
+        elif inter.user.voice is None or inter.user.voice.channel is None:
             raise NotInVoice()
         elif (
-            not ctx.author.voice.channel.permissions_for(ctx.me).connect
-            or not ctx.author.voice.channel.permissions_for(ctx.me).speak
-        ) and not ctx.author.voice.channel.permissions_for(ctx.me).administrator:
+            not inter.user.voice.channel.permissions_for(inter.me).connect
+            or not inter.user.voice.channel.permissions_for(inter.me).speak
+        ) and not inter.user.voice.channel.permissions_for(inter.me).administrator:
             raise BotMissingPermissions(["connect", "speak"])
-        elif ctx.voice_client is not None:
-            if ctx.author.voice.channel.id != ctx.voice_client.channel.id:
+        elif inter.guild.voice_client is not None:
+            if inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
                 raise NotInSameVoice()
 
         return True
-
-    @property
-    def emoji(self) -> str:
-        return "🎵"
 
     @Cog.listener()
     async def on_ready(self):
@@ -168,88 +159,80 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         t = self.bot.loop.create_task(task())
         self.bot.listener_tasks[member.guild.id] = t
 
-    @slash_command(name="join", description="Make me join your voice channel!")
-    async def join_(self, ctx: MyInter):
-        return await self.join(ctx)  # type: ignore
+    @slash_command(dm_permission=False)
+    async def join(self, inter: MyInter):
+        """Join your voice channel!"""
 
-    @command(help="Join your voice channel.", aliases=["connect", "c", "j"])
-    async def join(self, ctx: Union[MyContext, MyInter]):
         assert (
-            isinstance(ctx.author, Member)
-            and ctx.author.voice is not None
-            and ctx.author.voice.channel is not None
+            isinstance(inter.user, Member)
+            and inter.user.voice is not None
+            and inter.user.voice.channel is not None
         )
 
-        channel = ctx.author.voice.channel
-        if ctx.voice_client is not None:
-            if channel.id == ctx.voice_client.channel.id:
-                return await ctx.reply("Already Connected!")
+        channel = inter.user.voice.channel
+        if inter.guild.voice_client is not None:
+            if channel.id == inter.guild.voice_client.channel.id:
+                return await inter.reply("Already Connected!")
 
-        await channel.connect(cls=Player)  # type: ignore
+        await channel.connect(cls=Player)
 
-        await ctx.send_author_embed(f"Connected to {channel.name}")
+        await inter.send_author_embed(f"Connected to {channel.name}")
 
-        self.bot.loop.create_task(self.leave_check(ctx))
+        self.bot.loop.create_task(self.leave_check(inter))
 
-    async def leave_check(self, ctx: MyContext | MyInter):
+    async def leave_check(self, inter: MyInter):
         if (
-            ctx.guild.id in self.bot.whitelisted_guilds
-            and self.bot.whitelisted_guilds[ctx.guild.id] > utcnow()
+            inter.guild.id in self.bot.whitelisted_guilds
+            and self.bot.whitelisted_guilds[inter.guild.id] > utcnow()
         ):
             return
 
         async def task():
             await sleep(60)
 
-            if not ctx.voice_client:
-                self.bot.activity_tasks.pop(ctx.guild.id, None)
+            if not inter.guild.voice_client:
+                self.bot.activity_tasks.pop(inter.guild.id, None)
                 return
 
-            if not ctx.voice_client.is_playing:
-                await ctx.send_author_embed("Disconnecting on no activity")
-                await ctx.voice_client.destroy()
+            if not inter.guild.voice_client.is_playing:
+                await inter.send_author_embed("Disconnecting on no activity")
+                await inter.guild.voice_client.destroy()
 
-            self.bot.activity_tasks.pop(ctx.guild.id, None)
+            self.bot.activity_tasks.pop(inter.guild.id, None)
 
         t = self.bot.loop.create_task(task())
-        self.bot.activity_tasks[ctx.guild.id] = t
+        self.bot.activity_tasks[inter.guild.id] = t
 
     @Cog.listener()
-    async def on_command_completion(self, ctx: MyContext):
+    async def on_application_command_completion(self, inter: MyInter):
         if (
-            ctx.command
-            and ctx.command.cog
-            and ctx.command.cog.qualified_name == self.qualified_name
+            inter.application_command
+            and inter.application_command.parent_cog
+            and inter.application_command.parent_cog.qualified_name  # type: ignore
+            == self.qualified_name
         ):
-            self.bot.activity_tasks.pop(ctx.guild.id, None)
+            self.bot.activity_tasks.pop(inter.guild.id, None)
 
-    @slash_command(name="play", description="Play some tunes!")
-    async def play_(
-        self, ctx: MyInter, query: str = SlashOption(description="Query/link to search")
-    ):
-        return await self.play(ctx, query=query)  # type: ignore
+    @slash_command(dm_permission=False)
+    async def play(self, inter: MyInter, *, query: str):
+        """Play some tunes!"""
 
-    @command(help="Play some tunes!", aliases=["p"])
-    async def play(self, ctx: Union[MyContext, MyInter], *, query: str):
         assert (
-            isinstance(ctx.author, Member)
-            and ctx.author.voice is not None
-            and ctx.author.voice.channel is not None
+            isinstance(inter.user, Member)
+            and inter.user.voice is not None
+            and inter.user.voice.channel is not None
         )
 
-        if not ctx.voice_client:
-            await self.join(ctx)  # type: ignore
+        if not inter.guild.voice_client:
+            await self.join(inter)
 
-        if isinstance(ctx, BBMyInter) and ctx.response.is_done():
-            await ctx.channel.send(f"Searching `{query}`")  # type: ignore
-        else:
-            await ctx.send(f"Searching `{query}`")
+        await inter.send(f"Searching `{query}`")
 
-        player = ctx.voice_client
-        result = await player.get_tracks(query=query, ctx=ctx)  # type: ignore
+        player = inter.guild.voice_client
+        result = await player.get_tracks(query=query, ctx=inter)  # type: ignore
 
         if not result:
-            return await ctx.send_author_embed("No tracks found")
+            return await inter.send_author_embed("No tracks found")
 
         if len(player.queue) >= 500:
             raise TooManyTracks()
@@ -262,7 +245,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
                 if len(player.queue) + len(toplay) > 500:
                     amount = 500 - len(player.queue)
-                    await ctx.send_author_embed(f"Queueing {amount} tracks...")
+                    await inter.send_author_embed(f"Queueing {amount} tracks...")
             else:
                 track = info = result[0]
                 toplay = []
@@ -276,7 +259,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 info = result
                 if len(player.queue) + len(toplay) > 500:
                     amount = 500 - len(player.queue)
-                    await ctx.send_author_embed(f"Queueing {amount} tracks...")
+                    await inter.send_author_embed(f"Queueing {amount} tracks...")
             else:
                 info = result[0]
                 toplay = [result[0]]
@@ -286,129 +269,85 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if toplay:
             player.queue += toplay
 
-    @connected_a()
-    @slash_command(name="pause", description="Pause the tunes")
-    async def pause_(self, ctx: MyInter):
-        return await self.pause(ctx)  # type: ignore
-
     @connected()
-    @command(help="Pause the tunes", aliases=["hold"])
-    async def pause(self, ctx: Union[MyContext, MyInter]):
-        player = ctx.voice_client
+    @slash_command(dm_permission=False)
+    async def pause(self, inter: MyInter):
+        """Pause the tunes"""
+
+        player = inter.guild.voice_client
         if not player.is_playing:
-            return await ctx.send_author_embed("No song is playing")
+            return await inter.send_author_embed("No song is playing")
+
         await player.set_pause(True)
 
-        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
-            await ctx.message.add_reaction("\U000023f8\U0000fe0f")
-        else:
-            await ctx.send_author_embed("Paused")
-
-    @connected_a()
-    @slash_command(name="resume", description="Continue the bangers")
-    async def resume_(self, ctx: MyInter):
-        return await self.resume(ctx)  # type: ignore
+        await inter.send_author_embed("Paused")
 
     @connected()
-    @command(help="Continue the bangers", aliases=["start"])
-    async def resume(self, ctx: Union[MyContext, MyInter]):
-        player = ctx.voice_client
+    @slash_command(dm_permission=False)
+    async def resume(self, inter: MyInter):
+        """Continue the bangers!"""
+
+        player = inter.guild.voice_client
         if not player.is_playing:
-            return await ctx.send_author_embed("No song is playing")
+            return await inter.send_author_embed("No song is playing")
+
         await player.set_pause(False)
 
-        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
-            await ctx.message.add_reaction("\U000025b6\U0000fe0f")
-        else:
-            await ctx.send_author_embed("Resumed")
-
-    @connected_a()
-    @slash_command(name="stop", description="Sto, wait a minute...")
-    async def stop_(self, ctx: MyInter):
-        return await self.stop(ctx)  # type: ignore
+        await inter.send_author_embed("Resumed")
 
     @connected()
-    @command(help="Stop, wait a minute...")
-    async def stop(self, ctx: Union[MyContext, MyInter]):
-        player = ctx.voice_client
+    @slash_command(dm_permission=False)
+    async def stop(self, inter: MyInter):
+        """Stop, wait a minute..."""
+
+        player = inter.guild.voice_client
         if not player.is_playing:
-            return await ctx.send_author_embed("No song is playing")
+            return await inter.send_author_embed("No song is playing")
+
         player.queue = []
         await player.stop()
 
-        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
-            await ctx.message.add_reaction("\U000023f9\U0000fe0f")
-        else:
-            await ctx.send_author_embed("Stopped")
-
-    @connected_a()
-    @slash_command(name="disconnect", description="Bye bye :(")
-    async def disconnect_(self, ctx: MyInter):
-        return await self.disconnect(ctx)  # type: ignore
+        await inter.send_author_embed("Stopped")
 
     @connected()
-    @command(
-        help="Bye bye :(", aliases=["die", "l", "leave", "d", "fuckoff", "fuckyou"]
-    )
-    async def disconnect(self, ctx: MyContext):
-        player = ctx.voice_client
+    @slash_command(dm_permission=False)
+    async def disconnect(self, inter: MyInter):
+        """Bye bye :("""
+
+        player = inter.guild.voice_client
         await player.destroy()
 
-        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
-            if ctx.invoked_with == "die":
-                await ctx.message.add_reaction("\U0001f480")
-            elif ctx.invoked_with == "fuckoff":
-                await ctx.message.add_reaction("\U00002639\U0000fe0f")
-            elif ctx.invoked_with == "fuckyou":
-                await ctx.message.add_reaction("\U0001f595")
-            else:
-                await ctx.message.add_reaction("\U0001f44b")
-        else:
-            await ctx.send_author_embed("Bye :(")
-
-    @connected_a()
-    @slash_command(name="volume", description="Turn up the beats")
-    async def volume_(
-        self,
-        ctx: MyInter,
-        volume: int = SlashOption(
-            description="Volume, in %", min_value=1, max_value=500
-        ),
-    ):
-        return await self.volume(ctx, number=volume)  # type: ignore
+        await inter.send_author_embed("Bye :(")
 
     @connected()
-    @command(help="Turn up the beats")
-    async def volume(self, ctx: Union[MyContext, MyInter], *, number: int):
+    @slash_command(dm_permission=False)
+    async def volume(self, inter: MyInter, *, number: int):
+        """Turn up the beats"""
+
         if not 1 <= number <= 500:
-            return await ctx.send("🚫 The allowed range is between 1 & 500")
-        else:
-            player = ctx.voice_client
-            await player.set_volume(number)
+            return await inter.send("🚫 The allowed range is between 1 & 500")
 
-            if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
-                await ctx.message.add_reaction("\U0001f4e2")
-            else:
-                await ctx.send_author_embed(f"Volume set to `{number}%`")
+        player = inter.guild.voice_client
+        await player.set_volume(number)
 
-    @slash_command(name="lyrics", description="Sing along to your favourite tunes!")
-    async def lyrics_(
-        self,
-        ctx: MyInter,
-        query: str = SlashOption(description="Song name", required=False),
-    ):
-        return await self.lyrics(ctx, query=query)  # type: ignore
+        await inter.send_author_embed(f"Volume set to `{number}%`")
 
-    @command(help="Sing along to your favourite tunes!")
-    async def lyrics(self, ctx: Union[MyContext, MyInter], *, query: str = ""):
+    @slash_command(dm_permission=False)
+    async def lyrics(self, inter: MyInter, *, query: str = ""):
+        """Sing along to your favourite tunes!"""
+
         if not query:
-            if ctx.voice_client is None or ctx.voice_client.current is None:
+            if (
+                inter.guild.voice_client is None
+                or inter.guild.voice_client.current is None
+            ):
                 raise SongNotProvided()
 
-            assert ctx.voice_client.current.title is not None
-            q = ctx.voice_client.current.title[:20]
+            assert inter.guild.voice_client.current.title is not None
+            q = inter.guild.voice_client.current.title[:20]
         else:
             q = query
+
         data = {"q": q}
         headers = {"Authorization": f"Bearer {TKN}"}
 
@@ -423,7 +362,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         except IndexError:
             raise LyricsNotFound()
 
-        a = await ctx.send("`Searching....`")
+        a = await inter.send("`Searching....`")
 
         async with self.bot.session.get(source) as resp:
             txt = await resp.text()
@@ -443,119 +382,87 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
 
-        if a is not None:
-            await a.edit(embed=embed)
-        elif not isinstance(ctx, BBMyContext):
-            await ctx.edit_original_message(embed=embed)
-
-    @connected_a()
-    @slash_command(name="skip", description="When the beat isn't hitting right")
-    async def skip_(self, ctx: MyInter):
-        return await self.skip(ctx)  # type: ignore
+        await a.edit(embed=embed)
 
     @connected()
-    @command(help="When the beat isn't hitting right", aliases=["s"])
-    async def skip(self, ctx: Union[MyContext, MyInter]):
-        if not ctx.voice_client.queue:
-            player = ctx.voice_client
+    @slash_command(dm_permission=False)
+    async def skip(self, inter: MyInter):
+        """When the beat isn't hitting right"""
+
+        if not inter.guild.voice_client.queue:
+            player = inter.guild.voice_client
             await player.stop()
-            return await ctx.send_author_embed("Nothing in queue. Stopping the music")
+            return await inter.send_author_embed("Nothing in queue. Stopping the music")
 
-        toplay = ctx.voice_client.queue.pop(0)
-        await ctx.voice_client.play(toplay)
-        await playing_embed(toplay, skipped_by=ctx.author.mention, override_ctx=ctx)
-
-    @connected_a()
-    @slash_command(name="nowplaying", description="Show the current beats")
-    async def nowplaying_(self, ctx: MyInter):
-        return await self.nowplaying(ctx)  # type: ignore
+        toplay = inter.guild.voice_client.queue.pop(0)
+        await inter.guild.voice_client.play(toplay)
+        await playing_embed(toplay, skipped_by=inter.user.mention, override_inter=inter)
 
     @connected()
-    @command(help="Show the current beats", aliases=["np"])
-    async def nowplaying(self, ctx: Union[MyContext, MyInter]):
-        if not ctx.voice_client.is_playing:
-            return await ctx.send_author_embed("No song is playing")
+    @slash_command(name="now-playing", dm_permission=False)
+    async def now_playing(self, inter: MyInter):
+        """Show the current beats."""
+
+        if not inter.guild.voice_client.is_playing:
+            return await inter.send_author_embed("No song is playing")
 
         return await playing_embed(
-            ctx.voice_client.current, length=True, override_ctx=ctx
+            inter.guild.voice_client.current, length=True, override_inter=inter
         )
 
-    @connected_a()
-    @slash_command(name="shuffle", description="Switch things up")
-    async def shuffle_(self, ctx: MyInter):
-        return await self.shuffle(ctx)  # type: ignore
+    @connected()
+    @slash_command(dm_permission=False)
+    async def shuffle(self, inter: MyInter):
+        """Switch things up"""
+
+        shuffle(inter.guild.voice_client.queue)
+
+        await inter.send_author_embed("Shuffled the queue")
 
     @connected()
-    @command(help="Switch things up")
-    async def shuffle(self, ctx: Union[MyContext, MyInter]):
-        shuffle(ctx.voice_client.queue)
+    @slash_command(dm_permission=False)
+    async def queue(self, inter: MyInter):
+        """Show the queue of the beats."""
 
-        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
-            await ctx.message.add_reaction("\U0001f500")
-        else:
-            await ctx.send_author_embed("Shuffled the queue")
-
-    @connected_a()
-    @slash_command(name="queue", description="Show the queue of tunes")
-    async def queue_(self, ctx: MyInter):
-        return await self.queue(ctx)  # type: ignore
-
-    @connected()
-    @command(help="Show the queue of the beats", aliases=["q"])
-    async def queue(self, ctx: Union[MyContext, MyInter]):
-        current = ctx.voice_client.current
-        queue = ctx.voice_client.queue
+        current = inter.guild.voice_client.current
+        queue = inter.guild.voice_client.queue
         if not queue:
-            return await ctx.send_author_embed("Nothing in queue")
+            return await inter.send_author_embed("Nothing in queue")
 
-        menu = QueueView(source=QueueSource(current, queue), ctx=ctx)
-        if isinstance(ctx, MyInter):
-            await menu.start(interaction=ctx)
-        else:
-            await menu.start(ctx)
+        menu = QueueView(source=QueueSource(current, queue), inter=inter)
 
-    @connected_a()
-    @slash_command(name="loop", description="It hit so hard you play it again")
-    async def loop_(self, inter: MyInter):
-        return await self.loop(inter)  # type: ignore
+        await menu.start(interaction=inter)
 
     @connected()
-    @command(help="It hit so hard so you play it again")
-    async def loop(self, ctx: Union[MyContext, MyInter]):
-        player = ctx.voice_client
+    @slash_command(dm_permission=False)
+    async def loop(self, inter: MyInter):
+        """It hit so hard so you play it again"""
+
+        player = inter.guild.voice_client
         if not player.is_playing:
-            return await ctx.send_author_embed("Nothing is playing")
+            return await inter.send_author_embed("Nothing is playing")
 
         current = player.current
         player.queue.insert(0, current)
 
-        if isinstance(ctx, BBMyContext) and ctx.channel.permissions_for(ctx.me).add_reactions:  # type: ignore
-            await ctx.message.add_reaction("\U0001f502")
-        else:
-            await ctx.send_author_embed("Looping once")
+        await inter.send_author_embed("Looping once")
 
-    @connected_a()
-    @slash_command(
-        name="playlists",
-        description="Play one of your amazing playlists",
-    )
-    async def playlists_(self, inter: MyInter):
-        return await self.playlists(inter)  # type: ignore
+    @slash_command(dm_permission=False)
+    async def playlists(self, inter: MyInter):
+        """Play one of your spotify playlists."""
 
-    @command(help="Play one of your playlists", aliases=["ps"])
-    async def playlists(self, ctx: Union[MyContext, MyInter]):
-        userid = self.bot.spotify_users.get(ctx.author.id, MISSING)
+        userid = self.bot.spotify_users.get(inter.user.id, MISSING)
 
         if userid is MISSING:
             userid = await self.bot.db.fetchval(
-                "SELECT spotify FROM users WHERE id=$1", ctx.author.id
+                "SELECT spotify FROM users WHERE id=$1", inter.user.id
             )
-            self.bot.spotify_users[ctx.author.id] = userid
+            self.bot.spotify_users[inter.user.id] = userid
 
         if userid is None:
-            return await ctx.send_embed(
+            return await inter.send_embed(
                 "Unlinked",
-                f"You don't have a Spotify account linked, please use `{ctx.clean_prefix}spotify",
+                f"You don't have a Spotify account linked, please use `{inter.clean_prefix}spotify",
             )
 
         loop = self.bot.loop
@@ -569,7 +476,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             func = partial(sp.user_playlists, userid, limit=50, offset=count)
             playlists = await loop.run_in_executor(None, func)
             if playlists is None:
-                return await ctx.send_embed(
+                return await inter.send_embed(
                     "Error", "Something went wrong, could not find your playlists"
                 )
 
@@ -578,18 +485,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             total = playlists["total"]
 
         if not len(all_playlists):
-            return await ctx.send_embed(
+            return await inter.send_embed(
                 "No playlists",
                 "**You do not have any public playlists!** \nPlease refer this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/",
             )
 
         view = PlaylistView(all_playlists)
 
-        m = await ctx.send("Choose a public playlist", view=view)
-        if (not m and isinstance(ctx, BBMyInter)) or (
-            isinstance(m, PartialInteractionMessage) and isinstance(ctx, BBMyInter)
+        m = await inter.send("Choose a public playlist", view=view)
+        if (not m and isinstance(inter, BBMyInter)) or (
+            isinstance(m, PartialInteractionMessage) and isinstance(inter, BBMyInter)
         ):
-            m = await ctx.original_message()
+            m = await inter.original_message()
 
         assert m is not None
 
@@ -604,64 +511,60 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             return await view.message.edit(content="You took too long...", view=view)
 
-        await self.play(ctx, query=view.uri)  # type: ignore
-
-    @connected_a()
-    @slash_command(
-        name="grab",
-        description="Sends the current playing song through direct messages",
-    )
-    async def grab_(self, ctx: MyInter):
-        return await self.grab(ctx)  # type: ignore
+        await self.play(inter, query=view.uri)
 
     @connected()
-    @command(help="Sends the current playing song through direct messages")
-    async def grab(self, ctx: Union[MyContext, MyInter]):
-        if not ctx.voice_client.is_playing:
-            return await ctx.send_author_embed("No song is playing")
+    @slash_command(dm_permission=False)
+    async def grab(self, inter: MyInter):
+        """Sends the current playing song through direct messages"""
 
-        await ctx.send("📬 Grabbed")
+        if not inter.guild.voice_client.is_playing:
+            return await inter.send_author_embed("No song is playing")
+
+        await inter.send("📬 Grabbed", ephemeral=True)
         return await playing_embed(
-            ctx.voice_client.current, save=True, override_ctx=ctx
+            inter.guild.voice_client.current, save=True, override_inter=inter
         )
 
-    @connected_a()
-    @slash_command(name="forward", description="Seeks forward by certain amount")
-    async def forward_(self, ctx: MyInter):
-        return await self.forward(ctx)  # type: ignore
-
     @connected()
-    @command(help="Seeks forward by certain amount", aliases=["fwd"])
-    async def forward(self, ctx: Union[MyContext, MyInter], num: int):
-        player = ctx.voice_client
+    @slash_command(dm_permission=False)
+    async def forward(self, inter: MyInter, num: int):
+        """Seeks forward in the current song by an amount"""
+
+        player = inter.guild.voice_client
         c = player.position
         amount = c + (num * 1000)
         current = strftime("%H:%M:%S", gmtime((amount // 1000)))
         await player.seek(amount)
-        await ctx.send_author_embed(f"Position seeked to {current}")
+        await inter.send_author_embed(f"Position seeked to {current}")
 
     @connected()
-    @command(help="Remove song from queue", aliases=["clear", "rem"])
-    async def remove(self, ctx: Union[MyContext, MyInter], num: int):
-        player = ctx.voice_client
+    @slash_command(dm_permission=False)
+    async def remove(self, inter: MyInter, num: int):
+        """Remove a selected song from the queue."""
+
+        player = inter.guild.voice_client
         try:
             song_n = player.queue[num - 1]
             player.queue.pop(num - 1)
         except IndexError:
-            return await ctx.reply(
-                "Please write the correct number present in your queue range!"
+            return await inter.send(
+                "Please input a number which is within your queue!", ephemeral=True
             )
-        await ctx.send_author_embed(f"{song_n} removed from queue")
+
+        await inter.send_author_embed(f"{song_n} removed from queue")
 
     @connected()
-    @command(help="Clear the queue keeping the current song playing", aliases=["cq"])
-    async def clearqueue(self, ctx: Union[MyContext, MyInter]):
-        player = ctx.voice_client
+    @slash_command(name="clear-queue", dm_permission=False)
+    async def clear_queue(self, inter: MyInter):
+        """Clear the queue keeping the current song playing."""
+
+        player = inter.guild.voice_client
         if not player.queue:
-            await ctx.send_author_embed("Queue is empty")
+            await inter.send_author_embed("Queue is empty")
         else:
             player.queue.clear()
-            await ctx.send_author_embed("Cleared the queue")
+            await inter.send_author_embed("Cleared the queue")
 
 
 def setup(bot: Vibr):

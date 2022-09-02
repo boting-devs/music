@@ -8,7 +8,7 @@ from nextcord import Embed
 from nextcord.utils import utcnow
 from botbase import MyInter as BBMyInter
 
-from .types import MyInter, MyContext
+from .types import MyInter
 
 if TYPE_CHECKING:
     from pomice import Track
@@ -20,14 +20,15 @@ async def playing_embed(
     length: bool = False,
     save: bool = False,
     skipped_by: str | None = None,
-    override_ctx: MyContext | MyInter | None = None,
+    override_inter: MyInter | None = None,
 ):
     from . import views  # circular
+
     view = views.PlayButton()
     if isinstance(track, Playlist):
         assert track.tracks[0].ctx is not None
 
-        ctx: MyContext | MyInter = track.tracks[0].ctx  # type: ignore
+        inter: MyInter = track.tracks[0].ctx  # type: ignore
 
         title = track.name
         author = "Multiple Authors"
@@ -38,7 +39,7 @@ async def playing_embed(
     else:
         assert track.ctx is not None
 
-        ctx: MyContext | MyInter = track.ctx  # type: ignore
+        inter: MyInter = track.ctx  # type: ignore
         title = track.title
         author = track.author
         if not track.length:
@@ -49,11 +50,11 @@ async def playing_embed(
                 gmtime(track.length / 1000),
             )
 
-    if override_ctx:
-        ctx = override_ctx
+    if override_inter:
+        inter = override_inter
 
     embed = Embed(
-        color=ctx.bot.color,
+        color=inter.bot.color,
         timestamp=utcnow(),
     )
 
@@ -63,7 +64,7 @@ async def playing_embed(
         else:
             tr = track
 
-        c = ctx.voice_client.position
+        c = inter.guild.voice_client.position
         assert tr.length is not None
         t = tr.length
         current = strftime("%H:%M:%S", gmtime(c // 1000))
@@ -76,15 +77,14 @@ async def playing_embed(
         )
         # if 2/12, then get 1 before, then dot then 12 - 2 to pad to 12
         timing = f"{current} {line} {total}"
-        embed.description = ctx.author.mention + "\n" + timing
+        embed.description = inter.user.mention + "\n" + timing
     elif save:
-        embed.description =f"Song time: `{time}`"
+        embed.description = f"Song time: `{time}`"
     else:
-        embed.description = f"{time} - {ctx.author.mention}"
+        embed.description = f"{time} - {inter.user.mention}"
 
     if skipped_by:
         embed.description = embed.description + "\n skipped by " + skipped_by
-
 
     embed.set_author(
         name=str(title) + " - " + str(author),
@@ -94,10 +94,10 @@ async def playing_embed(
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
 
-    if isinstance(ctx, BBMyInter) and ctx.response.is_done():
-        ch = ctx.channel
+    if isinstance(inter, BBMyInter) and inter.response.is_done():
+        ch = inter.channel
     else:
-        ch = ctx
+        ch = inter
 
     if queue:
         await ch.send(embed=embed, content="Queued", view=view)  # type: ignore
@@ -106,15 +106,15 @@ async def playing_embed(
         await ch.send(embed=embed, view=view)  # type: ignore
         # why on earth can that be a voice channel
     elif save:
-        await ctx.author.send(embed=embed)
+        await inter.user.send(embed=embed)
     else:
         await ch.send(embed=embed, view=view)  # type: ignore
-        # why on earth can that be a voice channel
+        # why on earth can that be a stage channel
 
         if isinstance(track, Playlist):
             return
 
-        await ctx.bot.db.execute(
+        await inter.bot.db.execute(
             """INSERT INTO songs (id, spotify, member) 
             VALUES ($1, $2, $3) 
             ON CONFLICT (id, spotify, member)
@@ -122,5 +122,5 @@ async def playing_embed(
                 amount = songs.amount + 1""",
             track.identifier,
             track.spotify,
-            ctx.author.id,
+            inter.user.id,
         )

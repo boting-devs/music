@@ -3,15 +3,13 @@ from __future__ import annotations
 from asyncio import sleep
 from typing import TYPE_CHECKING
 
-from botbase import MyContext, MyInter
+from botbase import MyInter
 from nextcord.ext.commands import Cog
 
 if TYPE_CHECKING:
     from nextcord import Guild, Member, VoiceState
 
     from ..__main__ import Vibr
-
-    Context = MyContext[Vibr]
 
 
 class Events(Cog):
@@ -62,13 +60,9 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_application_command_completion(self, inter: MyInter):
-        await self.on_command_completion(inter)
-
-    @Cog.listener()
-    async def on_command_completion(self, ctx: MyContext | MyInter):
-        if ctx.author.id not in self.bot.notified_users:
+        if inter.user.id not in self.bot.notified_users:
             is_notified = await self.bot.db.fetchval(
-                "SELECT notified FROM users WHERE id=$1", ctx.author.id
+                "SELECT notified FROM users WHERE id=$1", inter.user.id
             )
 
             if not is_notified:
@@ -76,8 +70,8 @@ class Events(Cog):
                     "SELECT * FROM notifications ORDER BY id DESC LIMIT 1"
                 )
 
-                await ctx.send(
-                    f"{ctx.author.mention} You have a new notification with the title "
+                await inter.send(
+                    f"{inter.user.mention} You have a new notification with the title "
                     f"**{latest['title']}** "
                     f"from `{latest['datetime'].strftime('%y-%m-%d')}`. "
                     "You can view all notifications with </notifications:1004841251549478992>."
@@ -88,11 +82,11 @@ class Events(Cog):
                     VALUES ($1, $2)
                     ON CONFLICT (id) DO UPDATE
                         SET notified = $2""",
-                    ctx.author.id,
+                    inter.user.id,
                     True,
                 )
 
-            self.bot.notified_users.add(ctx.author.id)
+            self.bot.notified_users.add(inter.user.id)
 
 
 def setup(bot: Vibr) -> None:

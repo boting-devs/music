@@ -72,7 +72,7 @@ class Vibr(BotBase):
 
 intents = nextcord.Intents.none()
 intents.guilds = True
-intents.messages = True
+intents.messages = True  # This is to temporarily keep mentioned messages.
 intents.voice_states = True
 bot = Vibr(
     intents=intents,

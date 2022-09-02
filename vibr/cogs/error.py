@@ -6,22 +6,11 @@ from typing import TYPE_CHECKING
 
 from botbase import MyContext, MyInter
 from nextcord import ApplicationInvokeError, Color, Embed
+
+from nextcord.ext.commands import Cog, NotOwner
 from nextcord.ext.application_checks import (
-    ApplicationBotMissingPermissions as ABotMissingPermissions,
-)
-from nextcord.ext.application_checks import (
-    ApplicationMissingPermissions as AMissingPermissions,
-)
-from nextcord.ext.commands import (
-    BotMissingPermissions,
-    Cog,
-    CommandInvokeError,
-    CommandNotFound,
-    MissingPermissions,
-    MissingRequiredArgument,
-    NoPrivateMessage,
-    NotOwner,
-    PrivateMessageOnly,
+    ApplicationMissingPermissions as MissingPermissions,
+    ApplicationBotMissingPermissions as BotMissingPermissions,
 )
 from nextcord.utils import MISSING, utcnow
 from pomice.exceptions import NoNodesAvailable, TrackLoadError
@@ -43,9 +32,7 @@ if TYPE_CHECKING:
 
 
 log = getLogger(__name__)
-ehh: dict[Type[Exception], tuple[str, str]] = {
-    NoPrivateMessage: ("Server Only", "This command can only be used in servers!"),
-    PrivateMessageOnly: ("DMs Only", "This command can only be used in DMs!"),
+errors: dict[Type[Exception], tuple[str, str]] = {
     NotOwner: ("Owner Only", "This command can only be used by my owner!"),
     NotInVoice: ("Not in Voice", "You must be in a voice channel to use this command!"),
     TooManyTracks: (
@@ -70,7 +57,6 @@ ehh: dict[Type[Exception], tuple[str, str]] = {
         "This was not a user error, the bot may have recently rebooted. Please try again in a few seconds.",
     ),
 }
-eh: dict[str, tuple[str, str]] = {e.__name__: msg for e, msg in ehh.items()}
 
 
 class Errors(Cog):
@@ -88,44 +74,35 @@ class Errors(Cog):
         )
 
     @staticmethod
-    def format_embed(embed: Embed, ctx: MyContext | MyInter) -> None:
+    def format_embed(embed: Embed) -> None:
         embed.timestamp = utcnow()
-        embed.set_footer(
-            text="report in the link below if this is weird |"
-            f" do {ctx.clean_prefix}help {ctx.command} for info"
-        )
+        embed.set_footer(text="report in the link below if this is weird")
 
     @Cog.listener()
-    async def on_application_command_error(self, inter: MyInter, error: Exception):
-        await self.on_command_error(inter, error)
-
-    @Cog.listener()
-    async def on_command_error(self, ctx: MyContext | MyInter, error: Exception):
-        if isinstance(error, (CommandInvokeError, ApplicationInvokeError)):
-            error = error.original
-
-        if isinstance(error, CommandNotFound):
-            return
-
-        if (
-            (cog := getattr(ctx, "cog", None))
-            and cog.qualified_name == "Jishaku"
-            and not isinstance(error, NotOwner)
-        ):
+    async def on_command_error(self, ctx: MyContext, error: Exception):
+        if not isinstance(error, NotOwner):
             embed = Embed(
                 title="Error", description=f"```py\n{error}```", color=Color.red()
             )
-            self.format_embed(embed, ctx)
+            self.format_embed(embed)
             await ctx.send(embed=embed)
-            return
+            log.error(
+                "Command %s raised %s: %s",
+                ctx.command,
+                type(error).__name__,
+                error,
+                exc_info=True,
+            )
+
+    @Cog.listener()
+    async def on_application_command_error(self, inter: MyInter, error: Exception):
+        if isinstance(error, ApplicationInvokeError):
+            error = error.original
 
         elif isinstance(error, NotConnected):
-            if ctx.channel.permissions_for(ctx.me).add_reactions and isinstance(ctx, MyContext):  # type: ignore
-                await ctx.message.add_reaction("\U0000274c")
-            else:
-                await ctx.send("I'm not even connected")
+            await inter.send("I'm not even connected")
 
-        elif isinstance(error, (MissingPermissions, AMissingPermissions)):
+        elif isinstance(error, MissingPermissions):
             perms = ", ".join(
                 f"`{p.replace('_', ' ').capitalize()}`"
                 for p in error.missing_permissions
@@ -136,10 +113,10 @@ class Errors(Cog):
                 f"{perms} permissions",
                 color=self.bot.color,
             )
-            self.format_embed(embed, ctx)
-            await ctx.send(embed=embed, view=self.support_view)
+            self.format_embed(embed)
+            await inter.send(embed=embed, view=self.support_view)
 
-        elif isinstance(error, (BotMissingPermissions, ABotMissingPermissions)):
+        elif isinstance(error, BotMissingPermissions):
             perms = ", ".join(
                 f"`{p.replace('_', ' ').capitalize()}`"
                 for p in error.missing_permissions
@@ -150,17 +127,8 @@ class Errors(Cog):
                 f"{perms} permissions",
                 color=self.bot.color,
             )
-            self.format_embed(embed, ctx)
-            await ctx.send(embed=embed, view=self.support_view)
-
-        elif isinstance(error, MissingRequiredArgument):
-            embed = Embed(
-                title="Missing Argument",
-                description=error,
-                color=self.bot.color,
-            )
-            self.format_embed(embed, ctx)
-            await ctx.send(embed=embed, view=self.support_view)
+            self.format_embed(embed)
+            await inter.send(embed=embed, view=self.support_view)
 
         elif isinstance(error, TrackLoadError):
             embed = Embed(
@@ -168,22 +136,8 @@ class Errors(Cog):
                 description=f"**{error}**",
                 color=self.bot.color,
             )
-            self.format_embed(embed, ctx)
-            await ctx.send(embed=embed, view=self.support_view)
-
-        elif type(error).__name__.lstrip("Application") in eh:
-            name = type(error).__name__.lstrip("Application")
-
-            embed = Embed(
-                title=eh[name][0],
-                description=eh[name][1],
-                color=Color.red(),
-            )
-            self.format_embed(embed, ctx)
-            await ctx.send(
-                embed=embed,
-                view=self.support_view,
-            )
+            self.format_embed(embed)
+            await inter.send(embed=embed, view=self.support_view)
 
         else:
             embed = Embed(
@@ -194,33 +148,29 @@ class Errors(Cog):
                 ),
                 color=Color.red(),
             )
-            await ctx.send(embed=embed, view=self.support_view)
+            await inter.send(embed=embed, view=self.support_view)
             if self.bot.logchannel is not None:
                 painchannel = await self.bot.getch_channel(self.bot.logchannel)
-                content = (
-                    ctx.message.content
-                    if isinstance(ctx, MyContext)
-                    else ctx.data and ctx.data.get("name")
-                )
-                if ctx.guild is None:
+                content = inter.application_command.qualified_name  # type: ignore
+                if inter.guild is None:
                     channel = "dm"
                     name = "dm"
                     guild = "dm"
                 else:
-                    channel = ctx.channel.mention  # type: ignore
-                    name = ctx.channel.name  # type: ignore
-                    guild = ctx.guild.name
+                    channel = inter.channel.mention  # type: ignore
+                    name = inter.channel.name  # type: ignore
+                    guild = inter.guild.name
                 tb = "\n".join(
                     format_exception(type(error), error, error.__traceback__)
                 )
                 await painchannel.send_embed(  # type: ignore
-                    desc=f"command {ctx.command} gave ```py\n{tb}```, "
+                    desc=f"command {inter.command} gave ```py\n{tb}```, "
                     f"invoke: {content} in "
-                    f"{channel} ({name}) in {guild} by {ctx.author}"
+                    f"{channel} ({name}) in {guild} by {inter.user}"
                 )
                 log.error(
                     "Command %s raised %s: %s",
-                    ctx.command,
+                    inter.command,
                     type(error).__name__,
                     error,
                     exc_info=True,

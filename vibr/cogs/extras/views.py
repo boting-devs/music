@@ -1,27 +1,27 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-from time import gmtime, strftime
 from random import shuffle
+from time import gmtime, strftime
+from typing import TYPE_CHECKING
 
-from nextcord.ui import Button, View, Select, button
-from nextcord import SelectOption, Interaction, ButtonStyle, Embed
-from nextcord.ext.menus import ListPageSource, ButtonMenuPages
+from nextcord import ButtonStyle, Embed, Interaction, SelectOption
+from nextcord.ext.menus import ButtonMenuPages, ListPageSource
+from nextcord.ui import Button, Select, View, button
 
-from .types import MyInter
 from .playing_embed import playing_embed
+from .types import MyInter
 
 if TYPE_CHECKING:
     from nextcord import (
         Emoji,
-        PartialEmoji,
-        Message,
         InteractionMessage,
+        Message,
+        PartialEmoji,
         PartialInteractionMessage,
     )
     from pomice import Track
 
-    from .types import Playlist, MyContext, Notification
+    from .types import Notification, Playlist
 
 
 class LinkButtonView(View):
@@ -192,7 +192,7 @@ class PlayButton(View):
 
 
 class MyMenu(ButtonMenuPages):
-    ctx: MyContext
+    inter: MyInter
 
 
 class QueueSource(ListPageSource):
@@ -237,29 +237,27 @@ class QueueSource(ListPageSource):
 class MyView(View):
     """A collection of on_timeout: disable buttons and interaction_check: author"""
 
-    ctx: MyContext | MyInter
+    inter: MyInter
     message: Message
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user and interaction.user.id in (
-            list(self.ctx.bot.owner_ids) + [self.ctx.author.id]
-            if self.ctx
-            else list(self.interaction.client.owner_ids) + [self.interaction.user.id]  # type: ignore
+            list(self.interaction.client.owner_ids) + [self.interaction.user.id]  # type: ignore
         ):
             return True
-        if self.ctx and self.ctx.command is not None:
-            cmd = self.ctx.command
+        if self.inter and self.inter.application_command is not None:
+            cmd = self.inter.application_command.qualified_name
             if not isinstance(cmd, str):
                 cmd = cmd.name
 
             await interaction.response.send_message(
-                f"This menu is for {self.ctx.author.mention}, "
-                f"use {cmd} to have a menu to yourself.",
+                f"This menu is for {self.inter.user.mention}, "
+                f"use `/{cmd}` to have a menu to yourself.",
                 ephemeral=True,
             )
         else:
             await interaction.response.send_message(
-                f"This menu is for {self.ctx.author.mention}.",
+                f"This menu is for {self.inter.user.mention}.",
                 ephemeral=True,
             )
         return False
@@ -274,9 +272,9 @@ class MyView(View):
 
 
 class QueueView(MyView, ButtonMenuPages):
-    def __init__(self, source: ListPageSource, ctx: MyContext | MyInter) -> None:
+    def __init__(self, source: ListPageSource, inter: MyInter) -> None:
         super().__init__(source=source, style=ButtonStyle.blurple)
-        self.ctx = ctx
+        self.inter = inter
 
     @button(
         emoji="\U0001f500", style=ButtonStyle.blurple, row=1, custom_id="view:shuffle"
@@ -327,6 +325,6 @@ class NotificationSource(ListPageSource):
 
 
 class NotificationView(MyView, ButtonMenuPages):
-    def __init__(self, source: ListPageSource, ctx: MyContext | MyInter) -> None:
+    def __init__(self, source: ListPageSource, inter: MyInter) -> None:
         super().__init__(source=source, style=ButtonStyle.blurple)
-        self.ctx = ctx
+        self.inter = inter

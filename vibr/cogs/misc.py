@@ -15,28 +15,20 @@ if TYPE_CHECKING:
 TEST = [802586580766162964, 939509053623795732]
 
 
-class Misc(Cog, name="misc", description="Meta commands about the bot!"):
+class Misc(Cog):
     def __init__(self, bot: Vibr):
         self.bot = bot
 
-    @property
-    def emoji(self) -> str:
-        return "⚙️"
-
-    @slash_command(name="ping", description="Pong!")
+    @slash_command()
     async def ping_(self, inter: MyInter):
-        return await self.ping(inter)  # type: ignore
+        """Pong!"""
 
-    @command(help="Ping command")
-    async def ping(self, ctx: Union[MyContext, MyInter]):
-        await ctx.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")
+        await inter.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")
 
-    @slash_command(name="invite", description="Invite me!")
-    async def invite_(self, inter: MyInter):
-        return await self.invite(inter)  # type: ignore
+    @slash_command()
+    async def invite(self, inter: MyInter):
+        """Invite me!"""
 
-    @command(help="invite me!")
-    async def invite(self, ctx: Union[MyContext, MyInter]):
         servers = list(self.bot.guilds)
         embed = Embed(title="**Invite Link**", color=self.bot.color)
         embed.add_field(
@@ -48,21 +40,19 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         embed.set_image(
             url="https://learnenglishfunway.com/wp-content/uploads/2020/12/Music-2.jpg"
         )
-        await ctx.send(embed=embed)
+        await inter.send(embed=embed)
 
-    @slash_command(name="support", description="Get some help")
-    async def support_(self, inter: MyInter):
-        return await self.support(inter)  # type: ignore
+    @slash_command(description="Get some help")
+    async def support(self, inter: MyInter):
+        """My support server's link."""
 
-    @command(help="Vibr support server link")
-    async def support(self, ctx: Union[MyContext, MyInter]):
         embed = Embed(title="**Support Link**", color=self.bot.color)
         embed.add_field(
             name="**Facing any problem? Join the support server**",
             value="**[click here](https://discord.gg/v3UvgPXwHq)**",
         )
         embed.set_image(url="https://c.tenor.com/lhlDEs5fNNEAAAAC/music-beat.gif")
-        await ctx.send(embed=embed)
+        await inter.send(embed=embed)
 
     @Cog.listener()
     async def on_message(self, message: Message):
@@ -73,18 +63,18 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
                 prefix = prefix[-1]
                 embed = Embed(
                     title="Hi my name is Vibr",
-                    description=f"**My prefix is `{prefix}`\n"
-                    f"To view all the commands use `{prefix}help`**",
+                    description="**I now use slash commands**"
+                    "if these do not show up, make sure you have the `Use Application Commands`"
+                    "permission, if so then please re-invite (**no need to kick**) with"
+                    "[this link](https://canary.discord.com/api/oauth2/authorize?client_id=882491278581977179&permissions=3427392&scope=bot%20applications.commands)",
                     color=self.bot.color,
                 )
                 await message.channel.send(embed=embed)
 
-    @slash_command(name="vote", description="Vote for meee")
-    async def vote_(self, inter: MyInter):
-        return await self.vote(inter)  # type: ignore
+    @slash_command()
+    async def vote(self, inter: MyInter):
+        """Vote for mee"""
 
-    @command(help="Vote for vibr")
-    async def vote(self, ctx: Union[MyContext, MyInter]):
         embed = Embed(title="**Vote for Vibr**", color=self.bot.color)
         embed.add_field(
             name="Like our bot? Vote for us",
@@ -93,13 +83,11 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
         embed.set_image(
             url="https://d30i16bbj53pdg.cloudfront.net/wp-content/uploads/2018/10/vote-for-blog.jpg"
         )
-        await ctx.send(embed=embed)
+        await inter.send(embed=embed)
 
     @command(hidden=True)
     @is_owner()
-    async def notif_create(
-        self, ctx: Union[MyContext, MyInter], title: str, *, notification: str
-    ):
+    async def notif_create(self, ctx: MyContext, title: str, *, notification: str):
         await self.bot.db.execute(
             "INSERT INTO notifications(title, notification) VALUES ($1, $2)",
             title,
@@ -114,7 +102,7 @@ class Misc(Cog, name="misc", description="Meta commands about the bot!"):
     async def notifications(self, inter: MyInter):
         notifs = await self.bot.db.fetch("SELECT * FROM notifications ORDER BY id DESC")
         menu = NotificationView(
-            source=NotificationSource(list(map(Notification, notifs))), ctx=inter
+            source=NotificationSource(list(map(Notification, notifs))), inter=inter
         )
         await menu.start(interaction=inter, ephemeral=True)
 
