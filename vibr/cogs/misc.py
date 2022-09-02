@@ -65,8 +65,8 @@ class Misc(Cog):
                     title="Hi my name is Vibr",
                     description="**I now use slash commands**"
                     "if these do not show up, make sure you have the `Use Application Commands`"
-                    "permission, if so then please re-invite (**no need to kick**) with"
-                    "[this link](https://canary.discord.com/api/oauth2/authorize?client_id=882491278581977179&permissions=3427392&scope=bot%20applications.commands)",
+                    "permission, if so then please re-invite (**no need to kick**) with "
+                    "[this link](https://discord.com/api/oauth2/authorize?client_id=882491278581977179&permissions=3427392&scope=bot%20applications.commands)",
                     color=self.bot.color,
                 )
                 await message.channel.send(embed=embed)
