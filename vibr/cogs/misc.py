@@ -63,7 +63,7 @@ class Misc(Cog):
                 prefix = prefix[-1]
                 embed = Embed(
                     title="Hi my name is Vibr",
-                    description="**I now use slash commands**"
+                    description="**I now use slash commands**\n"
                     "if these do not show up, make sure you have the `Use Application Commands`"
                     "permission, if so then please re-invite (**no need to kick**) with "
                     "[this link](https://discord.com/api/oauth2/authorize?client_id=882491278581977179&permissions=3427392&scope=bot%20applications.commands)",
