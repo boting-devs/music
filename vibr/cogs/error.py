@@ -12,7 +12,7 @@ from nextcord.ext.application_checks import (
 from nextcord.ext.application_checks import (
     ApplicationMissingPermissions as MissingPermissions,
 )
-from nextcord.ext.commands import Cog, NotOwner
+from nextcord.ext.commands import Cog, CommandNotFound, NotOwner
 from nextcord.utils import MISSING, utcnow
 from pomice.exceptions import NoNodesAvailable, TrackLoadError
 
@@ -82,7 +82,7 @@ class Errors(Cog):
 
     @Cog.listener()
     async def on_command_error(self, ctx: MyContext, error: Exception):
-        if not isinstance(error, NotOwner):
+        if not isinstance(error, (NotOwner, CommandNotFound)):
             embed = Embed(
                 title="Error", description=f"```py\n{error}```", color=Color.red()
             )
