@@ -144,8 +144,8 @@ class Errors(Cog):
             self.format_embed(embed)
             await inter.send(embed=embed, view=self.support_view)
 
-        elif error in errors:
-            title, description = errors[error]
+        elif type(error) in errors:
+            title, description = errors[type(error)]
 
             embed = Embed(
                 title=title,
