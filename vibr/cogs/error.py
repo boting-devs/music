@@ -132,9 +132,20 @@ class Errors(Cog):
 
         elif isinstance(error, TrackLoadError):
             embed = Embed(
-                title="An error occured",
+                title="An Error Occured When Loading Your Track",
                 description=f"**{error}**",
                 color=self.bot.color,
+            )
+            self.format_embed(embed)
+            await inter.send(embed=embed, view=self.support_view)
+
+        elif error in errors:
+            title, description = errors[error]
+
+            embed = Embed(
+                title=title,
+                description=description,
+                color=Color.red(),
             )
             self.format_embed(embed)
             await inter.send(embed=embed, view=self.support_view)
