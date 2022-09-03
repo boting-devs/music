@@ -6,16 +6,18 @@ from typing import TYPE_CHECKING
 
 from botbase import MyContext, MyInter
 from nextcord import ApplicationInvokeError, Color, Embed
-
-from nextcord.ext.commands import Cog, NotOwner
 from nextcord.ext.application_checks import (
-    ApplicationMissingPermissions as MissingPermissions,
     ApplicationBotMissingPermissions as BotMissingPermissions,
 )
+from nextcord.ext.application_checks import (
+    ApplicationMissingPermissions as MissingPermissions,
+)
+from nextcord.ext.commands import Cog, NotOwner
 from nextcord.utils import MISSING, utcnow
 from pomice.exceptions import NoNodesAvailable, TrackLoadError
 
 from .extras.errors import (
+    Ignore,
     LyricsNotFound,
     NotConnected,
     NotInSameVoice,
@@ -98,6 +100,9 @@ class Errors(Cog):
     async def on_application_command_error(self, inter: MyInter, error: Exception):
         if isinstance(error, ApplicationInvokeError):
             error = error.original
+
+        elif isinstance(error, Ignore):
+            return
 
         elif isinstance(error, NotConnected):
             await inter.send("I'm not even connected")

@@ -23,3 +23,7 @@ class NotInSameVoice(CheckFailure):
 
 class SongNotProvided(CheckFailure):
     """Raised when nothing is playing and lyrics is requested with no arg"""
+
+
+class Ignore(CheckFailure):
+    """An error which should not be handled."""

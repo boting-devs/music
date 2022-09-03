@@ -17,13 +17,17 @@ from nextcord import (
     User,
     slash_command,
 )
-from nextcord.ext.commands import BotMissingPermissions, Cog, NoPrivateMessage
+from nextcord.ext.application_checks import (
+    ApplicationBotMissingPermissions as BotMissingPermissions,
+)
+from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
 from pomice import Playlist
 
 from .extras.checks import connected
 from .extras.errors import (
+    Ignore,
     LyricsNotFound,
     NotInSameVoice,
     NotInVoice,
@@ -65,7 +69,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             or isinstance(inter.user, User)
             or isinstance(inter.me, ClientUser)
         ):
-            raise NoPrivateMessage()
+            raise Ignore()
         elif inter.user.voice is None or inter.user.voice.channel is None:
             raise NotInVoice()
         elif (
