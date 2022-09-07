@@ -591,7 +591,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await inter.send_author_embed("No tracks found")
 
         result = result[0]
-        player.queue.insert(0,result)
         await player.play(track=result)
         await playing_embed(result)
 
