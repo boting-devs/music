@@ -570,7 +570,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.queue.clear()
             await inter.send_author_embed("Cleared the queue")
 
-    @slash_command(name="play-now",dm_permission=False)
+    @slash_command(name="playnow",dm_permission=False)
     async def play_now(self,inter:MyInter,*,query:str):
         """Play the song immediately"""
         assert (
