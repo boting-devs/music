@@ -59,6 +59,7 @@ errors: dict[Type[Exception], tuple[str, str]] = {
         "This was not a user error, the bot may have recently rebooted. Please try again in a few seconds.",
     ),
 }
+e: dict[str, tuple[str, str]] = {k.__name__: v for k, v in errors.items()}
 
 
 class Errors(Cog):
@@ -144,8 +145,8 @@ class Errors(Cog):
             self.format_embed(embed)
             await inter.send(embed=embed, view=self.support_view)
 
-        elif type(error) in errors:
-            title, description = errors[type(error)]
+        elif type(error).__name__ in e:
+            title, description = e[type(error).__name__]
 
             embed = Embed(
                 title=title,
