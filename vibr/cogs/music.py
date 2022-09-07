@@ -570,6 +570,31 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.queue.clear()
             await inter.send_author_embed("Cleared the queue")
 
+    @slash_command(name="play-now",dm_permission=False)
+    async def play_now(self,inter:MyInter,*,query:str):
+        """Play the song immediately"""
+        assert (
+            isinstance(inter.user, Member)
+            and inter.user.voice is not None
+            and inter.user.voice.channel is not None
+        )
+
+        if not inter.guild.voice_client:
+            await self.join(inter)
+
+        await inter.send(f"Searching `{query}`")
+
+        player = inter.guild.voice_client
+        result = await player.get_tracks(query=query, ctx=inter)  # type: ignore
+
+        if not result:
+            return await inter.send_author_embed("No tracks found")
+
+        player.queue.insert(0,result)
+
+
+
+
 
 def setup(bot: Vibr):
     bot.add_cog(Music(bot))
