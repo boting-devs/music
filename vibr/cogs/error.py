@@ -146,7 +146,7 @@ class Errors(Cog):
             await inter.send(embed=embed, view=self.support_view)
 
         elif type(error).__name__ in e:
-            title, description = errors[type(error).__name__]
+            title, description = e[type(error).__name__]
 
             embed = Embed(
                 title=title,
