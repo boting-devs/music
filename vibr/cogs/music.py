@@ -23,7 +23,8 @@ from nextcord.ext.application_checks import (
 from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
-from pomice import Playlist
+
+from pomice import Playlist,Filter
 
 from .extras.checks import connected
 from .extras.errors import (
@@ -596,7 +597,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.guild.voice_client.play(toplay)
         await playing_embed(result)
 
-
+    @slash_command(dm_permission=False)
+    async def bassboost(self,inter:MyInter):
+        player = inter.guild.voice_client
+        await player.add_filter(Filter.boost())
+        await inter.send("h")
 
 
 
