@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from asyncio import sleep
 from functools import partial
-from logging import getLogger
+from logging import Logger, getLogger
 from random import shuffle
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
@@ -602,7 +602,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def bassboost(self,inter:MyInter):
         player = inter.guild.voice_client
         await player.add_filter(Equalizer.boost())
-        await inter.send("h")
+        Logger.info(player.get_filters())
+        await inter.send("Bass boost applied")
 
 
 
