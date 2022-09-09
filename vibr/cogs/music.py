@@ -601,12 +601,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @slash_command(dm_permission=False)
     async def bassboost(self,inter:MyInter):
         player = inter.guild.voice_client
-        if not player.has_filter('boost'):
-            await player.add_filter(Equalizer.boost('boost'))
-            await inter.send("added")
-        else:
-            await inter.send("nope")
-        #Logger.info(player.get_filters())
+        await player.add_filter(Equalizer.boost('boost'))
+        log.info(player.get_filters())
+        await inter.send('h')
         
 
 
