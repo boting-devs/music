@@ -602,8 +602,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def bassboost(self,inter:MyInter):
         player = inter.guild.voice_client
         await player.add_filter(Equalizer.boost())
-        Logger.info(player.get_filters())
+        #Logger.info(player.get_filters())
         await inter.send("Bass boost applied")
+        await inter.send(player.get_filters())
 
 
 
