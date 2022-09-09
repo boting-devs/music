@@ -603,7 +603,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
         await player.add_filter(Equalizer.boost())
         #Logger.info(player.get_filters())
-        await inter.send("Bass boost applied")
         await inter.send(player.get_filters())
 
 
