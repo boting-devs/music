@@ -24,7 +24,7 @@ from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
 
-from pomice import Playlist,Equalizer
+from pomice import Playlist,Equalizer,Filter
 
 from .extras.checks import connected
 from .extras.errors import (
@@ -602,7 +602,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def bassboost(self,inter:MyInter):
         player = inter.guild.voice_client
         await player.add_filter(Equalizer.boost('boost'))
-        log.info(player.get_filters())
+        log.info(player.filter())
         await inter.send('h')
         
 
