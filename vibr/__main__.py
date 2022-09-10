@@ -16,7 +16,6 @@ from spotipy import Spotify, SpotifyClientCredentials
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 load_dotenv()
-nextcord.http._modify_api_version(9)  # get back content until september
 
 
 class Vibr(BotBase):
