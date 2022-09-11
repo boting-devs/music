@@ -2,7 +2,7 @@ version: "3"
 
 services:
   bot:
-    container_name: vibr
+    container_name: vibr-alpha
     env_file: .env
     restart: unless-stopped
     depends_on:
@@ -17,10 +17,10 @@ services:
       - ./logs:/bot/logs
       - ./vibr:/bot/vibr
     environment:
-      LAVALINK_HOST: lavalink
+      LAVALINK_HOST: lavalink-alpha
       DB_URI: postgresql://postgres:postgres@postgres:5432/bot
   lavalink:
-    container_name: lavalink
+    container_name: lavalink-alpha
     restart: unless-stopped
     build:
       context: lavalink

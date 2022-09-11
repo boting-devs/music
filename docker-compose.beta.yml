@@ -2,7 +2,7 @@ version: "3"
 
 services:
   bot:
-    container_name: vibr
+    container_name: vibr-beta
     env_file: .env
     restart: unless-stopped
     depends_on:
@@ -21,7 +21,7 @@ services:
       DB_URI: postgresql://postgres:postgres@127.0.0.1:5433/bot
     network_mode: host
   lavalink:
-    container_name: lavalink
+    container_name: lavalink-beta
     restart: unless-stopped
     build:
       context: lavalink
