@@ -606,7 +606,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def bass_boost(self, inter: MyInter):
         player = inter.guild.voice_client
 
-        if player.filters:
+        if player.filters.has_filter("boost"):
             await player.reset_filters()
             await inter.send_author_embed("Bass Filter reset")
         else:
