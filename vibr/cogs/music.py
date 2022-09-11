@@ -23,7 +23,7 @@ from nextcord.ext.application_checks import (
 from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
-from pomice import TrackLoadError, Playlist
+from pomice import Equalizer, Playlist, TrackLoadError
 
 from .extras.checks import connected
 from .extras.errors import (
@@ -601,16 +601,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.guild.voice_client.play(toplay)
         await playing_embed(result)
 
-    """@connected()
-    @slash_command(dm_permission=False)
-    async def bassboost(self,inter:MyInter):
+    @connected()
+    @slash_command(name="bass-boost", dm_permission=False)
+    async def bass_boost(self, inter: MyInter):
         player = inter.guild.voice_client
-        if player._filter:
-            await player.reset_filter()
-            await inter.send("Bass Filter reset")
+
+        if player.filters:
+            await player.reset_filters()
+            await inter.send_author_embed("Bass Filter reset")
         else:
-            await player.add_filter(Equalizer.boost())
-            await inter.send('Bassboost filter activated')"""
+            await player.add_filter(Equalizer.boost(), fast_apply=True)
+            await inter.send_author_embed("Bassboost filter activated")
 
 
 def setup(bot: Vibr):
