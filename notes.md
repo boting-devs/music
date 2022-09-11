@@ -28,7 +28,7 @@ Does not use host network, all networking is contained inside docker. This means
 
 ### Beta
 
-Uses host network for ratelimit IPv6 block connections so only needs host `127.0.0.1`/`localhost`. Uses a docker postgres container but on port `5433` to not clash with the main bot.
+Uses host network for ratelimit IPv6 block connections so only needs host `127.0.0.1`/`localhost`, but also port `6968` to reduce port conflict. Uses a docker postgres container but on port `5433` to not clash with the main bot.
 
 ### Production
 
