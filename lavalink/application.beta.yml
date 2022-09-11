@@ -1,6 +1,6 @@
 server: # REST and WS server
-  port: 6969
-  address: 0.0.0.0
+  port: 6968
+  address: 127.0.0.1
 lavalink:
   server:
     password: "haha"
@@ -19,6 +19,12 @@ lavalink:
     youtubeSearchEnabled: true
     soundcloudSearchEnabled: true
     gc-warnings: true
+    ratelimit:
+      ipBlocks: ["2001:470:884c::/48"] # list of ip blocks
+      #excludedIps: ["...", "..."] # ips which should be explicit excluded from usage by lavalink
+      strategy: "LoadBalance" # RotateOnBan | LoadBalance | NanoSwitch | RotatingNanoSwitch
+      searchTriggersFail: true # Whether a search 429 should trigger marking the ip as failing
+      #retryLimit: -1 # -1 = use default lavaplayer value | 0 = infinity | >0 = retry will happen this numbers times
 
 metrics:
   prometheus:

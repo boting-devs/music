@@ -63,7 +63,7 @@ class Vibr(BotBase):
                 await self.pool.create_node(
                     bot=self,
                     host=os.environ["LAVALINK_HOST"],
-                    port=os.getenv("LAVALINK_PORT", "6968"),
+                    port=os.getenv("LAVALINK_PORT", "6969"),
                     password="haha",
                     identifier="MAIN",
                     spotify_client_id=os.getenv("SPOTIPY_CLIENT_ID"),

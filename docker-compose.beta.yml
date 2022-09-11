@@ -16,6 +16,7 @@ services:
       - ./vibr:/bot/vibr
     environment:
       LAVALINK_HOST: 127.0.0.1
+      LAVALINK_PORT: 6968
       DB_HOST: 127.0.0.1
       DB_PORT: 5433
     network_mode: host
