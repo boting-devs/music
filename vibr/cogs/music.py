@@ -23,8 +23,7 @@ from nextcord.ext.application_checks import (
 from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
-
-from pomice import Playlist,Equalizer
+from pomice import TrackLoadError, Playlist
 
 from .extras.checks import connected
 from .extras.errors import (
@@ -473,6 +472,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         loop = self.bot.loop
         sp = self.bot.spotipy
 
+        if sp is None:
+            raise TrackLoadError(
+                "Spotify is unable to be used, please contact the developers at `/support`"
+            )
+
         all_playlists = []
         count = 0
         total = 25
@@ -571,8 +575,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.queue.clear()
             await inter.send_author_embed("Cleared the queue")
 
-    @slash_command(name="playnow",dm_permission=False)
-    async def play_now(self,inter:MyInter,*,query:str):
+    @slash_command(name="playnow", dm_permission=False)
+    async def play_now(self, inter: MyInter, *, query: str):
         """Play the song immediately"""
         assert (
             isinstance(inter.user, Member)
@@ -592,12 +596,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await inter.send_author_embed("No tracks found")
 
         result = result[0]
-        player.queue.insert(0,result)
+        player.queue.insert(0, result)
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
         await playing_embed(result)
 
-    '''@connected()
+    """@connected()
     @slash_command(dm_permission=False)
     async def bassboost(self,inter:MyInter):
         player = inter.guild.voice_client
@@ -606,9 +610,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send("Bass Filter reset")
         else:
             await player.add_filter(Equalizer.boost())
-            await inter.send('Bassboost filter activated')'''
-        
-
+            await inter.send('Bassboost filter activated')"""
 
 
 def setup(bot: Vibr):

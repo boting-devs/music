@@ -70,12 +70,13 @@ class Events(Cog):
                     "SELECT * FROM notifications ORDER BY id DESC LIMIT 1"
                 )
 
-                await inter.send(
-                    f"{inter.user.mention} You have a new notification with the title "
-                    f"**{latest['title']}** "
-                    f"from `{latest['datetime'].strftime('%y-%m-%d')}`. "
-                    "You can view all notifications with </notifications:1004841251549478992>."
-                )
+                if latest:
+                    await inter.send(
+                        f"{inter.user.mention} You have a new notification with the title "
+                        f"**{latest['title']}** "
+                        f"from `{latest['datetime'].strftime('%y-%m-%d')}`. "
+                        "You can view all notifications with </notifications:1004841251549478992>."
+                    )
 
                 await self.bot.db.execute(
                     """INSERT INTO users (id, notified)

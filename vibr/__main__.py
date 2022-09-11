@@ -12,7 +12,7 @@ from botbase import BotBase
 from dotenv import load_dotenv
 from nextcord import Activity, ActivityType
 from pomice import NodeConnectionFailure, NodePool
-from spotipy import Spotify, SpotifyClientCredentials
+from spotipy import Spotify, SpotifyClientCredentials, SpotifyOauthError
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 load_dotenv()
@@ -39,7 +39,13 @@ class Vibr(BotBase):
         - Notified, then added to this set.
         """
 
-        self.spotipy = Spotify(client_credentials_manager=SpotifyClientCredentials())
+        self.spotify: Spotify
+        try:
+            self.spotipy = Spotify(
+                client_credentials_manager=SpotifyClientCredentials()
+            )
+        except SpotifyOauthError:
+            self.spotipy = None
 
     async def startup(self, *args, **kwargs):
         await super().startup(*args, **kwargs)
@@ -56,7 +62,7 @@ class Vibr(BotBase):
             try:
                 await self.pool.create_node(
                     bot=self,
-                    host="localhost",
+                    host=os.environ["LAVALINK_HOST"],
                     port="6969",
                     password="haha",
                     identifier="MAIN",

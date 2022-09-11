@@ -17,17 +17,19 @@ services:
       - ./logs:/bot/logs
       - ./vibr:/bot/vibr
     environment:
-      LAVALINK_HOST: lavalink
-      DB_URI: postgresql://postgres:postgres@postgres:5432/bot
+      LAVALINK_HOST: 127.0.0.1
+      DB_URI: postgresql://postgres:postgres@127.0.0.1:5433/bot
+    network_mode: host
   lavalink:
     container_name: lavalink
     restart: unless-stopped
     build:
       context: lavalink
-      dockerfile: alpha.Dockerfile
+      dockerfile: Dockerfile
+    network_mode: host
   postgres:
     image: postgres
-    restart: unless-stopped
+    restart: always
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
@@ -35,3 +37,6 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./pg_data:/var/lib/postgresql/data
+    network_mode: host
+    ports:
+      - "5433:5432"

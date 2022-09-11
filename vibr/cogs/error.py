@@ -102,7 +102,7 @@ class Errors(Cog):
         if isinstance(error, ApplicationInvokeError):
             error = error.original
 
-        elif isinstance(error, Ignore):
+        if isinstance(error, Ignore):
             return
 
         elif isinstance(error, NotConnected):
@@ -157,6 +157,7 @@ class Errors(Cog):
             await inter.send(embed=embed, view=self.support_view)
 
         else:
+            raise RuntimeError("This should never be called")
             embed = Embed(
                 title="Unexpected Error.",
                 description=(
