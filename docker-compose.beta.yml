@@ -8,8 +8,6 @@ services:
     depends_on:
       - lavalink
       - postgres
-    links:
-      - postgres
     build:
       context: .
       dockerfile: Dockerfile
@@ -18,7 +16,8 @@ services:
       - ./vibr:/bot/vibr
     environment:
       LAVALINK_HOST: 127.0.0.1
-      DB_URI: postgresql://postgres:postgres@127.0.0.1:5433/bot
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5433
     network_mode: host
   lavalink:
     container_name: lavalink-beta
