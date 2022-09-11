@@ -157,7 +157,6 @@ class Errors(Cog):
             await inter.send(embed=embed, view=self.support_view)
 
         else:
-            raise RuntimeError("This should never be called")
             embed = Embed(
                 title="Unexpected Error.",
                 description=(
