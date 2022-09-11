@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
     build:
       context: lavalink
-      dockerfile: Dockerfile
+      dockerfile: beta.Dockerfile
     network_mode: host
   postgres:
     image: postgres
