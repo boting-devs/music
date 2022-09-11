@@ -37,5 +37,4 @@ services:
     volumes:
       - ./pg_data:/var/lib/postgresql/data
     network_mode: host
-    ports:
-      - "5433:5432"
+    command: -p 5433
