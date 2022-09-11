@@ -575,7 +575,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.queue.clear()
             await inter.send_author_embed("Cleared the queue")
 
-    @slash_command(name="playnow", dm_permission=False)
+    @slash_command(name="play-now", dm_permission=False)
     async def play_now(self, inter: MyInter, *, query: str):
         """Play the song immediately"""
         assert (
@@ -595,7 +595,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not result:
             return await inter.send_author_embed("No tracks found")
 
-        result = result[0]
+        result = result[0] if isinstance(result, list) else result.tracks[0]
         player.queue.insert(0, result)
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
