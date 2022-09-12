@@ -23,7 +23,7 @@ from nextcord.ext.application_checks import (
 from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
-from pomice import Equalizer, Playlist, TrackLoadError
+from pomice import Equalizer, Playlist, TrackLoadError , Timescale
 
 from .extras.checks import connected
 from .extras.errors import (
@@ -607,11 +607,23 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
 
         if player.filters.has_filter(filter_tag="boost"):
-            await player.reset_filters()
+            await player.remove_filter(filter_tag="boost")
             await inter.send_author_embed("Bass Filter reset")
         else:
             await player.add_filter(Equalizer.boost(), fast_apply=True)
             await inter.send_author_embed("Bassboost filter activated")
+
+    @connected()
+    @slash_command(name="nightcore",dm_permission=False)
+    async def nightcore(self,inter:MyInter):
+        player = inter.guild.voice_client
+
+        if player.filters.has_filter(filter_tag="nightcore"):
+            await player.remove_filter(filter_tag="nightcore")
+            await inter.send_author_embed("Nightcore filter reset")
+        else:
+            await player.add_filter(Timescale.nightcore(),fast_apply=True)
+            await inter.send_author_embed("Nightcore filter activated")
 
 
 def setup(bot: Vibr):
