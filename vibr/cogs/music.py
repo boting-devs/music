@@ -14,6 +14,8 @@ from nextcord import (
     Embed,
     Member,
     PartialInteractionMessage,
+    Range,
+    SlashOption,
     User,
     slash_command,
 )
@@ -23,7 +25,7 @@ from nextcord.ext.application_checks import (
 from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
-from pomice import Equalizer, Playlist, TrackLoadError, Timescale
+from pomice import Equalizer, Playlist, Rotation, Timescale, TrackLoadError
 
 from .extras.checks import connected
 from .extras.errors import (
@@ -50,6 +52,10 @@ log = getLogger(__name__)
 API_URL = "https://api.genius.com/search/"
 TKN = "E4Eq5BhA2Xq6U99o1swO5IWcS7BBKyx1lCzyApT1wbyEqhItNaK5PpukKpUKrt3G"
 TEST = [802586580766162964, 939509053623795732]
+ROTATION_DESCRIPTION = (
+    "The frequency in Hz (times/second) to pan audio. "
+    "The best values are below 1, >5 is trippy."
+)
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
@@ -628,6 +634,33 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await player.add_filter(Timescale.nightcore(), fast_apply=True)
             await inter.send_author_embed("Nightcore filter activated")
+
+    @connected()
+    @slash_command(dm_permission=False)
+    async def rotate(
+        self,
+        inter: MyInter,
+        frequency: Range[0.1, 10] = SlashOption(
+            description=ROTATION_DESCRIPTION,
+            required=False,
+        ),
+    ):
+        """A cool filter to pan audio around your head, best with headphones or other stereo audio systems!"""
+
+        passed_custom = frequency is not None
+        frequency = frequency or 0.2  # Set default frequency.
+
+        player = inter.guild.voice_client
+
+        # Check if user passed a new frequency, it should not stop then.
+        if player.filters.has_filter(filter_tag="rotation") and not passed_custom:
+            await player.remove_filter(filter_tag="rotation")
+            await inter.send_author_embed("Rotation filter reset")
+        else:
+            await player.add_filter(
+                Rotation(tag="rotation", rotation_hertz=frequency), fast_apply=True  # type: ignore
+            )
+            await inter.send_author_embed("Rotation filter activated")
 
 
 def setup(bot: Vibr):
