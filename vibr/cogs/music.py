@@ -653,9 +653,19 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
 
         # Check if user passed a new frequency, it should not stop then.
-        if player.filters.has_filter(filter_tag="rotation") and not passed_custom:
+        if player.filters.has_filter(filter_tag="rotation") and passed_custom:
+            await player.remove_filter(filter_tag="rotation")
+            await player.add_filter(
+                Rotation(tag="rotation", rotation_hertz=frequency), fast_apply=True  # type: ignore
+            )
+            await inter.send_author_embed("Rotation filter modified")
+
+        # If no custom frequency was passed, it should stop rotating.
+        elif player.filters.has_filter(filter_tag="rotation"):
             await player.remove_filter(filter_tag="rotation")
             await inter.send_author_embed("Rotation filter reset")
+
+        # First time activating the filter.
         else:
             await player.add_filter(
                 Rotation(tag="rotation", rotation_hertz=frequency), fast_apply=True  # type: ignore
