@@ -611,21 +611,20 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send_author_embed("Bass Filter reset")
         else:
             await player.add_filter(Equalizer.boost(), fast_apply=True)
-            await inter.send_author_embed("YO")
-        
+            await inter.send_author_embed("Bassboost filter activated")
 
     @connected()
-    @slash_command(dm_permission=False)
+    @slash_command(name="nightcore",dm_permission=False)
     async def nightcore(self,inter:MyInter):
         player = inter.guild.voice_client
-        await inter.send('h')
+        await inter.send()
 
-        '''if player.filters.has_filter(filter_tag="nightcore"):
+        if player.filters.has_filter(filter_tag="nightcore"):
             await player.remove_filter(filter_tag="nightcore")
             await inter.send_author_embed("Nightcore filter reset")
         else:
             await player.add_filter(Timescale.nightcore(),fast_apply=True)
-            await inter.send_author_embed("Nightcore filter activated")'''
+            await inter.send_author_embed("Nightcore filter activated")
 
 
 def setup(bot: Vibr):
