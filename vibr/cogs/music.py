@@ -617,7 +617,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @slash_command(name="nightcore",dm_permission=False)
     async def nightcore(self,inter:MyInter):
         player = inter.guild.voice_client
-        await inter.send()
 
         if player.filters.has_filter(filter_tag="nightcore"):
             await player.remove_filter(filter_tag="nightcore")
