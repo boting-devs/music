@@ -604,6 +604,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected()
     @slash_command(name="bass-boost", dm_permission=False)
     async def bass_boost(self, inter: MyInter):
+        """Increases bass of the song"""
         player = inter.guild.voice_client
 
         if player.filters.has_filter(filter_tag="boost"):
@@ -616,6 +617,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected()
     @slash_command(name="nightcore",dm_permission=False)
     async def nightcore(self,inter:MyInter):
+        """A funny filter. Just Try-"""
         player = inter.guild.voice_client
 
         if player.filters.has_filter(filter_tag="nightcore"):
