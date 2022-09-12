@@ -611,7 +611,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send_author_embed("Bass Filter reset")
         else:
             await player.add_filter(Equalizer.boost(), fast_apply=True)
-            await inter.send_author_embed("Bassboost filter activated")
+            await inter.send_author_embed("YO")
+        
 
     @connected()
     @slash_command(dm_permission=False)
