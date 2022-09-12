@@ -616,8 +616,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send_author_embed("Bassboost filter activated")
 
     @connected()
-    @slash_command(name="night-core", dm_permission=False)
-    async def night_core(self, inter: MyInter):
+    @slash_command(dm_permission=False)
+    async def nightcore(self, inter: MyInter):
         """A funny filter. Just Try it out!"""
 
         player = inter.guild.voice_client
