@@ -17,8 +17,7 @@ services:
     environment:
       LAVALINK_HOST: 127.0.0.1
       LAVALINK_PORT: 6968
-      DB_HOST: 127.0.0.1
-      DB_PORT: 5433
+      DB_URI: postgres://postgres:postgres@localhost:5433/bot
     network_mode: host
   lavalink:
     container_name: lavalink-beta
