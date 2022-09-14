@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 
 from nextcord import Embed, Message, slash_command
+from nextcord.abc import GuildChannel
 from nextcord.ext.commands import Cog, command, is_owner
 
 from .extras.types import MyContext, MyInter, Notification
@@ -105,6 +106,16 @@ class Misc(Cog):
             source=NotificationSource(list(map(Notification, notifs))), inter=inter
         )
         await menu.start(interaction=inter, ephemeral=True)
+
+
+    @slash_command(description="Restrict bot to a channel")
+    async def guild_channel(self,inter:MyInter,*,channel:GuildChannel):
+        await self.bot.db.execute(
+            "INSERT INTO guild_channels(guild_id,channel_id) VALUES ($1,$2)",
+            inter.guild.id,
+            channel.id
+        )
+        await inter.send(f"Bot is restricted to {channel.mention}")
 
 
 def setup(bot: Vibr):
