@@ -17,3 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     spotify VARCHAR,
     notified BOOLEAN NOT NULL DEFAULT FALSE
 );
+CREATE TABLE IF NOT EXISTS guild_channels (
+    guild_id BIGINT NOT NULL PRIMARY KEY,
+    channel_id BIGINT NOT NULL
+);
