@@ -83,6 +83,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             or not inter.user.voice.channel.permissions_for(inter.me).speak
         ) and not inter.user.voice.channel.permissions_for(inter.me).administrator:
             raise BotMissingPermissions(["connect", "speak"])
+        elif not inter.app_permissions.send_messages:
+            raise BotMissingPermissions(["send_messages"])
         elif inter.guild.voice_client is not None:
             if inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
                 raise NotInSameVoice()
