@@ -120,7 +120,7 @@ class Errors(Cog):
                 color=self.bot.color,
             )
             self.format_embed(embed)
-            await inter.send(embed=embed, view=self.support_view)
+            await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
         elif isinstance(error, BotMissingPermissions):
             perms = ", ".join(
@@ -134,7 +134,7 @@ class Errors(Cog):
                 color=self.bot.color,
             )
             self.format_embed(embed)
-            await inter.send(embed=embed, view=self.support_view)
+            await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
         elif isinstance(error, TrackLoadError):
             embed = Embed(
@@ -143,7 +143,7 @@ class Errors(Cog):
                 color=self.bot.color,
             )
             self.format_embed(embed)
-            await inter.send(embed=embed, view=self.support_view)
+            await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
         elif type(error).__name__ in e:
             title, description = e[type(error).__name__]
@@ -154,7 +154,7 @@ class Errors(Cog):
                 color=Color.red(),
             )
             self.format_embed(embed)
-            await inter.send(embed=embed, view=self.support_view)
+            await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
         else:
             embed = Embed(
@@ -165,7 +165,7 @@ class Errors(Cog):
                 ),
                 color=Color.red(),
             )
-            await inter.send(embed=embed, view=self.support_view)
+            await inter.send(embed=embed, view=self.support_view, ephemeral=True)
             if self.bot.logchannel is not None:
                 painchannel = await self.bot.getch_channel(self.bot.logchannel)
                 content = inter.application_command.qualified_name  # type: ignore
