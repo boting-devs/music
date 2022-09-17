@@ -88,15 +88,15 @@ bot = Vibr(
 
 
 @bot.application_command_check
-async def check_channel(inter:MyInter):
-        channel = await bot.db.fetchval(
-                "SELECT channel_id from guild_channels WHERE guild = $1",
-                inter.guild.id,
-            )
-        assert inter.channel is not None
-        if channel is not None and inter.channel.id != channel:
-            if inter.channel.id != channel:
-                raise ChannelDisabled()
+async def check_channel(inter: MyInter):
+    channel = await bot.db.fetchval(
+        "SELECT restricted_channel FROM guilds WHERE id = $1",
+        inter.guild.id,
+    )
+    assert inter.channel is not None
+    if inter.application_command.name != "restrict" and channel is not None and inter.channel.id != channel:
+        if inter.channel.id != channel:
+            raise ChannelDisabled()
 
 
 if __name__ == "__main__":
