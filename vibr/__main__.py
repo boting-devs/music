@@ -15,6 +15,7 @@ from pomice import NodeConnectionFailure, NodePool
 from spotipy import Spotify, SpotifyClientCredentials, SpotifyOauthError
 from .cogs.extras.types import MyInter
 from .cogs.extras.errors import ChannelDisabled
+
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 load_dotenv()
 
@@ -32,7 +33,7 @@ class Vibr(BotBase):
         self.whitelisted_guilds: dict[int, datetime] = {}
         self.notified_users: set[int] = set()
         """A set of all users who have been notified, this is a cache.
-        
+
         If a user needs to be checked on if they have been notified,
         if they are not in this set then they will be found in the db and either:
 
@@ -85,16 +86,16 @@ bot = Vibr(
     activity=Activity(type=ActivityType.listening, name="your beats :)"),
 )
 
+
 @bot.application_command_check
-async def check_channel(inter:MyInter):
+async def check_channel(inter: MyInter):
     channel = await bot.db.fetch(
-            "SELECT channel_id from guild_channels WHERE guild = $1",
-            inter.guild.id,
-        )
+        "SELECT restricted_channel from guilds WHERE id = $1",
+        inter.guild.id,
+    )
+    assert inter.channel is not None
     if inter.channel.id != channel:
-            raise ChannelDisabled()
-
-
+        raise ChannelDisabled()
 
 
 if __name__ == "__main__":

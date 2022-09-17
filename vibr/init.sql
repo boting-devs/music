@@ -1,4 +1,5 @@
 ALTER TABLE guilds ADD COLUMN IF NOT EXISTS whitelisted TIMESTAMPTZ;
+ALTER TABLE guilds ADD COLUMN IF NOT EXISTS restricted_channel BIGINT;
 CREATE TABLE IF NOT EXISTS notifications (
     id SERIAL PRIMARY KEY,
     notification TEXT NOT NULL,
@@ -16,8 +17,4 @@ CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
     spotify VARCHAR,
     notified BOOLEAN NOT NULL DEFAULT FALSE
-);
-CREATE TABLE IF NOT EXISTS guild_channels (
-    guild_id BIGINT NOT NULL PRIMARY KEY,
-    channel_id BIGINT NOT NULL
 );
