@@ -98,6 +98,8 @@ async def check_channel(inter: MyInter):
         if inter.channel.id != channel:
             raise ChannelDisabled()
 
+    return True
+
 
 if __name__ == "__main__":
     bot.run(os.getenv("TOKEN"))
