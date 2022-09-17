@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional
 
-from nextcord import Embed, Message, slash_command
+from nextcord import Embed, Message, Permissions, SlashOption, slash_command
 from nextcord.abc import GuildChannel
 from nextcord.ext.commands import Cog, command, is_owner
 
@@ -14,6 +14,10 @@ if TYPE_CHECKING:
 
 
 TEST = [802586580766162964, 939509053623795732]
+RESTRICT_PERMISSIONS = Permissions(manage_guild=True)
+RESTRICT_OPTION_DESC = (
+    "The channel to restrict to, do not pass if you want to disable restrictions."
+)
 
 
 class Misc(Cog):
@@ -107,18 +111,31 @@ class Misc(Cog):
         )
         await menu.start(interaction=inter, ephemeral=True)
 
-
-    @slash_command(name="restrict",description="Restrict bot to a channel")
-    async def guild_channel(self,inter:MyInter,*,channel:GuildChannel):
+    @slash_command(
+        description="Restrict bot to a channel",
+        default_member_permissions=RESTRICT_PERMISSIONS,
+    )
+    async def restrict(
+        self,
+        inter: MyInter,
+        *,
+        channel: Optional[GuildChannel] = SlashOption(
+            description=RESTRICT_OPTION_DESC, required=False
+        ),
+    ):
         await self.bot.db.execute(
-            """INSERT INTO guilds (id, restricted_channel) 
-            VALUES ($1, $2) 
-            ON CONFLICT (id) DO UPDATE SET 
+            """INSERT INTO guilds (id, restricted_channel)
+            VALUES ($1, $2)
+            ON CONFLICT (id) DO UPDATE SET
                 restricted_channel=$2""",
             inter.guild.id,
-            channel.id
+            channel.id if channel else None,
         )
-        await inter.send(f"Bot is restricted to {channel.mention}")
+        await inter.send(
+            f"Bot is restricted to {channel.mention}."
+            if channel
+            else "Bot is now unrestricted."
+        )
 
 
 def setup(bot: Vibr):
