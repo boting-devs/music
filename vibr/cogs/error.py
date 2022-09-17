@@ -60,9 +60,9 @@ errors: dict[Type[Exception], tuple[str, str]] = {
         "There was an issue playing this song",
         "This was not a user error, the bot may have recently rebooted. Please try again in a few seconds.",
     ),
-    ChannelDisabled:(
+    ChannelDisabled: (
         "Channel Restricted",
-        "Bot is not permitted to be used in this channel.Please use the applicable channel or contact server mods"
+        "Bot is not permitted to be used in this channel. Please use the applicable channel or contact server mods"
     )
 }
 e: dict[str, tuple[str, str]] = {k.__name__: v for k, v in errors.items()}
