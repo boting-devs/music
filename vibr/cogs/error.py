@@ -14,7 +14,7 @@ from nextcord.ext.application_checks import (
 )
 from nextcord.ext.commands import Cog, CommandNotFound, NotOwner
 from nextcord.utils import MISSING, utcnow
-from pomice.exceptions import NoNodesAvailable, TrackLoadError
+from pomice.exceptions import NoNodesAvailable, TrackLoadError,TrackInvalidPosition
 
 from .extras.errors import (
     Ignore,
@@ -24,6 +24,7 @@ from .extras.errors import (
     NotInVoice,
     SongNotProvided,
     TooManyTracks,
+
 )
 from .extras.views import LinkButtonView
 
@@ -144,6 +145,15 @@ class Errors(Cog):
             )
             self.format_embed(embed)
             await inter.send(embed=embed, view=self.support_view, ephemeral=True)
+
+        elif isinstance(error,TrackInvalidPosition):
+            embed=Embed(
+                title="Invalid Track Position",
+                description="Seek position must be between 0 and the track length",
+                color=self.bot.color,
+            )
+            self.format_embed(embed)
+            await inter.send(embed=embed,view=self.support_view,ephemeral=True)
 
         elif type(error).__name__ in e:
             title, description = e[type(error).__name__]
