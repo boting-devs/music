@@ -25,6 +25,8 @@ services:
     build:
       context: lavalink
       dockerfile: alpha.Dockerfile
+    volumes:
+      - ./logs/lava:/opt/Lavalink/logs
   postgres:
     image: postgres
     restart: unless-stopped

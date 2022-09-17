@@ -34,10 +34,13 @@ sentry:
 
 logging:
   file:
-    max-history: 15
-    max-size: 100MB
-  path: ./logs/
+    path: ./logs/
 
   level:
     root: INFO
     lavalink: INFO
+
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30

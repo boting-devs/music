@@ -24,3 +24,5 @@ services:
       context: lavalink
       dockerfile: Dockerfile
     network_mode: host
+    volumes:
+      - ./logs/lava:/opt/Lavalink/logs

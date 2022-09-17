@@ -26,6 +26,8 @@ services:
       context: lavalink
       dockerfile: beta.Dockerfile
     network_mode: host
+    volumes:
+      - ./logs/lava:/opt/Lavalink/logs
   postgres:
     image: postgres
     restart: always
