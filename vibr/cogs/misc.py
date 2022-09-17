@@ -111,7 +111,10 @@ class Misc(Cog):
     @slash_command(name="restrict",description="Restrict bot to a channel")
     async def guild_channel(self,inter:MyInter,*,channel:GuildChannel):
         await self.bot.db.execute(
-            "INSERT INTO guild_channels(guild_id,channel_id) VALUES ($1,$2)",
+            """INSERT INTO guilds (id, restricted_channel) 
+            VALUES ($1, $2) 
+            ON CONFLICT (id) DO UPDATE SET 
+                restricted_channel=$2""",
             inter.guild.id,
             channel.id
         )
