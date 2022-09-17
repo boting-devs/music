@@ -93,6 +93,7 @@ async def check_channel(inter:MyInter):
                 "SELECT channel_id from guild_channels WHERE guild = $1",
                 inter.guild.id,
             )
+        assert channel is not None
         if channel is not None and inter.channel.id != channel:
             if inter.channel.id != channel:
                 raise ChannelDisabled()
