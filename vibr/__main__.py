@@ -13,7 +13,8 @@ from dotenv import load_dotenv
 from nextcord import Activity, ActivityType
 from pomice import NodeConnectionFailure, NodePool
 from spotipy import Spotify, SpotifyClientCredentials, SpotifyOauthError
-
+from .cogs.extras.types import MyInter
+from .cogs.extras.errors import ChannelDisabled
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 load_dotenv()
 
@@ -83,6 +84,17 @@ bot = Vibr(
     intents=intents,
     activity=Activity(type=ActivityType.listening, name="your beats :)"),
 )
+
+@bot.application_command_check
+async def check_channel(inter:MyInter):
+    channel = await bot.db.fetch(
+            "SELECT channel_id from guild_channels WHERE guild = $1",
+            inter.guild.id,
+        )
+    if inter.channel.id != channel:
+            raise ChannelDisabled()
+
+
 
 
 if __name__ == "__main__":

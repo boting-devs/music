@@ -27,3 +27,6 @@ class SongNotProvided(CheckFailure):
 
 class Ignore(CheckFailure):
     """An error which should not be handled."""
+
+class ChannelDisabled(CheckFailure):
+    """Raised when channel is restricted to be used"""
