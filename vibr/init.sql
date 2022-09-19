@@ -1,5 +1,4 @@
 ALTER TABLE guilds ADD COLUMN IF NOT EXISTS whitelisted TIMESTAMPTZ;
-ALTER TABLE guilds ADD COLUMN IF NOT EXISTS restricted_channel BIGINT;
 CREATE TABLE IF NOT EXISTS notifications (
     id SERIAL PRIMARY KEY,
     notification TEXT NOT NULL,

@@ -111,32 +111,6 @@ class Misc(Cog):
         )
         await menu.start(interaction=inter, ephemeral=True)
 
-    @slash_command(
-        description="Restrict bot to a channel",
-        default_member_permissions=RESTRICT_PERMISSIONS,
-    )
-    async def restrict(
-        self,
-        inter: MyInter,
-        *,
-        channel: Optional[GuildChannel] = SlashOption(
-            description=RESTRICT_OPTION_DESC, required=False
-        ),
-    ):
-        await self.bot.db.execute(
-            """INSERT INTO guilds (id, restricted_channel)
-            VALUES ($1, $2)
-            ON CONFLICT (id) DO UPDATE SET
-                restricted_channel=$2""",
-            inter.guild.id,
-            channel.id if channel else None,
-        )
-        await inter.send(
-            f"Bot is restricted to {channel.mention}."
-            if channel
-            else "Bot is now unrestricted."
-        )
-
 
 def setup(bot: Vibr):
     bot.add_cog(Misc(bot))
