@@ -186,7 +186,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         channel = inter.user.voice.channel
         if inter.guild.voice_client is not None:
             if channel.id == inter.guild.voice_client.channel.id:
-                return await inter.reply("Already Connected!")
+                return await inter.send_author_embed("Already Connected!")
 
         await channel.connect(cls=Player)
 
