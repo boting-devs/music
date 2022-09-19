@@ -87,19 +87,5 @@ bot = Vibr(
 )
 
 
-@bot.application_command_check
-async def check_channel(inter: MyInter):
-    channel = await bot.db.fetchval(
-        "SELECT restricted_channel FROM guilds WHERE id = $1",
-        inter.guild.id,
-    )
-    assert inter.channel is not None
-    if inter.application_command.name != "restrict" and channel is not None and inter.channel.id != channel:
-        if inter.channel.id != channel:
-            raise ChannelDisabled()
-
-    return True
-
-
 if __name__ == "__main__":
     bot.run(os.getenv("TOKEN"))
