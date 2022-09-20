@@ -49,7 +49,7 @@ services:
       context: server
       dockerfile: Dockerfile
     ports:
-      - "3069:3069"
+      - "3169:3169"
     volumes:
       - ./logs/server:/server/logs
     environment:
