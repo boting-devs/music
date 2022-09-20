@@ -23,7 +23,7 @@ class Ipc(Cog):
 
         if data_type == "upvote":
             user = int(user)
-            votetime = utcnow() + timedelta(hours=12)
+            votetime = utcnow() + timedelta(hours=24)
             await self.bot.db.execute(
                 """INSERT INTO users (id, vote)
                 VALUES ($1, $2)
