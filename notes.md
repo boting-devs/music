@@ -24,11 +24,13 @@ docker-compose up -d --build -f docker-compose.beta.yml
 
 ### Alpha
 
-Does not use host network, all networking is contained inside docker. This means that the host needs to be exposed with `0.0.0.0` and accessed with `lavalink` as the compose link.
+Does not use host network, all networking is contained inside docker. This means that the host needs to be exposed with `0.0.0.0` and accessed with `<service-name>` as the compose link.
 
 ### Beta
 
 Uses host network for ratelimit IPv6 block connections so only needs host `127.0.0.1`/`localhost`, but also port `6968` to reduce port conflict. Uses a docker postgres container but on port `5433` to not clash with the main bot.
+
+`server` is on a different port to alpha and prod as to not conflict.
 
 ### Production
 

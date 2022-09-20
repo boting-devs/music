@@ -17,6 +17,8 @@ services:
     network_mode: host
     environment:
       LAVALINK_HOST: 127.0.0.1
+      IPC_BIND: 127.0.0.1
+      IPC_PORT: 8765
   lavalink:
     container_name: lavalink
     restart: unless-stopped
@@ -26,3 +28,18 @@ services:
     network_mode: host
     volumes:
       - ./logs/lava:/opt/Lavalink/logs
+  api:
+    env_file: .env
+    restart: unless-stopped
+    build:
+      context: server
+      dockerfile: Dockerfile
+    ports:
+      - "3069:3069"
+    volumes:
+      - ./logs/server:/server/logs
+    environment:
+      IPC_SERVER: 127.0.0.1
+      IPC_PORT: 8765
+      SERVER_BIND: 127.0.0.1
+      SERVER_PORT: 3069

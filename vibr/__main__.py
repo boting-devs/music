@@ -11,10 +11,9 @@ import uvloop
 from botbase import BotBase
 from dotenv import load_dotenv
 from nextcord import Activity, ActivityType
+from nextcord.ext.ipc import Server
 from pomice import NodeConnectionFailure, NodePool
 from spotipy import Spotify, SpotifyClientCredentials, SpotifyOauthError
-from .cogs.extras.types import MyInter
-from .cogs.extras.errors import ChannelDisabled
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 load_dotenv()
@@ -40,6 +39,21 @@ class Vibr(BotBase):
         - Added to this set as it is True.
         - Notified, then added to this set.
         """
+
+        self.voted: dict[int, datetime] = {}
+        """A dict of users who have voted, along with the time this expires.
+
+        This is a cache of the `user` table's `id` and `vote` columns.
+        """
+
+        self.ipc = Server(
+            self,
+            host=os.environ["IPC_BIND"],
+            port=int(os.environ["IPC_PORT"]),
+            secret_key="pain.",
+            do_multicast=False,
+        )
+        """The IPC server accessed by server/server.py for the top.gg webhook."""
 
         self.spotify: Spotify
         try:
@@ -88,4 +102,5 @@ bot = Vibr(
 
 
 if __name__ == "__main__":
+    bot.ipc.start()
     bot.run(os.getenv("TOKEN"))

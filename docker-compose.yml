@@ -19,6 +19,8 @@ services:
     environment:
       LAVALINK_HOST: lavalink-alpha
       DB_URI: postgresql://postgres:postgres@postgres:5432/bot
+      IPC_BIND: 0.0.0.0
+      IPC_PORT: 8765
   lavalink:
     container_name: lavalink-alpha
     restart: unless-stopped
@@ -37,3 +39,20 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./pg_data:/var/lib/postgresql/data
+  api:
+    env_file: .env
+    restart: unless-stopped
+    build:
+      context: server
+      dockerfile: Dockerfile
+    depends_on: [ bot ]
+    links: [ bot ]
+    ports:
+      - "3069:3069"
+    volumes:
+      - ./logs/server:/server/logs
+    environment:
+      IPC_SERVER: bot
+      IPC_PORT: 8765
+      SERVER_BIND: 0.0.0.0
+      SERVER_PORT: 3069

@@ -1,0 +1,5 @@
+*
+!poetry.lock
+!pyproject.toml
+!server.py
+!config.py

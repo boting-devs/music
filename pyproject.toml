@@ -13,6 +13,7 @@ pomice = {git = "https://github.com/ooliver1/pomice", rev = "main"}
 spotipy = "^2.19.0"
 uvloop = "^0.16.0"
 beautifulsoup4 = "^4.11.1"
+nextcord-ext-ipc = "^2.2.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"

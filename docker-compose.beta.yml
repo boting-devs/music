@@ -18,6 +18,8 @@ services:
       LAVALINK_HOST: 127.0.0.1
       LAVALINK_PORT: 6968
       DB_URI: postgres://postgres:postgres@localhost:5433/bot
+      IPC_BIND: 127.0.0.1
+      IPC_PORT: 8766
     network_mode: host
   lavalink:
     container_name: lavalink-beta
@@ -40,3 +42,18 @@ services:
       - ./pg_data:/var/lib/postgresql/data
     network_mode: host
     command: -p 5433
+  api:
+    env_file: .env
+    restart: unless-stopped
+    build:
+      context: server
+      dockerfile: Dockerfile
+    ports:
+      - "3069:3069"
+    volumes:
+      - ./logs/server:/server/logs
+    environment:
+      IPC_SERVER: 127.0.0.1
+      IPC_PORT: 8766
+      SERVER_BIND: 127.0.0.1
+      SERVER_PORT: 3169
