@@ -41,15 +41,13 @@ services:
     volumes:
       - ./pg_data:/var/lib/postgresql/data
     network_mode: host
-    command: -p 5433
+    command: -h 127.0.0.1 -p 5433
   api:
     env_file: .env
     restart: unless-stopped
     build:
       context: server
       dockerfile: Dockerfile
-    ports:
-      - "3169:3169"
     volumes:
       - ./logs/server:/server/logs
     environment:
@@ -57,3 +55,4 @@ services:
       IPC_PORT: 8766
       SERVER_BIND: 127.0.0.1
       SERVER_PORT: 3169
+    network_mode: host

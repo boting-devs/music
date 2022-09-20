@@ -13,6 +13,7 @@ def create_client():
 
 client = create_client()
 app = Quart(__name__)
+KEY = env["TOPGG_AUTH"]
 
 
 async def ipc(route: str, **kwargs: Any):
@@ -27,7 +28,7 @@ async def ipc(route: str, **kwargs: Any):
     abort(503)
 
 
-@app.route("/vibr/vote", methods=["POST"])
+@app.route("/vibr/vote/", methods=["POST"])
 async def vote():
     data = await request.get_json()
     try:
@@ -35,7 +36,7 @@ async def vote():
     except KeyError:
         return Response(status=401)
 
-    if auth == getenv("TOPGG_AUTH"):
+    if auth == KEY:
         response = await ipc("topgg", data_type=data["type"], user=data["user"])
 
         if "error" in response:
