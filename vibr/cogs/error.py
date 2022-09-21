@@ -78,7 +78,7 @@ class Errors(Cog):
         await self.bot.wait_until_ready()
         self.support_view = LinkButtonView(
             name="Support Server",
-            url="https://discord.gg/xck2R88Jv8",
+            url="https://discord.gg/GHKuu8gTT6",
             emoji="<:RobotPicture:919460440105431070>",
         )
 
