@@ -33,7 +33,7 @@ class Events(Cog):
                 await player.set_pause(True)
                 await sleep(1)
                 await player.set_pause(paused)
-        else:
+        elif not member.bot:
             if not before.channel and after.channel:
                 if after.channel.id not in self.bot.listeners:
                     self.bot.listeners[after.channel.id] = {member.id}
