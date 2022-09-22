@@ -57,3 +57,4 @@ services:
       IPC_PORT: 8765
       SERVER_BIND: 127.0.0.1
       SERVER_PORT: 3069
+    network_mode: host
