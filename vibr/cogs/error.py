@@ -14,7 +14,7 @@ from nextcord.ext.application_checks import (
 )
 from nextcord.ext.commands import Cog, CommandNotFound, NotOwner
 from nextcord.utils import MISSING, utcnow
-from pomice.exceptions import NoNodesAvailable, TrackLoadError,TrackInvalidPosition
+from pomice.exceptions import NoNodesAvailable, TrackInvalidPosition, TrackLoadError
 
 from .extras.errors import (
     Ignore,
@@ -24,8 +24,7 @@ from .extras.errors import (
     NotInVoice,
     SongNotProvided,
     TooManyTracks,
-    ChannelDisabled,
-
+    VoteRequired,
 )
 from .extras.views import LinkButtonView
 
@@ -60,10 +59,10 @@ errors: dict[Type[Exception], tuple[str, str]] = {
         "There was an issue playing this song",
         "This was not a user error, the bot may have recently rebooted. Please try again in a few seconds.",
     ),
-    ChannelDisabled: (
-        "Channel Restricted",
-        "Bot is not permitted to be used in this channel. Please use the applicable channel or contact server mods"
-    )
+    VoteRequired: (
+        "This command requires a vote",
+        "Please vote for the bot [here](https://top.gg/bot/882491278581977179/vote) to use this command",
+    ),
 }
 e: dict[str, tuple[str, str]] = {k.__name__: v for k, v in errors.items()}
 
@@ -151,14 +150,14 @@ class Errors(Cog):
             self.format_embed(embed)
             await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
-        elif isinstance(error,TrackInvalidPosition):
-            embed=Embed(
+        elif isinstance(error, TrackInvalidPosition):
+            embed = Embed(
                 title="Invalid Track Position",
                 description="Seek position must be between 0 and the track length",
                 color=self.bot.color,
             )
             self.format_embed(embed)
-            await inter.send(embed=embed,view=self.support_view,ephemeral=True)
+            await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
         elif type(error).__name__ in e:
             title, description = e[type(error).__name__]

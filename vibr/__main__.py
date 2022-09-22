@@ -40,7 +40,7 @@ class Vibr(BotBase):
         - Notified, then added to this set.
         """
 
-        self.voted: dict[int, datetime] = {}
+        self.voted: dict[int, datetime | None] = {}
         """A dict of users who have voted, along with the time this expires.
 
         This is a cache of the `user` table's `id` and `vote` columns.

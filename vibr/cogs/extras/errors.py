@@ -28,5 +28,6 @@ class SongNotProvided(CheckFailure):
 class Ignore(CheckFailure):
     """An error which should not be handled."""
 
-class ChannelDisabled(CheckFailure):
-    """Raised when channel is restricted to be used"""
+
+class VoteRequired(CheckFailure):
+    """Raised when a user has not voted for the bot and the command requires it."""

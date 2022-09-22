@@ -25,7 +25,7 @@ class Misc(Cog):
         self.bot = bot
 
     @slash_command()
-    async def ping_(self, inter: MyInter):
+    async def ping(self, inter: MyInter):
         """Pong!"""
 
         await inter.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")

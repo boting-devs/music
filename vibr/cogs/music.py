@@ -27,7 +27,7 @@ from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
 from pomice import Equalizer, Playlist, Rotation, Timescale, TrackLoadError
 
-from .extras.checks import connected
+from .extras.checks import connected, voted
 from .extras.errors import (
     Ignore,
     LyricsNotFound,
@@ -347,6 +347,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.send_author_embed(f"Volume set to `{number}%`")
 
     @slash_command(dm_permission=False)
+    @voted()
     async def lyrics(self, inter: MyInter, *, query: str = ""):
         """Sing along to your favourite tunes!"""
 
