@@ -551,12 +551,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def forward(self, inter: MyInter, num: int):
         """Seeks forward in the current song by an amount"""
 
-        player = inter.guild.voice_client
-        c = player.position
-        amount = c + (num * 1000)
-        current = strftime("%H:%M:%S", gmtime((amount // 1000)))
-        await player.seek(amount)
-        await inter.send_author_embed(f"Position seeked to {current}")
+        if num <0:
+            await inter.send_author_embed("Please use +ve numbers only",ephemeral=True)
+        else:
+            player = inter.guild.voice_client
+            c = player.position
+            amount = c + (num * 1000)
+            current = strftime("%H:%M:%S", gmtime((amount // 1000)))
+            await player.seek(amount)
+            await inter.send_author_embed(f"Position seeked to {current}")
 
     @connected()
     @slash_command(dm_permission=False)
