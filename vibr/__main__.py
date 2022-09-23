@@ -6,7 +6,6 @@ from datetime import datetime
 from typing import Optional
 
 import nextcord
-import nextcord.http
 import uvloop
 from botbase import BotBase
 from dotenv import load_dotenv
@@ -62,6 +61,9 @@ class Vibr(BotBase):
             )
         except SpotifyOauthError:
             self.spotipy = None
+
+        self.vote_webhook: nextcord.Webhook | None = None
+        """The webhook in #vote-for-us for top.gg."""
 
     async def startup(self, *args, **kwargs):
         await super().startup(*args, **kwargs)
