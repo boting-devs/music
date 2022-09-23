@@ -559,7 +559,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await player.seek(amount)
             await inter.send_author_embed(f"Position seeked to {current}")
         else:
-            await inter.send_author_embed("Please play a song to use this command" ephemeral=True)
+            await inter.send_author_embed("Please play a song to use this command",ephemeral=True)
 
     @connected()
     @slash_command(dm_permission=False)
