@@ -685,10 +685,18 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @slash_command(dm_permission=False)
     async def move(self,inter:MyInter,track:int,destination:int):
         player = inter.guild.voice_client
-        song=player.queue.pop(track-1)
-        player.queue.insert(destination-1,song)
-        log.info(player.queue)
-        await inter.send_author_embed(f"{song} position set to {destination}")
+        if destination < 1 and track <1:
+            await inter.send_author_embed("Please input a number which is within your queue!", ephemeral=True)
+        else:
+            try:
+                song=player.queue.pop(track-1)
+            except IndexError:
+                return await inter.send(
+                    "Please input a number which is within your queue!", ephemeral=True
+                )
+            player.queue.insert(destination-1,song)
+            destination = player.queue.index(song)
+            await inter.send_author_embed(f"{song} position set to {destination}")
 
 
 
