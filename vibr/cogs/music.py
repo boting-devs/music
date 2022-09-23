@@ -696,7 +696,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 )
             player.queue.insert(destination-1,song)
             destination = player.queue.index(song)
-            await inter.send_author_embed(f"{song} position set to {destination}")
+            await inter.send_author_embed(f"{song} position set to {destination+1}")
 
 
 
