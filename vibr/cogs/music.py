@@ -685,7 +685,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @slash_command(dm_permission=False)
     async def move(self,inter:MyInter,track:int,destination:int):
         player = inter.guild.voice_client
-        if destination < 1 and track <1:
+        if destination < 1 or track <1:
             await inter.send_author_embed("Please input a number which is within your queue!", ephemeral=True)
         else:
             try:
