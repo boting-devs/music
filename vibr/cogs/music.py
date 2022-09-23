@@ -614,6 +614,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await playing_embed(result)
 
     @connected()
+    @playing_true()
     @slash_command(name="bass-boost", dm_permission=False)
     async def bass_boost(self, inter: MyInter):
         """Increases bass of the song"""
@@ -628,6 +629,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send_author_embed("Bassboost filter activated")
 
     @connected()
+    @playing_true()
     @slash_command(dm_permission=False)
     async def nightcore(self, inter: MyInter):
         """A funny filter. Just Try it out!"""
@@ -642,6 +644,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send_author_embed("Nightcore filter activated")
 
     @connected()
+    @playing_true()
     @slash_command(dm_permission=False)
     async def rotate(
         self,

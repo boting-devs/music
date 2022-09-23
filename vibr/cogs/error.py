@@ -66,7 +66,7 @@ errors: dict[Type[Exception], tuple[str, str]] = {
     ),
     NotPlaying:(
         "Please Play Song",
-        "To use this command ,play a song using /play"
+        "To use this command ,play a song using </play:882491278581977179>"
     )
     
 }
