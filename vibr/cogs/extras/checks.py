@@ -51,7 +51,7 @@ def voted():
 
 def playing_true():
     async def playingmusic(inter:MyInter) -> bool:
-        if inter.guild.voice_client.is_playing is None:
+        if inter.guild.voice_client.is_playing == False:
             raise NotPlaying()
         
         return True
