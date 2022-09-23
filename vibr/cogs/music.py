@@ -27,7 +27,7 @@ from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
 from pomice import Equalizer, Playlist, Rotation, Timescale, TrackLoadError
 
-from .extras.checks import connected, voted
+from .extras.checks import connected, voted ,playing_true
 from .extras.errors import (
     Ignore,
     LyricsNotFound,
@@ -547,19 +547,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         )
 
     @connected()
+    @playing_true()
     @slash_command(dm_permission=False)
     async def forward(self, inter: MyInter, num: int):
         """Seeks forward in the current song by an amount"""
 
         player = inter.guild.voice_client
-        if player.is_playing:
-            c = player.position
-            amount = c + (num * 1000)
-            current = strftime("%H:%M:%S", gmtime((amount // 1000)))
-            await player.seek(amount)
-            await inter.send_author_embed(f"Position seeked to {current}")
-        else:
-            await inter.send_author_embed("Please play a song to use this command",ephemeral=True)
+        c = player.position
+        amount = c + (num * 1000)
+        current = strftime("%H:%M:%S", gmtime((amount // 1000)))
+        await player.seek(amount)
+        await inter.send_author_embed(f"Position seeked to {current}")
 
     @connected()
     @slash_command(dm_permission=False)

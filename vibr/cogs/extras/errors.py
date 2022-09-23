@@ -31,3 +31,6 @@ class Ignore(CheckFailure):
 
 class VoteRequired(CheckFailure):
     """Raised when a user has not voted for the bot and the command requires it."""
+
+class NotPlaying(CheckFailure):
+    """Raised when song isnt playing where it should supposedly do so"""
