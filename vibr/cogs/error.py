@@ -25,7 +25,7 @@ from .extras.errors import (
     SongNotProvided,
     TooManyTracks,
     VoteRequired,
-    NotPlaying
+    NotPlaying,
 )
 from .extras.views import LinkButtonView
 
@@ -64,11 +64,10 @@ errors: dict[Type[Exception], tuple[str, str]] = {
         "This command requires a vote",
         "Please vote for the bot [here](https://top.gg/bot/882491278581977179/vote) to use this command",
     ),
-    NotPlaying:(
-        "Please Play Song",
-        "To use this command ,play a song using </play:882491278581977179>"
-    )
-    
+    NotPlaying: (
+        "Please Play A Song",
+        "To use this command, play a song using </play:987418268635639848>",
+    ),
 }
 e: dict[str, tuple[str, str]] = {k.__name__: v for k, v in errors.items()}
 

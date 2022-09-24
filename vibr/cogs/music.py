@@ -27,10 +27,11 @@ from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
 from pomice import Equalizer, Playlist, Rotation, Timescale, TrackLoadError
 
-from .extras.checks import connected, voted ,playing_true
+from .extras.checks import connected, voted, connected_and_playing
 from .extras.errors import (
     Ignore,
     LyricsNotFound,
+    NotConnected,
     NotInSameVoice,
     NotInVoice,
     SongNotProvided,
@@ -237,10 +238,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             and inter.user.voice.channel is not None
         )
 
+        await inter.send(f"Searching `{query}`")
+
         if not inter.guild.voice_client:
             await self.join(inter)
-
-        await inter.send(f"Searching `{query}`")
 
         player = inter.guild.voice_client
         result = await player.get_tracks(query=query, ctx=inter)  # type: ignore
@@ -250,6 +251,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         if len(player.queue) >= 500:
             raise TooManyTracks()
+
+        if player is None:
+            raise NotConnected()
 
         if not player.queue and not player.is_playing:
             if isinstance(result, Playlist):
@@ -283,14 +287,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if toplay:
             player.queue += toplay
 
-    @connected()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def pause(self, inter: MyInter):
         """Pause the tunes"""
 
         player = inter.guild.voice_client
-        if not player.is_playing:
-            return await inter.send_author_embed("No song is playing")
 
         await player.set_pause(True)
 
@@ -302,8 +304,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """Continue the bangers!"""
 
         player = inter.guild.voice_client
-        if not player.is_playing:
-            return await inter.send_author_embed("No song is playing")
 
         await player.set_pause(False)
 
@@ -315,8 +315,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """Stop, wait a minute..."""
 
         player = inter.guild.voice_client
-        if not player.is_playing:
-            return await inter.send_author_embed("No song is playing")
 
         player.queue = []
         await player.stop()
@@ -413,13 +411,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.guild.voice_client.play(toplay)
         await playing_embed(toplay, skipped_by=inter.user.mention, override_inter=inter)
 
-    @connected()
+    @connected_and_playing()
     @slash_command(name="now-playing", dm_permission=False)
     async def now_playing(self, inter: MyInter):
         """Show the current beats."""
-
-        if not inter.guild.voice_client.is_playing:
-            return await inter.send_author_embed("No song is playing")
 
         return await playing_embed(
             inter.guild.voice_client.current, length=True, override_inter=inter
@@ -448,14 +443,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await menu.start(interaction=inter)
 
-    @connected()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def loop(self, inter: MyInter):
         """It hit so hard so you play it again"""
 
         player = inter.guild.voice_client
-        if not player.is_playing:
-            return await inter.send_author_embed("Nothing is playing")
 
         current = player.current
         player.queue.insert(0, current)
@@ -533,21 +526,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await self.play(inter, query=view.uri)
 
-    @connected()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def grab(self, inter: MyInter):
         """Sends the current playing song through direct messages"""
-
-        if not inter.guild.voice_client.is_playing:
-            return await inter.send_author_embed("No song is playing")
 
         await inter.send("📬 Grabbed", ephemeral=True)
         return await playing_embed(
             inter.guild.voice_client.current, save=True, override_inter=inter
         )
 
-    @connected()
-    @playing_true()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def forward(self, inter: MyInter, num: int):
         """Seeks forward in the current song by an amount"""
@@ -613,8 +602,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.guild.voice_client.play(toplay)
         await playing_embed(result)
 
-    @connected()
-    @playing_true()
+    @connected_and_playing()
     @slash_command(name="bass-boost", dm_permission=False)
     async def bass_boost(self, inter: MyInter):
         """Increases bass of the song"""
@@ -628,8 +616,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await player.add_filter(Equalizer.boost(), fast_apply=True)
             await inter.send_author_embed("Bassboost filter activated")
 
-    @connected()
-    @playing_true()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def nightcore(self, inter: MyInter):
         """A funny filter. Just Try it out!"""
@@ -643,8 +630,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await player.add_filter(Timescale.nightcore(), fast_apply=True)
             await inter.send_author_embed("Nightcore filter activated")
 
-    @connected()
-    @playing_true()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def rotate(
         self,
@@ -683,23 +669,23 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @connected()
     @slash_command(dm_permission=False)
-    async def move(self,inter:MyInter,track:int,destination:int):
+    async def move(self, inter: MyInter, track: int, destination: int):
         """Move the song to certain position in your queue"""
         player = inter.guild.voice_client
-        if destination < 1 or track <1:
-            await inter.send_author_embed("Please input a number which is within your queue!", ephemeral=True)
+        if destination < 1 or track < 1:
+            await inter.send_author_embed(
+                "Please input a number which is within your queue!", ephemeral=True
+            )
         else:
             try:
-                song=player.queue.pop(track-1)
+                song = player.queue.pop(track - 1)
             except IndexError:
                 return await inter.send(
                     "Please input a number which is within your queue!", ephemeral=True
                 )
-            player.queue.insert(destination-1,song)
+            player.queue.insert(destination - 1, song)
             destination = player.queue.index(song)
             await inter.send_author_embed(f"{song} position set to {destination+1}")
-
-
 
 
 def setup(bot: Vibr):

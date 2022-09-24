@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from nextcord.ext.application_checks import check
 from nextcord.utils import MISSING, utcnow
 
-from .errors import NotConnected, VoteRequired,NotPlaying
+from .errors import NotConnected, VoteRequired, NotPlaying
 
 if TYPE_CHECKING:
     from nextcord import Interaction
@@ -49,11 +49,14 @@ def voted():
 
     return check(inner)
 
-def playing_true():
-    async def playingmusic(inter:MyInter) -> bool:
-        if inter.guild.voice_client.is_playing == False:
+
+def connected_and_playing():
+    async def playingmusic(inter: MyInter) -> bool:
+        if inter.guild.voice_client is None:
+            raise NotConnected()
+        elif not inter.guild.voice_client.is_playing:
             raise NotPlaying()
-        
+
         return True
 
     return check(playingmusic)
