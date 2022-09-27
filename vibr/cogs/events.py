@@ -51,8 +51,18 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_guild_available(self, guild: Guild):
-        for m, vs in guild._voice_states.items():
+        members = await guild.query_members(
+            user_ids=list(guild._voice_states.keys()), limit=1
+        )
+        mapping = {member.id: member for member in members}
+        for m, vs in filter(
+            lambda x: x[0] in mapping and not mapping[x[0]].bot,
+            guild._voice_states.items(),
+        ):
             if vs.channel:
+                if members and members[0].bot:
+                    return
+
                 if vs.channel.id not in self.bot.listeners:
                     self.bot.listeners[vs.channel.id] = {m}
                 else:
