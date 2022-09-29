@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from asyncio import sleep
+from typing import TYPE_CHECKING
+from os import getenv
 
-from nextcord import Embed, Message, Permissions, SlashOption, slash_command
-from nextcord.abc import GuildChannel
+from nextcord import Embed, Message, Permissions, slash_command
 from nextcord.ext.commands import Cog, command, is_owner
 from nextcord.ext.tasks import loop
+
 from .extras.types import MyContext, MyInter, Notification
 from .extras.views import NotificationSource, NotificationView
 
-from asyncio import sleep
 if TYPE_CHECKING:
     from ..__main__ import Vibr
 
@@ -29,7 +30,7 @@ class Misc(Cog):
 
     def cog_unload(self):
         self.topgg.stop()
-    
+
     @loop(minutes=30)
     async def topgg(self):
         headers = {"Authorization": getenv("topgg_token")}
@@ -39,13 +40,12 @@ class Misc(Cog):
             f"https://top.gg/api/bots/{self.bot.user.id}/stats",
             headers=headers,
             data=data,
-            )
+        )
 
     @topgg.before_loop
     async def topgg_before_loop(self):
         await self.bot.wait_until_ready()
         await sleep(20)
-
 
     @slash_command()
     async def ping(self, inter: MyInter):
