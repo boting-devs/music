@@ -9,7 +9,7 @@ from nextcord.ext.tasks import loop
 from .extras.types import MyContext, MyInter, Notification
 from .extras.views import NotificationSource, NotificationView
 
-from time import sleep
+from asyncio import sleep
 if TYPE_CHECKING:
     from ..__main__ import Vibr
 
