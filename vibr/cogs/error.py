@@ -15,6 +15,7 @@ from nextcord.ext.application_checks import (
 from nextcord.ext.commands import Cog, CommandNotFound, NotOwner
 from nextcord.utils import MISSING, utcnow
 from pomice.exceptions import NoNodesAvailable, TrackInvalidPosition, TrackLoadError
+from pomice.spotify.exceptions import SpotifyRequestException
 
 from .extras.errors import (
     Ignore,
@@ -164,6 +165,15 @@ class Errors(Cog):
             self.format_embed(embed)
             await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
+        elif isinstance(error, SpotifyRequestException):
+            embed = Embed(
+                title="An Error Occurred When Playing From Spotify",
+                description=str(error),
+                color=self.bot.color,
+            )
+            self.format_embed(embed)
+            await inter.send(embed=embed, view=self.support_view, ephemeral=True)
+
         elif type(error).__name__ in e:
             title, description = e[type(error).__name__]
 
@@ -176,11 +186,13 @@ class Errors(Cog):
             await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
         else:
+            __import__("logging").warning(type(error))
+            __import__("logging").warning(SpotifyRequestException)
             embed = Embed(
                 title="Unexpected Error.",
                 description=(
                     f"```py\n{type(error).__name__}: {error}```my dev has been notified\n"
-                    "**This is not a user error, retrying likely will not work."
+                    "**This is not a user error, retrying likely will not work.**"
                 ),
                 color=Color.red(),
             )
