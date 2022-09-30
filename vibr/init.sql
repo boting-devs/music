@@ -17,4 +17,5 @@ CREATE TABLE IF NOT EXISTS users (
     spotify VARCHAR,
     notified BOOLEAN NOT NULL DEFAULT FALSE,
     vote TIMESTAMPTZ
+    total_time INT,
 );
