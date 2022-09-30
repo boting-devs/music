@@ -101,10 +101,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             self.bot.views_added = True
 
     @Cog.listener()
-    async def on_pomice_track_end(self, player: Player, track: Track, _: str):
+    async def on_pomice_track_end(self, player: Player, track: Track, _: str,inter:MyInter):
         await sleep(0.1)
         if player.is_playing:
             return
+
+        await inter.send(track.length)
+        
 
         if player.queue:
             toplay = player.queue.pop(0)
