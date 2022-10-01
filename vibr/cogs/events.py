@@ -75,6 +75,7 @@ class Events(Cog):
                 await sleep(2.5 * i + 2.5)
         else:
             # We simply inhale copium and assume it wont be bots, wtf discord.
+            log.warning("Somehow failed to fetch members for guild %s", guild.id)
             for m, vs in guild._voice_states.items():
                 if vs.channel:
                     if vs.channel.id not in self.bot.listeners:
