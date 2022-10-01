@@ -54,6 +54,8 @@ class Events(Cog):
         if not guild._voice_states:
             return
 
+        await self.bot.wait_until_ready()
+
         members = await guild.query_members(
             user_ids=list(guild._voice_states.keys()), limit=1
         )
