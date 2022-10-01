@@ -101,12 +101,17 @@ class Vibr(BotBase):
             painchannel = await self.getch_channel(self.logchannel)
 
             tb = "\n".join(format_exc())
-            await painchannel.send_embed(desc=f"```py\n{tb}```")
-            log.error(
-                "Ignoring exception in event %s",
-                event_method,
-                exc_info=True,
-            )
+
+            try:
+                await painchannel.send_embed(desc=f"```py\n{tb}```")
+                log.error(
+                    "Ignoring exception in event %s",
+                    event_method,
+                    exc_info=True,
+                )
+            except Exception:
+                pass
+
             # FIXME: add stream handler for stdout/err in botbase
             print(f"Ignoring exception in event {event_method}", file=stderr)
             print_exc()
