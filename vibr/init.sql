@@ -17,5 +17,13 @@ CREATE TABLE IF NOT EXISTS users (
     spotify VARCHAR,
     notified BOOLEAN NOT NULL DEFAULT FALSE,
     vote TIMESTAMPTZ
-    total_time INT,
+    total_time INT
 );
+CREATE TABLE IF NOT EXISTS commands (
+    command VARCHAR NOT NULL,
+    guild BIGINT,
+    channel BIGINT,
+    member BIGINT NOT NULL,
+    amount INT NOT NULL
+    UNIQUE(command, guild, channel, member)
+)
