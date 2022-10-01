@@ -4,8 +4,9 @@ import asyncio
 import os
 from datetime import datetime
 from logging import getLogger
-from traceback import format_exc
+from traceback import format_exc, print_exc
 from typing import Optional
+from sys import stderr
 
 import nextcord
 import uvloop
@@ -106,6 +107,9 @@ class Vibr(BotBase):
                 event_method,
                 exc_info=True,
             )
+            # FIXME: add stream handler for stdout/err in botbase
+            print(f"Ignoring exception in event {event_method}", file=stderr)
+            print_exc()
 
 
 intents = nextcord.Intents.none()
