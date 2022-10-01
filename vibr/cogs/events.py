@@ -62,6 +62,9 @@ class Events(Cog):
 
         for i in range(5):
             try:
+                if not guild._voice_states:
+                    return
+
                 members = await guild.query_members(
                     user_ids=list(guild._voice_states.keys())
                 )
