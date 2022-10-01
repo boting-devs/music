@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from asyncio import sleep, TimeoutError as AsyncTimeoutError
 from typing import TYPE_CHECKING
+from logging import getLogger
 
 from botbase import MyInter
 from nextcord.ext.commands import Cog
@@ -10,6 +11,9 @@ if TYPE_CHECKING:
     from nextcord import Guild, Member, VoiceState
 
     from ..__main__ import Vibr
+
+
+log = getLogger(__name__)
 
 
 class Events(Cog):
