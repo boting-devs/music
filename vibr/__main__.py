@@ -3,8 +3,9 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import datetime
-from typing import Optional
+from logging import getLogger
 from traceback import format_exc
+from typing import Optional
 
 import nextcord
 import uvloop
@@ -17,6 +18,7 @@ from spotipy import Spotify, SpotifyClientCredentials, SpotifyOauthError
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 load_dotenv()
+log = getLogger(__name__)
 
 
 class Vibr(BotBase):
