@@ -112,9 +112,9 @@ class Vibr(BotBase):
             except Exception:
                 pass
 
-            # FIXME: add stream handler for stdout/err in botbase
-            print(f"Ignoring exception in event {event_method}", file=stderr)
-            print_exc()
+        # FIXME: add stream handler for stdout/err in botbase
+        print(f"Ignoring exception in event {event_method}", file=stderr)
+        print_exc()
 
 
 intents = nextcord.Intents.none()
