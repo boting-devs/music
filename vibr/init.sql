@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
     spotify VARCHAR,
     notified BOOLEAN NOT NULL DEFAULT FALSE,
-    vote TIMESTAMPTZ
+    vote TIMESTAMPTZ,
     total_time INT
 );
 CREATE TABLE IF NOT EXISTS commands (
