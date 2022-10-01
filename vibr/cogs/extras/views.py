@@ -176,7 +176,7 @@ class PlayButton(View):
         if not queue:
             return await inter.send_embed("Nothing in queue")
 
-        menu = QueueView(source=QueueSource(current, queue), ctx=inter)  # type: ignore
+        menu = QueueView(source=QueueSource(current, queue), inter=inter)
         await menu.start(interaction=inter, ephemeral=True)
 
     @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop", row=1)
