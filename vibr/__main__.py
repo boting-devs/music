@@ -100,7 +100,7 @@ class Vibr(BotBase):
         if self.logchannel is not None:
             painchannel = await self.getch_channel(self.logchannel)
 
-            tb = "\n".join(format_exc())
+            tb = format_exc()
 
             try:
                 await painchannel.send_embed(desc=f"```py\n{tb}```")
