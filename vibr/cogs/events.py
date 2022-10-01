@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from asyncio import sleep
+from asyncio import sleep, TimeoutError as AsyncTimeoutError
 from typing import TYPE_CHECKING
 
 from botbase import MyInter
@@ -56,22 +56,31 @@ class Events(Cog):
 
         await self.bot.wait_until_ready()
 
-        members = await guild.query_members(
-            user_ids=list(guild._voice_states.keys()), limit=1
-        )
-        mapping = {member.id: member for member in members}
-        for m, vs in filter(
-            lambda x: x[0] in mapping and not mapping[x[0]].bot,
-            guild._voice_states.items(),
-        ):
-            if vs.channel:
-                if members and members[0].bot:
-                    return
-
-                if vs.channel.id not in self.bot.listeners:
-                    self.bot.listeners[vs.channel.id] = {m}
-                else:
-                    self.bot.listeners[vs.channel.id].add(m)
+        for i in range(5):
+            try:
+                members = await guild.query_members(
+                    user_ids=list(guild._voice_states.keys())
+                )
+                mapping = {member.id: member for member in members}
+                for m, vs in filter(
+                    lambda x: x[0] in mapping and not mapping[x[0]].bot,
+                    guild._voice_states.items(),
+                ):
+                    if vs.channel:
+                        if vs.channel.id not in self.bot.listeners:
+                            self.bot.listeners[vs.channel.id] = {m}
+                        else:
+                            self.bot.listeners[vs.channel.id].add(m)
+            except AsyncTimeoutError:
+                await sleep(2.5 * i + 2.5)
+        else:
+            # We simply inhale copium and assume it wont be bots, wtf discord.
+            for m, vs in guild._voice_states.items():
+                if vs.channel:
+                    if vs.channel.id not in self.bot.listeners:
+                        self.bot.listeners[vs.channel.id] = {m}
+                    else:
+                        self.bot.listeners[vs.channel.id].add(m)
 
     @Cog.listener()
     async def on_application_command_completion(self, inter: MyInter):
