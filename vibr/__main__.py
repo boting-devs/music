@@ -4,6 +4,7 @@ import asyncio
 import os
 from datetime import datetime
 from typing import Optional
+from traceback import format_exc
 
 import nextcord
 import uvloop
@@ -91,6 +92,18 @@ class Vibr(BotBase):
                 await asyncio.sleep(2.5 * tries)
             else:
                 return
+
+    async def on_error(self, event_method: str, *args, **kwargs):
+        if self.logchannel is not None:
+            painchannel = await self.getch_channel(self.logchannel)
+
+            tb = "\n".join(format_exc())
+            await painchannel.send_embed(desc=f"```py\n{tb}```")
+            log.error(
+                "Ignoring exception in event %s",
+                event_method,
+                exc_info=True,
+            )
 
 
 intents = nextcord.Intents.none()

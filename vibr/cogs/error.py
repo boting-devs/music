@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from logging import getLogger
-from traceback import format_exc, format_exception
+from traceback import format_exception
 from typing import TYPE_CHECKING
 
 from botbase import MyContext, MyInter
@@ -223,19 +223,6 @@ class Errors(Cog):
                     error,
                     exc_info=True,
                 )
-
-    @Cog.listener()
-    async def on_error(self, event_method: str, *args, **kwargs):
-        if self.bot.logchannel is not None:
-            painchannel = await self.bot.getch_channel(self.bot.logchannel)
-
-            tb = "\n".join(format_exc())
-            await painchannel.send_embed(desc=f"```py\n{tb}```")
-            log.error(
-                "Ignoring exception in event %s",
-                event_method,
-                exc_info=True,
-            )
 
 
 def setup(bot: Vibr):
