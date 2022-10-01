@@ -27,7 +27,7 @@ from nextcord.ui import Button, Select
 from nextcord.utils import MISSING, utcnow
 from pomice import Equalizer, Playlist, Rotation, Timescale, TrackLoadError
 
-from .extras.checks import connected, voted, connected_and_playing
+from .extras.checks import connected, connected_and_playing, voted
 from .extras.errors import (
     Ignore,
     LyricsNotFound,
@@ -101,16 +101,30 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             self.bot.views_added = True
 
     @Cog.listener()
-    async def on_pomice_track_end(self, player: Player, track: Track, _: str,inter:MyInter):
+    async def on_pomice_track_end(self, player: Player, track: Track, _: str):
         await sleep(0.1)
         if player.is_playing:
-            return        
+            return
 
         if player.queue:
             toplay = player.queue.pop(0)
 
-            await player.play(toplay)
-            await playing_embed(toplay)
+            try:
+                await player.play(toplay)
+            except Exception as e:
+                embed = Embed(
+                    title="Error when playing queued track",
+                    description=f"{e}\nAttempting to play next track...",
+                )
+                if not toplay.ctx:
+                    return
+
+                channel = (
+                    toplay.ctx.channel
+                )  # pyright: ignore[reportOptionalMemberAccess]
+                await channel.send(embed=embed)
+            else:
+                await playing_embed(toplay)
         else:
             if (
                 player.channel.guild.id in self.bot.whitelisted_guilds
