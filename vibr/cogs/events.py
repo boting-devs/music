@@ -51,6 +51,9 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_guild_available(self, guild: Guild):
+        if not guild._voice_states:
+            return
+
         members = await guild.query_members(
             user_ids=list(guild._voice_states.keys()), limit=1
         )
