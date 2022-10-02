@@ -136,12 +136,15 @@ class PlayButton(View):
     async def skip(self, _: Button, inter: Interaction):
         inter = MyInter(inter, inter.client)  # type: ignore
         assert inter.guild is not None
-        if not inter.guild.voice_client.queue:
+
+        player = inter.guild.voice_client
+
+        if not player.queue:
             return await inter.send_embed("Nothing in queue", ephemeral=True)
 
-        toplay = inter.guild.voice_client.queue.pop(0)
-        await inter.guild.voice_client.play(toplay)
-        await playing_embed(toplay, skipped_by=inter.user.mention)
+        toplay = player.queue.pop(0)
+        await player.play(toplay)
+        await playing_embed(toplay, volume=player.volume, skipped_by=inter.user.mention)
 
     @button(emoji="\U000023f9", style=ButtonStyle.blurple, custom_id="view:stop")
     async def stop(self, _: Button, inter: Interaction):
