@@ -269,6 +269,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if player is None:
             raise NotConnected()
 
+        volume =await self.bot.db.fetchval(
+            "SELECT vol FROM volume WHERE id=$1",inter.guild.voice_client.channel.id
+        )
+        await player.set_volume(volume)
         if not player.queue and not player.is_playing:
             if isinstance(result, Playlist):
                 track = result.tracks[0]
@@ -284,7 +288,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             await player.play(track=track)
 
-            await playing_embed(info)
+            await playing_embed(info,volume)
         else:
             if isinstance(result, Playlist):
                 toplay = result.tracks
@@ -296,7 +300,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 info = result[0]
                 toplay = [result[0]]
 
-            await playing_embed(info, queue=True)
+            await playing_embed(info,volume,queue=True)
 
         if toplay:
             player.queue += toplay

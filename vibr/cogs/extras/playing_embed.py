@@ -16,11 +16,13 @@ if TYPE_CHECKING:
 
 async def playing_embed(
     track: Track | Playlist,
+    volume: int,
     queue: bool = False,
     length: bool = False,
     save: bool = False,
     skipped_by: str | None = None,
     override_inter: MyInter | None = None,
+    
 ):
     from . import views  # circular
 
@@ -89,6 +91,10 @@ async def playing_embed(
     embed.set_author(
         name=str(title) + " - " + str(author),
         url=track.uri or "https://www.youtube.com/",
+    )
+
+    embed.set_footer(
+        f"volume :{volume}"
     )
 
     if track.thumbnail:

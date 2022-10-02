@@ -22,5 +22,5 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS volume(
     id BIGINT PRIMARY KEY,
-    vol INT
+    vol SMALLINT
 );
