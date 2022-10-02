@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 async def playing_embed(
     track: Track | Playlist,
-    volume: int | None = None,
     queue: bool = False,
     length: bool = False,
     save: bool = False,
@@ -92,8 +91,8 @@ async def playing_embed(
         url=track.uri or "https://www.youtube.com/",
     )
 
-    if volume is not None:
-        embed.set_footer(text=f"Volume : {volume}")
+    if inter.voice_client is not None:
+        embed.set_footer(text=f"Volume : {inter.voice_client.volume}")
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)

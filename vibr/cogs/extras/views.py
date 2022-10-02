@@ -144,7 +144,7 @@ class PlayButton(View):
 
         toplay = player.queue.pop(0)
         await player.play(toplay)
-        await playing_embed(toplay, volume=player.volume, skipped_by=inter.user.mention)
+        await playing_embed(toplay, skipped_by=inter.user.mention)
 
     @button(emoji="\U000023f9", style=ButtonStyle.blurple, custom_id="view:stop")
     async def stop(self, _: Button, inter: Interaction):

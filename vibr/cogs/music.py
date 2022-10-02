@@ -123,7 +123,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
                 await self.on_pomice_track_end(player, track, "")
             else:
-                await playing_embed(toplay, volume=player.volume)
+                await playing_embed(toplay)
         else:
             if (
                 player.channel.guild.id in self.bot.whitelisted_guilds
@@ -271,7 +271,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         volume = await self.bot.db.fetchval(
             "SELECT vol FROM volume WHERE id=$1", inter.guild.voice_client.channel.id
         )
-        if volume == None:
+        if volume is None:
             volume = 100
 
         await player.set_volume(volume)
@@ -442,9 +442,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         toplay = player.queue.pop(0)
         await player.play(toplay)
-        await playing_embed(
-            toplay, player.volume, skipped_by=inter.user.mention, override_inter=inter
-        )
+        await playing_embed(toplay, skipped_by=inter.user.mention, override_inter=inter)
 
     @connected_and_playing()
     @slash_command(name="now-playing", dm_permission=False)
@@ -453,7 +451,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         return await playing_embed(
             inter.guild.voice_client.current,
-            inter.guild.voice_client.volume,
             length=True,
             override_inter=inter,
         )
@@ -638,7 +635,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player.queue.insert(0, result)
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
-        await playing_embed(result, player.volume)
+        await playing_embed(result)
 
     @connected_and_playing()
     @slash_command(name="bass-boost", dm_permission=False)
