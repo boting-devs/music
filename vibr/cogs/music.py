@@ -356,6 +356,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
         await player.set_volume(number)
 
+        await self.bot.db.execute(
+            """INSERT INTO volume(id,vol) 
+            VALUES ($1,$2)
+            ON CONFLICT(vol) DO UPDATE 
+                SET vol = $2""",
+            inter.guild.voice_client.channel.id,
+            number
+        )
+
         await inter.send_author_embed(f"Volume set to `{number}%`")
 
     @slash_command(dm_permission=False)

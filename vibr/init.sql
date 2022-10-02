@@ -19,3 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
     vote TIMESTAMPTZ,
     total_time INT
 );
+
+CREATE TABLE IF NOT EXISTS volume(
+    id BIGINT PRIMARY KEY,
+    vol INT
+);
