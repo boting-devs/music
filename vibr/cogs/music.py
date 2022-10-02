@@ -372,7 +372,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         if number == 100:
             await self.bot.db.execute(
-                """DELETE FROM volume where id = $1""",
+                """DELETE FROM players WHERE channel=$1""",
                 inter.guild.voice_client.channel.id,
             )
         else:
