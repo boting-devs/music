@@ -94,7 +94,7 @@ async def playing_embed(
     )
 
     embed.set_footer(
-        text=f"**Volume : {volume}**"
+        text=f"Volume : {volume}"
     )
 
     if track.thumbnail:
