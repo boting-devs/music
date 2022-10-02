@@ -105,7 +105,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await sleep(0.1)
         if player.is_playing:
             return
-
         if player.queue:
             toplay = player.queue.pop(0)
 
@@ -124,7 +123,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 )  # pyright: ignore[reportOptionalMemberAccess]
                 await channel.send(embed=embed)
             else:
-                await playing_embed(toplay)
+                await playing_embed(toplay,player.volume)
         else:
             if (
                 player.channel.guild.id in self.bot.whitelisted_guilds
@@ -450,7 +449,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """Show the current beats."""
 
         return await playing_embed(
-            inter.guild.voice_client.current, length=True, override_inter=inter
+            inter.guild.voice_client.current,inter.guild.voice_client.volume, length=True, override_inter=inter
         )
 
     @connected()
@@ -633,7 +632,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player.queue.insert(0, result)
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
-        await playing_embed(result)
+        await playing_embed(result,player.volume)
 
     @connected_and_playing()
     @slash_command(name="bass-boost", dm_permission=False)
