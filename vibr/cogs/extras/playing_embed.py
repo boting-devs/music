@@ -22,7 +22,6 @@ async def playing_embed(
     save: bool = False,
     skipped_by: str | None = None,
     override_inter: MyInter | None = None,
-        
 ):
     from . import views  # circular
 
@@ -92,10 +91,10 @@ async def playing_embed(
         name=str(title) + " - " + str(author),
         url=track.uri or "https://www.youtube.com/",
     )
-    if volume != None:
-        embed.set_footer(
-            text=f"Volume : {volume}"
-        )
+
+    raise RuntimeError(f"TEST: {volume=}")
+    if volume is not None:
+        embed.set_footer(text=f"Volume : {volume}")
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
