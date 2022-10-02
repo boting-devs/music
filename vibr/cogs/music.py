@@ -359,7 +359,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await self.bot.db.execute(
             """INSERT INTO volume(id,vol) 
             VALUES ($1,$2)
-            ON CONFLICT(vol) DO UPDATE 
+            ON CONFLICT (id) DO UPDATE 
                 SET vol = $2""",
             inter.guild.voice_client.channel.id,
             number
