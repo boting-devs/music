@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 async def playing_embed(
     track: Track | Playlist,
-    volume: int | None = None,
+    volume: int ,
     queue: bool = False,
     length: bool = False,
     save: bool = False,
