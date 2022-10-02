@@ -366,18 +366,20 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         player = inter.guild.voice_client
         await player.set_volume(number)
-        await self.bot.db.execute(
-            """INSERT INTO volume(id,vol) 
-            VALUES ($1,$2)
-            ON CONFLICT (id) DO UPDATE 
-                SET vol = $2""",
-            inter.guild.voice_client.channel.id,
-            number,
-        )
+
         if number == 100:
             await self.bot.db.execute(
                 """DELETE FROM volume where id = $1""",
                 inter.guild.voice_client.channel.id,
+            )
+        else:
+            await self.bot.db.execute(
+                """INSERT INTO players (channel, volume)
+                    VALUES ($1, $2)
+                    ON CONFLICT (channel) DO UPDATE
+                        SET volume = $2""",
+                player.channel.id,
+                number,
             )
 
         await inter.send_author_embed(f"Volume set to '{number}%'")
