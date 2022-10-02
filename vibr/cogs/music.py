@@ -141,7 +141,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 and track.ctx.voice_client.channel
                 and player.channel
                 and track.ctx.voice_client.channel.id == player.channel.id  # type: ignore
-                and track.ctx.voice_client.is_playing  # type: ignore
+                and not track.ctx.voice_client.is_playing  # type: ignore
             ):
                 await track.ctx.send_author_embed(  # type: ignore
                     "Disconnecting on no activity"
