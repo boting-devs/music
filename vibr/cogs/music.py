@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from asyncio import sleep
+from difflib import get_close_matches
 from functools import partial
 from logging import getLogger
 from random import shuffle
 from time import gmtime, strftime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from botbase import MyInter as BBMyInter
 from bs4 import BeautifulSoup
@@ -593,8 +594,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await player.seek(amount)
         await inter.send_author_embed(f"Position seeked to {current}")
 
-    @connected()
     @slash_command(dm_permission=False)
+    @connected()
     async def remove(self, inter: MyInter, num: int):
         """Remove a selected song from the queue."""
 
@@ -712,8 +713,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             )
             await inter.send_author_embed("Rotation filter activated")
 
-    @connected()
     @slash_command(dm_permission=False)
+    @connected()
     async def move(self, inter: MyInter, track: int, destination: int):
         """Move the song to certain position in your queue"""
         player = inter.guild.voice_client
@@ -731,6 +732,35 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.queue.insert(destination - 1, song)
             destination = player.queue.index(song)
             await inter.send_author_embed(f"{song} position set to {destination+1}")
+
+    @remove.on_autocomplete("num")
+    @move.on_autocomplete("track")
+    async def on_move_num_autocomplete(self, inter: MyInter, num: Optional[int]):
+        player = inter.guild.voice_client
+        if player is None:
+            return []
+
+        queue = player.queue
+        queue_size = len(queue)
+
+        if num is None:
+            # Send the top 25
+            return {
+                f"{i+1}. {t.title} - {t.author}": i + 1
+                for i, t in enumerate(queue[:25])
+            }
+        else:
+            # Get the 25 nearest to the number inputted.
+            # We only get numbers from Discord as it is an `int` arg.
+            matches = list(
+                map(
+                    int,
+                    get_close_matches(str(num), map(str, range(1, queue_size)), n=25),
+                )
+            )
+            tracks = [queue[i - 1] for i in matches]
+
+            return {f"{i}. {t.title} - {t.author}": i for i, t in zip(matches, tracks)}
 
 
 def setup(bot: Vibr):
