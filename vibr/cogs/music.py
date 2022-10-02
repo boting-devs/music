@@ -295,7 +295,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             await player.play(track=track)
 
-            await playing_embed(info, volume)
+            await playing_embed(info)
         else:
             if isinstance(result, Playlist):
                 toplay = result.tracks
@@ -307,7 +307,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 info = result[0]
                 toplay = [result[0]]
 
-            await playing_embed(info, volume, queue=True)
+            await playing_embed(info, queue=True)
 
         if toplay:
             player.queue += toplay
