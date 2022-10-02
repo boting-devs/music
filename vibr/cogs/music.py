@@ -133,16 +133,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             await sleep(60)
 
-            if not player.is_playing:
-                assert track.ctx is not None
-
-                if player is None or track.ctx.voice_client is None:
-                    return
-
+            # FIXME: fix all these type ignores for it not knowing its `Player`
+            if (
+                track.ctx
+                and track.ctx.voice_client
+                and track.ctx.voice_client.channel.id == player.channel.id  # type: ignore
+                and track.ctx.voice_client.is_playing  # type: ignore
+            ):
                 await track.ctx.send_author_embed(  # type: ignore
                     "Disconnecting on no activity"
                 )
-                await player.destroy()
+                await track.ctx.voice_client.destroy()  # type: ignore
 
     @Cog.listener()
     async def on_voice_state_update(
