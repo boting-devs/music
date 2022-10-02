@@ -441,7 +441,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
-        await playing_embed(toplay,inter.guild.voice_client.volume,skipped_by=inter.user.mention, override_inter=inter)
+        await playing_embed(toplay,player.volume,skipped_by=inter.user.mention, override_inter=inter)
 
     @connected_and_playing()
     @slash_command(name="now-playing", dm_permission=False)
