@@ -115,15 +115,16 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                     title="Error when playing queued track",
                     description=f"{e}\nAttempting to play next track...",
                 )
-                if not toplay.ctx:
-                    return
+                if toplay.ctx:
+                    channel = (
+                        toplay.ctx.channel
+                    )  # pyright: ignore[reportOptionalMemberAccess]
+                    await channel.send(embed=embed)
 
-                channel = (
-                    toplay.ctx.channel
-                )  # pyright: ignore[reportOptionalMemberAccess]
-                await channel.send(embed=embed)
+                await self.on_pomice_track_end(player, track, "")
             else:
-                await playing_embed(toplay,player.volume)
+                await playing_embed(toplay, volume=player.volume)
+                raise RuntimeError(f"TEST: {player.volume=}")
         else:
             if (
                 player.channel.guild.id in self.bot.whitelisted_guilds
@@ -268,11 +269,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if player is None:
             raise NotConnected()
 
-        volume =await self.bot.db.fetchval(
-            "SELECT vol FROM volume WHERE id=$1",inter.guild.voice_client.channel.id
+        volume = await self.bot.db.fetchval(
+            "SELECT vol FROM volume WHERE id=$1", inter.guild.voice_client.channel.id
         )
         if volume == None:
-            volume=100
+            volume = 100
 
         await player.set_volume(volume)
         if not player.queue and not player.is_playing:
@@ -290,7 +291,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
             await player.play(track=track)
 
-            await playing_embed(info,volume)
+            await playing_embed(info, volume)
         else:
             if isinstance(result, Playlist):
                 toplay = result.tracks
@@ -302,7 +303,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 info = result[0]
                 toplay = [result[0]]
 
-            await playing_embed(info,volume,queue=True)
+            await playing_embed(info, volume, queue=True)
 
         if toplay:
             player.queue += toplay
@@ -367,11 +368,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             ON CONFLICT (id) DO UPDATE 
                 SET vol = $2""",
             inter.guild.voice_client.channel.id,
-            number
+            number,
         )
         if number == 100:
             await self.bot.db.execute(
-                """DELETE FROM volume where id = $1""",inter.guild.voice_client.channel.id
+                """DELETE FROM volume where id = $1""",
+                inter.guild.voice_client.channel.id,
             )
 
         await inter.send_author_embed(f"Volume set to '{number}%'")
@@ -434,14 +436,16 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def skip(self, inter: MyInter):
         """When the beat isn't hitting right"""
 
-        if not inter.guild.voice_client.queue:
-            player = inter.guild.voice_client
+        player = inter.guild.voice_client
+        if not player.queue:
             await player.stop()
             return await inter.send_author_embed("Nothing in queue. Stopping the music")
 
-        toplay = inter.guild.voice_client.queue.pop(0)
-        await inter.guild.voice_client.play(toplay)
-        await playing_embed(toplay,inter.guild.voice_client.volume,skipped_by=inter.user.mention, override_inter=inter)
+        toplay = player.queue.pop(0)
+        await player.play(toplay)
+        await playing_embed(
+            toplay, player.volume, skipped_by=inter.user.mention, override_inter=inter
+        )
 
     @connected_and_playing()
     @slash_command(name="now-playing", dm_permission=False)
@@ -449,7 +453,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """Show the current beats."""
 
         return await playing_embed(
-            inter.guild.voice_client.current,inter.guild.voice_client.volume, length=True, override_inter=inter
+            inter.guild.voice_client.current,
+            inter.guild.voice_client.volume,
+            length=True,
+            override_inter=inter,
         )
 
     @connected()
@@ -632,7 +639,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player.queue.insert(0, result)
         toplay = inter.guild.voice_client.queue.pop(0)
         await inter.guild.voice_client.play(toplay)
-        await playing_embed(result,player.volume)
+        await playing_embed(result, player.volume)
 
     @connected_and_playing()
     @slash_command(name="bass-boost", dm_permission=False)
