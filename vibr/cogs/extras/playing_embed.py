@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from time import gmtime, strftime
+from typing import TYPE_CHECKING
 
-from pomice import Playlist
+from botbase import MyInter as BBMyInter
 from nextcord import Embed
 from nextcord.utils import utcnow
-from botbase import MyInter as BBMyInter
+from pomice import Playlist
 
 from .types import MyInter
 
@@ -119,8 +119,8 @@ async def playing_embed(
             return
 
         await inter.bot.db.execute(
-            """INSERT INTO songs (id, spotify, member) 
-            VALUES ($1, $2, $3) 
+            """INSERT INTO songs (id, spotify, member)
+            VALUES ($1, $2, $3)
             ON CONFLICT (id, spotify, member)
             DO UPDATE SET
                 amount = songs.amount + 1""",

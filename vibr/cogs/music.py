@@ -124,7 +124,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await self.on_pomice_track_end(player, track, "")
             else:
                 await playing_embed(toplay, volume=player.volume)
-                raise RuntimeError(f"TEST: {player.volume=}")
         else:
             if (
                 player.channel.guild.id in self.bot.whitelisted_guilds
