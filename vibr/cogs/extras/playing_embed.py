@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 async def playing_embed(
     track: Track | Playlist,
-    volume: int ,
+    volume: int,
     queue: bool = False,
     length: bool = False,
     save: bool = False,
@@ -92,7 +92,6 @@ async def playing_embed(
         url=track.uri or "https://www.youtube.com/",
     )
 
-    raise RuntimeError(f"TEST: {volume=}")
     if volume is not None:
         embed.set_footer(text=f"Volume : {volume}")
 
