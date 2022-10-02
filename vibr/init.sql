@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
     total_time INT
 );
 
-CREATE TABLE IF NOT EXISTS volume(
-    id BIGINT PRIMARY KEY,
-    vol SMALLINT
+CREATE TABLE IF NOT EXISTS players (
+    channel BIGINT PRIMARY KEY,
+    volume SMALLINT
 );

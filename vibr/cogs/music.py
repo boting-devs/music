@@ -187,6 +187,16 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         t = self.bot.loop.create_task(task())
         self.bot.listener_tasks[member.guild.id] = t
 
+    async def set_persistent_settings(self, player: Player, channel: int) -> None:
+        volume = await self.bot.db.fetchval(
+            "SELECT volume FROM players WHERE channel=$1",
+            channel,
+        )
+        if volume is None:
+            volume = 100
+
+        await player.set_volume(volume)
+
     @slash_command(dm_permission=False)
     async def join(self, inter: MyInter):
         """Join your voice channel!"""
@@ -202,9 +212,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             if channel.id == inter.guild.voice_client.channel.id:
                 return await inter.send_author_embed("Already Connected!")
 
-        await channel.connect(cls=Player)
+        player = await channel.connect(cls=Player)
 
         await inter.send_author_embed(f"Connected to {channel.name}")
+
+        await self.set_persistent_settings(player, channel.id)
 
         self.bot.loop.create_task(self.leave_check(inter))
 
@@ -268,13 +280,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if player is None:
             raise NotConnected()
 
-        volume = await self.bot.db.fetchval(
-            "SELECT vol FROM volume WHERE id=$1", inter.guild.voice_client.channel.id
-        )
-        if volume is None:
-            volume = 100
-
-        await player.set_volume(volume)
         if not player.queue and not player.is_playing:
             if isinstance(result, Playlist):
                 track = result.tracks[0]
