@@ -32,7 +32,7 @@ class Stats(Cog):
         self.hourly_stats.stop()
         self.minute_stats.stop()
 
-    @loop(seconds=10)
+    @loop(hours=1)
     async def hourly_stats(self):
         if not len(self.active_player_count):
             # There are no data points, return because this is probably too early.
@@ -107,7 +107,7 @@ class Stats(Cog):
         wait_time = time - now
         await sleep(wait_time.total_seconds())
 
-    @loop(seconds=1)
+    @loop(minutes=1)
     async def minute_stats(self):
         # Set default to None so IDEs are happy it isn't undefined.
         stats = None
