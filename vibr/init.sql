@@ -36,5 +36,5 @@ CREATE TABLE IF NOT EXISTS hourly_stats (
     memory_used SMALLINT NOT NULL,
     memory_allocated SMALLINT NOT NULL,
     memory_percentage SMALLINT NOT NULL,
-    total_songs INT NOT NULL,
+    total_songs INT NOT NULL
 )
