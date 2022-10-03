@@ -69,8 +69,8 @@ class Vibr(BotBase):
         self.vote_webhook: nextcord.Webhook | None = None
         """The webhook in #vote-for-us for top.gg."""
 
-    async def startup(self, *args, **kwargs):
-        await super().startup(*args, **kwargs)
+    async def start(self, *args, **kwargs):
+        await super().start(*args, **kwargs)
 
         for row in await self.db.fetch(
             "SELECT id, whitelisted FROM guilds WHERE whitelisted IS NOT NULL"
@@ -92,9 +92,9 @@ class Vibr(BotBase):
                     spotify_client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
                 )
             except NodeConnectionFailure:
-                await asyncio.sleep(2.5 * tries)
+                await asyncio.sleep(2.5 * tries + 1)
             else:
-                return
+                break
 
     async def on_error(self, event_method: str, *args, **kwargs):
         if self.logchannel is not None:
