@@ -71,8 +71,8 @@ class Stats(Cog):
                  total_songs)
 
             VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9,
-                (SELECT SUM(amount) FROM commands),$10,(SELECT SUM(amount) FROM songs),
+                $1, $2, $3, $4, $5, $6, $7, $8, $9,$10,
+                (SELECT SUM(amount) FROM commands),(SELECT SUM(amount) FROM songs),
             )
             """,
             time,
