@@ -240,6 +240,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             and inter.application_command.parent_cog
             and inter.application_command.parent_cog.qualified_name  # type: ignore
             == self.qualified_name
+            and inter.application_command.name != "join"
         ):
             self.bot.activity_tasks.pop(inter.guild.id, None)
 
