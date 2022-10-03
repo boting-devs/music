@@ -17,21 +17,8 @@ class Stats(Cog):
     def __init__(self, bot: Vibr) -> None:
         self.bot = bot
 
-        """
-            guilds SMALLINT NOT NULL,
-            active_players SMALLINT NOT NULL,
-            total_players SMALLINT NOT NULL,
-            cpu_cores SMALLINT NOT NULL,
-            lavalink_load SMALLINT NOT NULL,
-            system_load SMALLINT NOT NULL,
-            memory_used SMALLINT NOT NULL,
-            memory_allocated SMALLINT NOT NULL,
-            memory_percentage SMALLINT NOT NULL,
-        """
-
         self.active_player_count: list[int] = []
         self.total_player_count: list[int] = []
-        self.cpu_cores: list[int] = []
         self.lavalink_load: list[int] = []
         self.system_load: list[int] = []
         self.memory_used: list[int] = []
@@ -55,7 +42,6 @@ class Stats(Cog):
 
         active_players = mean(self.active_player_count)
         total_players = mean(self.total_player_count)
-        cpu_cores = mean(self.cpu_cores)
         lavalink_load = mean(self.lavalink_load)
         system_load = mean(self.system_load)
         memory_used = mean(self.memory_used)
@@ -76,7 +62,6 @@ class Stats(Cog):
                  guilds,
                  active_players,
                  total_players,
-                 cpu_cores,
                  lavalink_load,
                  system_load,
                  memory_used,
@@ -93,7 +78,6 @@ class Stats(Cog):
             guilds,
             active_players,
             total_players,
-            cpu_cores,
             lavalink_load,
             system_load,
             memory_used,
@@ -102,7 +86,6 @@ class Stats(Cog):
         )
         self.active_player_count.clear()
         self.total_player_count.clear()
-        self.cpu_cores.clear()
         self.lavalink_load.clear()
         self.system_load.clear()
         self.memory_used.clear()
@@ -143,7 +126,6 @@ class Stats(Cog):
 
         self.active_player_count.append(stats.players_active or 0)
         self.total_player_count.append(stats.players_total or 0)
-        self.cpu_cores.append(stats.cpu_cores or 0)
         self.lavalink_load.append(stats.cpu_process_load or 0)
         self.system_load.append(stats.cpu_system_load or 0)
         # Lavalink uses bytes, this is MiB

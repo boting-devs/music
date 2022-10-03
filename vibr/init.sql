@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS hourly_stats (
     commands INT NOT NULL,
     active_players SMALLINT NOT NULL,
     total_players SMALLINT NOT NULL,
-    cpu_cores SMALLINT NOT NULL,
     lavalink_load REAL NOT NULL,
     system_load REAL NOT NULL,
     memory_used SMALLINT NOT NULL,
