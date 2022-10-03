@@ -55,40 +55,12 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_guild_available(self, guild: Guild):
-        if not guild._voice_states:
-            return
-
-        await self.bot.wait_until_ready()
-
-        for i in range(5):
-            try:
-                if not guild._voice_states:
-                    return
-
-                members = await guild.query_members(
-                    user_ids=list(guild._voice_states.keys())
-                )
-                mapping = {member.id: member for member in members}
-                for m, vs in filter(
-                    lambda x: x[0] in mapping and not mapping[x[0]].bot,
-                    guild._voice_states.items(),
-                ):
-                    if vs.channel:
-                        if vs.channel.id not in self.bot.listeners:
-                            self.bot.listeners[vs.channel.id] = {m}
-                        else:
-                            self.bot.listeners[vs.channel.id].add(m)
-            except AsyncTimeoutError:
-                await sleep(2.5 * i + 2.5)
-        else:
-            # We simply inhale copium and assume it wont be bots, wtf discord.
-            log.warning("Somehow failed to fetch members for guild %s", guild.id)
-            for m, vs in guild._voice_states.items():
-                if vs.channel:
-                    if vs.channel.id not in self.bot.listeners:
-                        self.bot.listeners[vs.channel.id] = {m}
-                    else:
-                        self.bot.listeners[vs.channel.id].add(m)
+        for m, vs in guild._voice_states.items():
+            if vs.channel:
+                if vs.channel.id not in self.bot.listeners:
+                    self.bot.listeners[vs.channel.id] = {m}
+                else:
+                    self.bot.listeners[vs.channel.id].add(m)
 
     @Cog.listener()
     async def on_application_command_completion(self, inter: MyInter):
