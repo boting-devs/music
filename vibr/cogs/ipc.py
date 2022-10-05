@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from http.client import HTTPException
 from typing import TYPE_CHECKING
 
 from nextcord import Embed, HTTPException, TextChannel
@@ -23,8 +22,10 @@ class Ipc(Cog):
         user = data.user
         data_type = data.data_type
 
+        # top.gg is telling us about a vote
         if data_type == "upvote":
             user = int(user)
+            # The time when the vote expires
             votetime = utcnow() + timedelta(hours=24)
             await self.bot.db.execute(
                 """INSERT INTO users (id, vote)
@@ -34,6 +35,7 @@ class Ipc(Cog):
                 user,
                 votetime,
             )
+            # Cache the time their vote status persists, so we do not need to fetch.
             self.bot.voted[user] = votetime
             user = await self.bot.fetch_user(user)
             embed = Embed(
@@ -79,14 +81,17 @@ class Ipc(Cog):
             try:
                 await user.send(embed=embed)
             except HTTPException:
+                # Ignore failed to send errors.
                 pass
 
             return {"response": True}
         else:
+            # Probably a test.
             return {"response": True}
 
     @Cog.listener()
     async def on_ipc_error(self, _, error: Exception):
+        # Propegate to our own on_error handler.
         raise error
 
 

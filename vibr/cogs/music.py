@@ -6,7 +6,7 @@ from functools import partial
 from logging import getLogger
 from random import shuffle
 from time import gmtime, strftime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from botbase import MyInter as BBMyInter
 from bs4 import BeautifulSoup
@@ -16,7 +16,6 @@ from nextcord import (
     Member,
     PartialInteractionMessage,
     Range,
-    SlashOption,
     User,
     slash_command,
 )
@@ -25,7 +24,7 @@ from nextcord.ext.application_checks import (
 )
 from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
-from nextcord.utils import MISSING, utcnow
+from nextcord.utils import MISSING, utcnow, get
 from pomice import Equalizer, Playlist, Rotation, Timescale, TrackLoadError
 
 from .extras.checks import connected, connected_and_playing, voted
@@ -54,10 +53,6 @@ log = getLogger(__name__)
 API_URL = "https://api.genius.com/search/"
 TKN = "E4Eq5BhA2Xq6U99o1swO5IWcS7BBKyx1lCzyApT1wbyEqhItNaK5PpukKpUKrt3G"
 TEST = [802586580766162964, 939509053623795732]
-ROTATION_DESCRIPTION = (
-    "The frequency in Hz (times/second) to pan audio. "
-    "The best values are below 1, >5 is trippy."
-)
 
 
 class Music(Cog, name="music", description="Play some tunes with or without friends!"):
@@ -246,7 +241,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @slash_command(dm_permission=False)
     async def play(self, inter: MyInter, *, query: str):
-        """Play some tunes!"""
+        """Play some tunes!
+
+        query:
+            The song to search, can be a link, a query, or a playlist.
+        """
 
         assert (
             isinstance(inter.user, Member)
@@ -311,6 +310,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
 
         await player.set_pause(True)
+        log.debug("Paused player for guild %d", inter.guild.id)
 
         await inter.send_author_embed("Paused")
 
@@ -322,6 +322,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
 
         await player.set_pause(False)
+        log.debug("Resumed player for guild %d", inter.guild.id)
 
         await inter.send_author_embed("Resumed")
 
@@ -334,6 +335,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         player.queue = []
         await player.stop()
+        log.debug("Stopped player for guild %d", inter.guild.id)
 
         await inter.send_author_embed("Stopped")
 
@@ -344,24 +346,33 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         player = inter.guild.voice_client
         await player.destroy()
+        log.debug("Destroyed player for guild %d", inter.guild.id)
 
         await inter.send_author_embed("Bye :(")
 
     @connected()
     @slash_command(dm_permission=False)
-    async def volume(self, inter: MyInter, *, number: int):
-        """Turn up the beats"""
+    async def volume(self, inter: MyInter, *, number: Range[1, 500]):
+        """Turn up the beats
 
-        if not 1 <= number <= 500:
-            return await inter.send("🚫 The allowed range is between 1 & 500")
+        number:
+            The volume to set, between 1 and 500, measured in % of normal.
+        """
+
+        vol = cast(int, number)
 
         player = inter.guild.voice_client
-        await player.set_volume(number)
+        await player.set_volume(vol)
+        log.debug("Set volume for guild %d to %d", inter.guild.id, vol)
 
-        if number == 100:
+        if vol == 100:
             await self.bot.db.execute(
                 """DELETE FROM players WHERE channel=$1""",
-                inter.guild.voice_client.channel.id,
+                player.channel.id,
+            )
+            log.debug(
+                "Removing player record for channel %d",
+                player.channel.id,
             )
         else:
             await self.bot.db.execute(
@@ -370,15 +381,24 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                     ON CONFLICT (channel) DO UPDATE
                         SET volume = $2""",
                 player.channel.id,
-                number,
+                vol,
+            )
+            log.debug(
+                "Updating player record for channel %d to volume %d",
+                player.channel.id,
+                vol,
             )
 
-        await inter.send_author_embed(f"Volume set to '{number}%'")
+        await inter.send_author_embed(f"Volume set to '{vol}%'")
 
     @slash_command(dm_permission=False)
     @voted()
     async def lyrics(self, inter: MyInter, *, query: str = ""):
-        """Sing along to your favourite tunes!"""
+        """Sing along to your favourite tunes!
+
+        query:
+            The song to search lyrics for, do not input if you want the current song.
+        """
 
         if not query:
             if (
@@ -412,15 +432,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             txt = await resp.text()
 
         lyricsform = [
-            l.get_text("\n") + "\n"
-            for l in BeautifulSoup(txt, "html.parser").select(
+            lyric.get_text("\n") + "\n"
+            for lyric in BeautifulSoup(txt, "html.parser").select(
                 "div[class*=Lyrics__Container]"
             )
         ]
 
         lyrics = "".join(lyricsform).replace("[", "\n[").strip()
-        if len(lyrics) > 4096:
-            lyrics = lyrics[:4093] + "..."
+
+        lyrics = self.truncate(lyrics, length=4096)
 
         embed = Embed(title=title, description=lyrics, color=self.bot.color)
         embed.set_author(name=artist)
@@ -436,10 +456,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
         if not player.queue:
             await player.stop()
+            log.debug("Stopping due to no queue for guild %d", inter.guild.id)
             return await inter.send_author_embed("Nothing in queue. Stopping the music")
 
         toplay = player.queue.pop(0)
         await player.play(toplay)
+        log.debug("Skipping song for guild %d to %s", inter.guild.id, toplay.title)
         await playing_embed(toplay, skipped_by=inter.user.mention, override_inter=inter)
 
     @connected_and_playing()
@@ -459,6 +481,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """Switch things up"""
 
         shuffle(inter.guild.voice_client.queue)
+        log.debug("Shuffled queue for guild %d", inter.guild.id)
 
         await inter.send_author_embed("Shuffled the queue")
 
@@ -485,6 +508,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         current = player.current
         player.queue.insert(0, current)
+        log.debug("Looped song %s for guild %d", current.title, inter.guild.id)
 
         await inter.send_author_embed("Looping once")
 
@@ -501,17 +525,21 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             self.bot.spotify_users[inter.user.id] = userid
 
         if userid is None:
+            spotify_cmd = get(self.bot.get_all_application_commands(), name="spotify")
+            spotify_mention = spotify_cmd.get_mention() if spotify_cmd else "`/spotify`"
             return await inter.send_embed(
                 "Unlinked",
-                f"You don't have a Spotify account linked, please use `{inter.clean_prefix}spotify",
+                f"You don't have a Spotify account linked, please use {spotify_mention}.",
             )
 
         loop = self.bot.loop
         sp = self.bot.spotipy
 
         if sp is None:
+            support = get(self.bot.get_all_application_commands(), name="support")
+            support_mention = support.get_mention() if support else "`/support`"
             raise TrackLoadError(
-                "Spotify is unable to be used, please contact the developers at `/support`"
+                f"Spotify is unable to be used, please contact the developers at {support_mention}."
             )
 
         all_playlists = []
@@ -533,7 +561,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not len(all_playlists):
             return await inter.send_embed(
                 "No playlists",
-                "**You do not have any public playlists!** \nPlease refer this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/",
+                "**You do not have any public playlists!**\nPlease refer to this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/",
             )
 
         view = PlaylistView(all_playlists)
@@ -572,11 +600,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected_and_playing()
     @slash_command(dm_permission=False)
     async def forward(self, inter: MyInter, num: int):
-        """Seeks forward in the current song by an amount"""
+        """Seeks forward in the current song by an amount
+
+        num:
+            The amount to seek forward by in seconds.
+        """
 
         player = inter.guild.voice_client
         c = player.position
+        # s -> ms
         amount = c + (num * 1000)
+        # Format the time into a human readable format.
         current = strftime("%H:%M:%S", gmtime((amount // 1000)))
         await player.seek(amount)
         await inter.send_author_embed(f"Position seeked to {current}")
@@ -584,9 +618,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @slash_command(dm_permission=False)
     @connected()
     async def remove(self, inter: MyInter, num: int):
-        """Remove a selected song from the queue."""
+        """Remove a selected song from the queue.
+
+        num:
+            The number of the song to remove, found via the queue.
+        """
 
         player = inter.guild.voice_client
+
         try:
             song_n = player.queue[num - 1]
             player.queue.pop(num - 1)
@@ -594,6 +633,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             return await inter.send(
                 "Please input a number which is within your queue!", ephemeral=True
             )
+        else:
+            log.debug("Removed song %s for guild %d", song_n.title, inter.guild.id)
 
         await inter.send_author_embed(f"{song_n} removed from queue")
 
@@ -608,10 +649,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             player.queue.clear()
             await inter.send_author_embed("Cleared the queue")
+            log.debug("Cleared queue for guild %d", inter.guild.id)
 
     @slash_command(name="play-now", dm_permission=False)
     async def play_now(self, inter: MyInter, *, query: str):
-        """Play the song immediately"""
+        """Play the song immediately.
+
+        query:
+            The song to search, can be a link, a query, or a playlist.
+        """
         assert (
             isinstance(inter.user, Member)
             and inter.user.voice is not None
@@ -629,25 +675,28 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if not result:
             return await inter.send_author_embed("No tracks found")
 
+        # Either a playlist or a list of found tracks.
         result = result[0] if isinstance(result, list) else result.tracks[0]
         player.queue.insert(0, result)
-        toplay = inter.guild.voice_client.queue.pop(0)
-        await inter.guild.voice_client.play(toplay)
+        toplay = player.queue.pop(0)
+        await player.play(toplay)
         await playing_embed(result)
 
     @connected_and_playing()
     @slash_command(name="bass-boost", dm_permission=False)
     async def bass_boost(self, inter: MyInter):
-        """Increases bass of the song"""
+        """Increases bass of the song."""
 
         player = inter.guild.voice_client
 
         if player.filters.has_filter(filter_tag="boost"):
             await player.remove_filter(filter_tag="boost")
             await inter.send_author_embed("Bass Filter reset")
+            log.debug("Bass Filter reset for guild %d", inter.guild.id)
         else:
             await player.add_filter(Equalizer.boost(), fast_apply=True)
             await inter.send_author_embed("Bassboost filter activated")
+            log.debug("Bassboost filter activated for guild %d", inter.guild.id)
 
     @connected_and_playing()
     @slash_command(dm_permission=False)
@@ -659,23 +708,29 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if player.filters.has_filter(filter_tag="nightcore"):
             await player.remove_filter(filter_tag="nightcore")
             await inter.send_author_embed("Nightcore filter reset")
+            log.debug("Nightcore filter reset for guild %d", inter.guild.id)
         else:
             await player.add_filter(Timescale.nightcore(), fast_apply=True)
             await inter.send_author_embed("Nightcore filter activated")
+            log.debug("Nightcore filter activated for guild %d", inter.guild.id)
 
-    @connected_and_playing()
     @slash_command(dm_permission=False)
+    @connected_and_playing()
     async def rotate(
         self,
         inter: MyInter,
-        frequency: Range[0.1, 10] = SlashOption(
-            description=ROTATION_DESCRIPTION,
-            required=False,
-        ),
+        frequency: Optional[Range[0.1, 10]],
     ):
-        """A cool filter to pan audio around your head, best with headphones or other stereo audio systems!"""
+        """A cool filter to pan audio around your head,
+        best with headphones or other stereo audio systems!
+
+        frequency:
+            The frequency in Hz (times/second) to pan audio.
+            The best values are below 1, >5 is trippy."
+        """
 
         passed_custom = frequency is not None
+        # Default in slash is not used so we know if they did in fact input 0.2.
         frequency = frequency or 0.2  # Set default frequency.
 
         player = inter.guild.voice_client
@@ -687,11 +742,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 Rotation(tag="rotation", rotation_hertz=frequency), fast_apply=True  # type: ignore
             )
             await inter.send_author_embed("Rotation filter modified")
+            log.debug("Rotation filter modified for guild %d to %fhz", inter.guild.id)
 
         # If no custom frequency was passed, it should stop rotating.
         elif player.filters.has_filter(filter_tag="rotation"):
             await player.remove_filter(filter_tag="rotation")
             await inter.send_author_embed("Rotation filter reset")
+            log.debug("Rotation filter reset for guild %d", inter.guild.id)
 
         # First time activating the filter.
         else:
@@ -699,26 +756,45 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 Rotation(tag="rotation", rotation_hertz=frequency), fast_apply=True  # type: ignore
             )
             await inter.send_author_embed("Rotation filter activated")
+            log.debug("Rotation filter activated for guild %d", inter.guild.id)
 
     @slash_command(dm_permission=False)
     @connected()
-    async def move(self, inter: MyInter, track: int, destination: int):
-        """Move the song to certain position in your queue"""
+    async def move(
+        self, inter: MyInter, track: Range[1, ...], destination: Range[1, ...]
+    ):
+        """Move the song to a certain position in your queue.
+
+        track:
+            The number of the song to move, found via the queue.
+        destination:
+            The position to move the song to.
+        """
         player = inter.guild.voice_client
-        if destination < 1 or track < 1:
-            await inter.send_author_embed(
+
+        track_index = cast(int, track)
+        dest_index = cast(int, destination)
+
+        try:
+            song = player.queue.pop(track_index - 1)
+        except IndexError:
+            return await inter.send(
                 "Please input a number which is within your queue!", ephemeral=True
             )
-        else:
-            try:
-                song = player.queue.pop(track - 1)
-            except IndexError:
-                return await inter.send(
-                    "Please input a number which is within your queue!", ephemeral=True
-                )
-            player.queue.insert(destination - 1, song)
-            destination = player.queue.index(song)
-            await inter.send_author_embed(f"{song} position set to {destination+1}")
+
+        player.queue.insert(dest_index - 1, song)
+        log.debug("Inserted %s at %d", song.title, dest_index - 1)
+        dest_index = player.queue.index(song)
+        await inter.send_author_embed(f"{song} position set to {dest_index}")
+
+    @staticmethod
+    def truncate(fmt: str, *, length: int) -> str:
+        """Return the string with `...` if necessary."""
+
+        if len(fmt) > length:
+            return fmt[: length - 3] + "..."
+
+        return fmt
 
     @remove.on_autocomplete("num")
     @move.on_autocomplete("track")
@@ -733,7 +809,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if num is None:
             # Send the top 25
             return {
-                f"{i+1}. {t.title} - {t.author}": i + 1
+                self.truncate(f"{i+1}. {t.title} - {t.author}", length=100): i + 1
                 for i, t in enumerate(queue[:25])
             }
         else:
@@ -747,7 +823,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             )
             tracks = [queue[i - 1] for i in matches]
 
-            return {f"{i}. {t.title} - {t.author}": i for i, t in zip(matches, tracks)}
+            return {
+                self.truncate(f"{i}. {t.title} - {t.author}", length=100): i
+                for i, t in zip(matches, tracks)
+            }
 
 
 def setup(bot: Vibr):

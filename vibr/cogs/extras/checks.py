@@ -59,4 +59,4 @@ def connected_and_playing():
 
         return True
 
-    return check(playingmusic)
+    return check(playingmusic)  # type: ignore[incompatible]

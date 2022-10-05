@@ -3,10 +3,9 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import datetime
-from logging import getLogger
-from traceback import format_exc, print_exc
+from logging import DEBUG, getLogger
+from traceback import format_exc
 from typing import Optional
-from sys import stderr
 
 import nextcord
 import uvloop
@@ -64,10 +63,15 @@ class Vibr(BotBase):
                 client_credentials_manager=SpotifyClientCredentials()
             )
         except SpotifyOauthError:
+            log.warning("Spotify credentials are invalid")
             self.spotipy = None
 
         self.vote_webhook: nextcord.Webhook | None = None
         """The webhook in #vote-for-us for top.gg."""
+
+        # env var BETA exists, set our logging to DEBUG (all loggings in `vibr/`)
+        if os.getenv("BETA"):
+            getLogger("vibr").setLevel(DEBUG)
 
     async def start(self, *args, **kwargs):
         await super().start(*args, **kwargs)
@@ -76,11 +80,17 @@ class Vibr(BotBase):
             "SELECT id, whitelisted FROM guilds WHERE whitelisted IS NOT NULL"
         ):
             self.whitelisted_guilds[row.get("id")] = row.get("whitelisted")
+            log.debug(
+                "Added whitelisted guild %s to cache, until %s",
+                row.get("id"),
+                row.get("whitelisted"),
+            )
 
     async def on_ready(self):
         await asyncio.sleep(10)
 
         for tries in range(5):
+            # Try 5 times to connect to the lavalink server.
             try:
                 await self.pool.create_node(
                     bot=self,
@@ -92,8 +102,11 @@ class Vibr(BotBase):
                     spotify_client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
                 )
             except NodeConnectionFailure:
-                await asyncio.sleep(2.5 * tries + 1)
+                time = 2.5 * tries + 1
+                log.warning("Failed to connect to lavalink, retrying in %ss", time)
+                await asyncio.sleep(time)
             else:
+                log.info("Successfully connected to %s", os.getenv("LAVALINK_HOST"))
                 break
 
     async def on_error(self, event_method: str, *args, **kwargs):
@@ -102,19 +115,16 @@ class Vibr(BotBase):
 
             tb = format_exc()
 
+            log.error(
+                "Ignoring exception in event %s",
+                event_method,
+                exc_info=True,
+            )
+
             try:
                 await painchannel.send_embed(desc=f"```py\n{tb}```")
-                log.error(
-                    "Ignoring exception in event %s",
-                    event_method,
-                    exc_info=True,
-                )
             except Exception:
-                pass
-
-        # FIXME: add stream handler for stdout/err in botbase
-        print(f"Ignoring exception in event {event_method}", file=stderr)
-        print_exc()
+                log.warning("Failed to send to logchannel %d", self.logchannel)
 
 
 intents = nextcord.Intents.none()
@@ -128,5 +138,6 @@ bot = Vibr(
 
 
 if __name__ == "__main__":
+    # This is being ran with `python -m vibr`, and not an import, start ipc and the bot.
     bot.ipc.start()
     bot.run(os.getenv("TOKEN"))

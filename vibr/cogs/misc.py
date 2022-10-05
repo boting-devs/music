@@ -3,6 +3,7 @@ from __future__ import annotations
 from asyncio import sleep
 from typing import TYPE_CHECKING
 from os import getenv
+from logging import getLogger
 
 from nextcord import Embed, Message, Permissions, slash_command
 from nextcord.ext.commands import Cog, command, is_owner
@@ -16,10 +17,7 @@ if TYPE_CHECKING:
 
 
 TEST = [802586580766162964, 939509053623795732]
-RESTRICT_PERMISSIONS = Permissions(manage_guild=True)
-RESTRICT_OPTION_DESC = (
-    "The channel to restrict to, do not pass if you want to disable restrictions."
-)
+log = getLogger(__name__)
 
 
 class Misc(Cog):
@@ -70,7 +68,7 @@ class Misc(Cog):
         )
         await inter.send(embed=embed)
 
-    @slash_command(description="Get some help")
+    @slash_command()
     async def support(self, inter: MyInter):
         """My support server's link."""
 
@@ -101,7 +99,7 @@ class Misc(Cog):
 
     @slash_command()
     async def vote(self, inter: MyInter):
-        """Vote for mee"""
+        """Vote for me!"""
 
         embed = Embed(title="**Vote for Vibr**", color=self.bot.color)
         embed.add_field(
@@ -125,9 +123,12 @@ class Misc(Cog):
         await self.bot.db.execute("UPDATE users SET notified=false")
         self.bot.notified_users.clear()
         await ctx.send("Set all users to un-notified")
+        log.info("Distributing notification %s", title)
 
-    @slash_command(description="Recent announcements/notifications")
+    @slash_command()
     async def notifications(self, inter: MyInter):
+        """Recent announcements/notifications."""
+
         notifs = await self.bot.db.fetch("SELECT * FROM notifications ORDER BY id DESC")
         menu = NotificationView(
             source=NotificationSource(list(map(Notification, notifs))), inter=inter

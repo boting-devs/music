@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from asyncio import sleep, TimeoutError as AsyncTimeoutError
-from typing import TYPE_CHECKING
+from asyncio import sleep
 from logging import getLogger
+from typing import TYPE_CHECKING
 
 from botbase import MyInter
 from nextcord.ext.commands import Cog
+from nextcord.utils import get
 
 if TYPE_CHECKING:
     from nextcord import Guild, Member, VoiceState
@@ -24,21 +25,25 @@ class Events(Cog):
     async def on_voice_state_update(
         self, member: Member, before: VoiceState, after: VoiceState
     ) -> None:
+        # This is Vibr
         if member.id == self.bot.user.id:  # type: ignore
             guild = member.guild
+            # If we do not have a player, ignore this.
             if (player := self.bot.pool.get_node().get_player(guild.id)) is None:
                 return
 
             if not after.channel and not player.is_dead:
                 return await player.destroy()
 
+            # They moved us, pause for a second then continue.
             if player.is_playing and before.channel != after.channel:
                 paused = player.is_paused
                 await player.set_pause(True)
                 await sleep(1)
                 await player.set_pause(paused)
-        elif not member.bot:
-            if not before.channel and after.channel:
+        else:
+            # Someone joined, add them to cache
+            if not before.channel and after.channel and not member.bot:
                 if after.channel.id not in self.bot.listeners:
                     self.bot.listeners[after.channel.id] = {member.id}
                 else:
@@ -47,14 +52,32 @@ class Events(Cog):
                 if task := self.bot.listener_tasks.get(member.guild.id):
                     task.cancel()
                     del self.bot.listener_tasks[member.guild.id]
+            # Someone left, remove them from cache
             elif before.channel and not after.channel:
                 if before.channel.id in self.bot.listeners:
                     self.bot.listeners.get(before.channel.id, set()).discard(member.id)
                     if not self.bot.listeners.get(before.channel.id, {1}):
                         del self.bot.listeners[before.channel.id]
+            # They moved, move the cache of them too.
+            elif (
+                before.channel
+                and after.channel
+                and before.channel.id != after.channel.id
+            ):
+                if before.channel.id in self.bot.listeners:
+                    self.bot.listeners.get(before.channel.id, set()).discard(member.id)
+                    if not self.bot.listeners.get(before.channel.id, {1}):
+                        del self.bot.listeners[before.channel.id]
+
+                if after.channel.id not in self.bot.listeners:
+                    self.bot.listeners[after.channel.id] = {member.id}
+                else:
+                    self.bot.listeners[after.channel.id].add(member.id)
 
     @Cog.listener()
     async def on_guild_available(self, guild: Guild):
+        # Hacky, but this gets the first voice states when we know about a guild.
+        # This stores the initial states in cache.
         for m, vs in guild._voice_states.items():
             if vs.channel:
                 if vs.channel.id not in self.bot.listeners:
@@ -69,18 +92,29 @@ class Events(Cog):
                 "SELECT notified FROM users WHERE id=$1", inter.user.id
             )
 
+            # They were not notified, notify them.
             if not is_notified:
                 latest = await self.bot.db.fetchrow(
                     "SELECT * FROM notifications ORDER BY id DESC LIMIT 1"
                 )
 
                 if latest:
-                    await inter.send(
-                        f"{inter.user.mention} You have a new notification with the title "
-                        f"**{latest['title']}** "
-                        f"from `{latest['datetime'].strftime('%y-%m-%d')}`. "
-                        "You can view all notifications with </notifications:1004841251549478992>."
+                    notifs_command = get(
+                        self.bot.get_all_application_commands(), name="notifications"
                     )
+                    notifs_mention = (
+                        notifs_command.get_mention()  # type: ignore[member-access]
+                        if notifs_command
+                        else "`/notifications`"
+                    )
+
+                    await inter.send(
+                        f"{inter.user.mention} You have a new notification "
+                        f"with the title **{latest['title']}** "
+                        f"from `{latest['datetime'].strftime('%y-%m-%d')}`. "
+                        f"You can view all notifications with {notifs_mention}.",
+                    )
+                    log.debug("Sent notification to %d", inter.user.id)
 
                 await self.bot.db.execute(
                     """INSERT INTO users (id, notified)
@@ -90,7 +124,9 @@ class Events(Cog):
                     inter.user.id,
                     True,
                 )
+                log.debug("Set notified to True for %d", inter.user.id)
 
+            # They were either notified before or they have now.
             self.bot.notified_users.add(inter.user.id)
 
 

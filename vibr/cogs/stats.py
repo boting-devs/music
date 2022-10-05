@@ -72,7 +72,7 @@ class Stats(Cog):
 
             VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9,
-                (SELECT SUM(amount) FROM commands),(SELECT SUM(amount) FROM songs)
+                (SELECT SUM(amount) FROM commands), (SELECT SUM(amount) FROM songs)
             )
             """,
             time,

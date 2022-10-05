@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from logging import getLogger
 from random import shuffle
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
@@ -24,6 +25,9 @@ if TYPE_CHECKING:
     from .types import Notification, Playlist
 
 
+log = getLogger(__name__)
+
+
 class LinkButtonView(View):
     def __init__(
         self, name: str, url: str, emoji: str | PartialEmoji | Emoji | None = None
@@ -41,9 +45,11 @@ class PlaylistView(View):
 
     def __init__(self, playlists: list[Playlist]) -> None:
         super().__init__()
-        chunks = [playlists[i : i + 10] for i in range(0, len(playlists), 25)]
+        # Split the playlists into chunks of 5 for the select menus.
+        chunks = [playlists[i : i + 25] for i in range(0, len(playlists), 25)]
 
-        for chunk in chunks:
+        # Only care about the first 5 chunks, thats 125, do they really need more?
+        for chunk in chunks[5:]:
             self.add_item(PlaylistSelect(chunk))
 
         self.uri = None
@@ -63,6 +69,8 @@ class PlaylistSelect(Select[PlaylistView]):
             min_values=1,
             max_values=1,
             options=[
+                # Now this is confusing as hell.
+                # This truncates the description to 100 chars if its above, with ...
                 SelectOption(
                     label=(p["name"] or "No name defined?"),
                     description=(
@@ -105,7 +113,9 @@ class PlayButton(View):
             )
             return False
         elif (
+            # User is not even in voice
             not inter.user.voice
+            # Somehow they have a voice state but no channel?
             or not inter.user.voice.channel
             or inter.user.voice.channel.id != inter.guild.voice_client.channel.id
         ):
@@ -208,10 +218,12 @@ class QueueSource(ListPageSource):
     def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
         add = self.queue.index(tracks[0]) + 1
         desc = "\n".join(
+            # 1. title by author [length]
             f"**{i + add}.** [{t.title}]({t.uri}) by "
             f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
             for i, t in enumerate(tracks)
         )
+        # This is the first page, share the now playing and next song.
         if tracks[0].track_id == self.queue[0].track_id:
             c = self.now
             desc = (
@@ -244,10 +256,13 @@ class MyView(View):
     message: Message
 
     async def interaction_check(self, interaction: Interaction) -> bool:
+        # user is an owner, or was the user that started the interaction.
         if interaction.user and interaction.user.id in (
             list(self.interaction.client.owner_ids) + [self.interaction.user.id]  # type: ignore
         ):
             return True
+
+        # We know the interaction that started this, send the error with a command.
         if self.inter and self.inter.application_command is not None:
             cmd = self.inter.application_command.qualified_name
             if not isinstance(cmd, str):
@@ -263,6 +278,8 @@ class MyView(View):
                 f"This menu is for {self.inter.user.mention}.",
                 ephemeral=True,
             )
+
+        # Do not contine with the button press.
         return False
 
     async def on_timeout(self):

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from logging import getLogger
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
@@ -12,6 +13,9 @@ from .types import MyInter
 
 if TYPE_CHECKING:
     from pomice import Track
+
+
+log = getLogger(__name__)
 
 
 async def playing_embed(
@@ -115,8 +119,10 @@ async def playing_embed(
         # why on earth can that be a stage channel
 
         if isinstance(track, Playlist):
+            # We do not need to log playlists, as we log the tracks.
             return
 
+        # Try to insert, if there is already a record for this song+user, update.
         await inter.bot.db.execute(
             """INSERT INTO songs (id, spotify, member)
             VALUES ($1, $2, $3)
@@ -126,4 +132,7 @@ async def playing_embed(
             track.identifier,
             track.spotify,
             inter.user.id,
+        )
+        log.debug(
+            "Added song %s to database for user %d", track.identifier, inter.user.id
         )

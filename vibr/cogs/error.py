@@ -77,6 +77,7 @@ class Errors(Cog):
     def __init__(self, bot: Vibr):
         self.bot = bot
         self.support_view = MISSING
+        # The bot needs to be ready, make a background task to create `support_view`
         self.bot.loop.create_task(self.init())
 
     async def init(self):
@@ -186,8 +187,6 @@ class Errors(Cog):
             await inter.send(embed=embed, view=self.support_view, ephemeral=True)
 
         else:
-            __import__("logging").warning(type(error))
-            __import__("logging").warning(SpotifyRequestException)
             embed = Embed(
                 title="Unexpected Error.",
                 description=(
