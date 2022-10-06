@@ -261,7 +261,7 @@ class TimeoutView(View):
 
     async def on_timeout(self):
         for child in self.children:
-            if isinstance(child, Button):
+            if isinstance(child, (Button, Select)):
                 child.disabled = True
 
         if self.message is not None:
