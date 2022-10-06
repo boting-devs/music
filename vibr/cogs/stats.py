@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from asyncio import sleep
-from re import M
 from statistics import mean
 from typing import TYPE_CHECKING
 
