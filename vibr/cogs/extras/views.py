@@ -1,13 +1,20 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
+from enum import Enum
+from io import BytesIO
 from logging import getLogger
-from random import shuffle
+from random import sample, shuffle
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
-from nextcord import ButtonStyle, Embed, Interaction, SelectOption
+from botbase import MyContext
+from cycler import cycler
+from matplotlib import rc_context
+from matplotlib.pyplot import close, legend, savefig, subplots
+from nextcord import ButtonStyle, Embed, File, Interaction, SelectOption
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
-from nextcord.ui import Button, Select, View, button
+from nextcord.ui import Button, Select, View, button, select
 
 from .playing_embed import playing_embed
 from .types import MyInter
@@ -249,11 +256,22 @@ class QueueSource(ListPageSource):
         return embed
 
 
-class MyView(View):
+class TimeoutView(View):
+    message: Message
+
+    async def on_timeout(self):
+        for child in self.children:
+            if isinstance(child, Button):
+                child.disabled = True
+
+        if self.message is not None:
+            await self.message.edit(view=self)
+
+
+class MyView(TimeoutView):
     """A collection of on_timeout: disable buttons and interaction_check: author"""
 
     inter: MyInter
-    message: Message
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         # user is an owner, or was the user that started the interaction.
@@ -281,14 +299,6 @@ class MyView(View):
 
         # Do not contine with the button press.
         return False
-
-    async def on_timeout(self):
-        for child in self.children:
-            if isinstance(child, Button):
-                child.disabled = True
-
-        if self.message is not None:
-            await self.message.edit(view=self)
 
 
 class QueueView(MyView, ButtonMenuPages):
@@ -348,3 +358,151 @@ class NotificationView(MyView, ButtonMenuPages):
     def __init__(self, source: ListPageSource, inter: MyInter) -> None:
         super().__init__(source=source, style=ButtonStyle.blurple)
         self.inter = inter
+
+
+class StatsTime(Enum):
+    """The time of stats to show."""
+
+    ALL = str(timedelta(days=10**4).total_seconds())
+    DAY = str(timedelta(days=1).total_seconds())
+    WEEK = str(timedelta(days=7).total_seconds())
+    MONTH = str(timedelta(days=30).total_seconds())
+
+
+class StatsType(Enum):
+    """The type of stats to show."""
+
+    GUILDS = "guilds"
+    COMMANDS = "commands"
+    SONGS = "total_songs"
+    PLAYERS = "active_players, total_players"
+    LOAD = "lavalink_load, system_load"
+    MEMORY = "memory_used, memory_allocated, memory_percentage"
+
+
+TYPE_TO_TITLE: dict[StatsType, str] = {
+    StatsType.GUILDS: "Guild Count",
+    StatsType.COMMANDS: "Commands Used",
+    StatsType.SONGS: "Songs Played",
+    StatsType.PLAYERS: "Players",
+    StatsType.LOAD: "CPU Load",
+    StatsType.MEMORY: "Memory Usage (MiB/%)",
+}
+
+
+class StatsView(TimeoutView):
+    def __init__(self, ctx: MyContext) -> None:
+        super().__init__()
+        self.ctx = ctx
+
+        self.timeframe = StatsTime.ALL
+        self.type = StatsType.GUILDS
+
+    @select(
+        placeholder="Select a timeframe.",
+        options=[
+            SelectOption(label=name.title(), value=enum.value)
+            for name, enum in StatsTime.__members__.items()
+        ],
+        min_values=1,
+        max_values=1,
+    )
+    async def timeframe_select(self, select: Select, inter: Interaction):
+        await inter.response.defer()
+        await self.update_stats_time(select.values[0])
+
+    @select(
+        placeholder="Select a type.",
+        options=[
+            SelectOption(label=name.title(), value=enum.value)
+            for name, enum in StatsType.__members__.items()
+        ],
+        min_values=1,
+        max_values=1,
+    )
+    async def type_select(self, select: Select, inter: Interaction):
+        await inter.response.defer()
+        await self.update_stats_type(select.values[0])
+
+    async def update_stats_type(self, value: str):
+        self.type = StatsType(value)
+        await self.update()
+
+    async def update_stats_time(self, value: str):
+        self.timeframe = StatsTime(value)
+        await self.update()
+
+    async def update(self):
+        embed, file = await self.get_graph()
+        await self.message.edit(embed=embed, file=file)
+
+    async def get_graph(self) -> tuple[Embed, File]:
+        data = await self.ctx.bot.db.fetch(
+            # Yes an f-string in SQL, to actually interpolate as the column.
+            # The values here is only controlled by us so it is safe.
+            f"""SELECT time, {self.type.value} FROM hourly_stats
+            WHERE time > now() - $1::interval""",
+            timedelta(seconds=float(self.timeframe.value)),
+        )
+
+        embed = Embed(title="Stats", color=self.ctx.bot.color)
+
+        colours = [f"#{hex(c)[2:]}" for c in self.ctx.bot.colors]
+        with rc_context(
+            {
+                "axes.prop_cycle": cycler(color=sample(colours, len(colours))),
+                "figure.constrained_layout.use": True,
+                "axes.facecolor": "#272934",
+                "axes.edgecolor": "white",
+                "figure.facecolor": "black",
+                "axes.labelcolor": "white",
+                "xtick.color": "white",
+                "ytick.color": "white",
+                "text.color": "white",
+                "legend.framealpha": 1,
+            }
+        ):
+            figure, axes = subplots()
+            axes.set_title(
+                f"{TYPE_TO_TITLE[self.type]} ({self.timeframe.name.title()})"
+            )
+
+            times = []
+
+            # No clue why postgres decides its in one day but 00:00 is the next?
+            for row in data:
+                time: datetime = row["time"]
+                if time.hour == 0:
+                    times.append(time.replace(day=time.day + 1))
+                else:
+                    times.append(time)
+
+            handles = [
+                axes.plot(
+                    times,
+                    [row[t] for row in data],
+                    label=t.replace("_", " ").title(),
+                )[0]
+                for t in self.type.value.split(", ")
+            ]
+            axes.legend(handles=handles)
+
+            b = BytesIO()
+
+            try:
+                savefig(b, format="png", bbox_inches="tight")
+            finally:
+                close()
+
+        b.seek(0)
+        file = File(
+            b,
+            filename="stats.png",
+            description=(
+                f"Stats for {self.type.value} "
+                f"over the last {self.timeframe.name.lower()}."
+            ),
+        )
+        embed.set_image("attachment://stats.png")
+
+        return embed, file

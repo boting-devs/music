@@ -4,10 +4,12 @@ from asyncio import sleep
 from statistics import mean
 from typing import TYPE_CHECKING
 
-from nextcord.ext.commands import Cog
+from botbase import MyContext
+from nextcord.ext.commands import Cog, command, is_owner
 from nextcord.ext.tasks import loop
 from nextcord.utils import utcnow
 from pomice import NoNodesAvailable
+from .extras.views import StatsView
 
 if TYPE_CHECKING:
     from vibr.__main__ import Vibr
@@ -151,6 +153,14 @@ class Stats(Cog):
 
         wait_time = time - now
         await sleep(wait_time.total_seconds())
+
+    @command()
+    @is_owner()
+    async def stats(self, ctx: MyContext):
+        view = StatsView(ctx)
+        m = await ctx.send(view=view)
+        view.message = m
+        await view.update()
 
 
 def setup(bot: Vibr):
