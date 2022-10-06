@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from botbase import MyContext
 from cycler import cycler
 from matplotlib import rc_context
-from matplotlib.pyplot import close, legend, savefig, subplots
+from matplotlib.pyplot import close, savefig, subplots
 from nextcord import ButtonStyle, Embed, File, Interaction, SelectOption
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
 from nextcord.ui import Button, Select, View, button, select

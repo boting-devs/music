@@ -5,14 +5,27 @@ from statistics import mean
 from typing import TYPE_CHECKING
 
 from botbase import MyContext
+from nextcord import Embed
 from nextcord.ext.commands import Cog, command, is_owner
 from nextcord.ext.tasks import loop
 from nextcord.utils import utcnow
 from pomice import NoNodesAvailable
+
 from .extras.views import StatsView
 
 if TYPE_CHECKING:
     from vibr.__main__ import Vibr
+
+
+STATS: str = """
+Active Players: `{active_players}`
+Total Players: `{total_players}`
+Lavalink Load: `{process_load:.3f}`
+System Load: `{system_load:.3f}`
+Memory Used: `{memory_used}MiB`
+Memory Allocated: `{memory_allocated}MiB`
+Memory %: `{memory_percentage}%`
+""".strip()
 
 
 class Stats(Cog):
@@ -161,6 +174,43 @@ class Stats(Cog):
         m = await ctx.send(view=view)
         view.message = m
         await view.update()
+
+    @command(name="current-stats")
+    @is_owner()
+    async def current_stats(self, ctx: MyContext):
+        # FIXME: remove duplication of similar code
+        # Set default to None so IDEs are happy it isn't undefined.
+        stats = None
+
+        # Try getting stats 5 times, if it fails we always have the next loop anyway.
+        for tries in range(5):
+            try:
+                node = self.bot.pool.get_node()
+            except NoNodesAvailable:
+                await sleep(2.5 * tries)
+            else:
+                stats = node.stats
+
+        # IDEs should be happy now.
+        assert stats is not None
+
+        embed = Embed(
+            title="Current Stats",
+            description=STATS.format(
+                active_players=stats.players_active or 0,
+                total_players=stats.players_total or 0,
+                process_load=stats.cpu_process_load or 0,
+                system_load=stats.cpu_system_load or 0,
+                memory_used=(stats.used or 0) // (1024**2),
+                memory_allocated=(stats.allocated or 0) // (1024**2),
+                memory_percentage=int(
+                    (stats.used or 0) / (stats.reservable or 0) * 100
+                ),
+            ),
+            color=self.bot.color,
+        )
+
+        await ctx.send(embed=embed)
 
 
 def setup(bot: Vibr):
