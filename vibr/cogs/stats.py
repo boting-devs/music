@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from asyncio import sleep
+from re import M
 from statistics import mean
 from typing import TYPE_CHECKING
 
@@ -18,6 +19,9 @@ if TYPE_CHECKING:
 
 
 STATS: str = """
+Guilds: `{guilds}`
+Commands Used: `{commands}`
+Songs Played: `{songs}`
 Active Players: `{active_players}`
 Total Players: `{total_players}`
 Lavalink Load: `{process_load:.3f}`
@@ -194,9 +198,16 @@ class Stats(Cog):
         # IDEs should be happy now.
         assert stats is not None
 
+        guilds = len(self.bot.guilds)
+        commands = await self.bot.db.fetchval("SELECT SUM(amount) FROM commands")
+        songs = await self.bot.db.fetchval("SELECT SUM(amount) FROM songs")
+
         embed = Embed(
             title="Current Stats",
             description=STATS.format(
+                guilds=guilds,
+                commands=commands,
+                songs=songs,
                 active_players=stats.players_active or 0,
                 total_players=stats.players_total or 0,
                 process_load=stats.cpu_process_load or 0,
