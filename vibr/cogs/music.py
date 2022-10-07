@@ -789,7 +789,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @slash_command(name="play-next",dm_permission=False)
     @connected()
-    async def playnext(self,inter:MyInter,*,track:Range[1, ...],song:str=None):
+    async def playnext(self,inter:MyInter,*,track:Range[1, ...]=None,song:str=None):
         player = inter.guild.voice_client
         if track != None and song == None:
             track_index = cast(int, track)
