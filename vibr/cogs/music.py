@@ -809,6 +809,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             result = result[0] if isinstance(result, list) else result.tracks[0]
             player.queue.insert(0,result)
             await inter.send_author_embed(f"Playing the song - {result} up next!")
+        elif track == None and song == None:
+            await inter.send("Please fill one of the options to use the command")
+        else:
+            await inter.send("Please only fill one option to use this command properly")
 
     @staticmethod
     def truncate(fmt: str, *, length: int) -> str:
@@ -821,6 +825,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
     @remove.on_autocomplete("num")
     @move.on_autocomplete("track")
+    @playnext.on_autocomplete("track")
     async def on_move_num_autocomplete(self, inter: MyInter, num: Optional[int]):
         player = inter.guild.voice_client
         if player is None:
