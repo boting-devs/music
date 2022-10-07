@@ -787,7 +787,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         dest_index = player.queue.index(song)
         await inter.send_author_embed(f"{song} position set to {dest_index}")
 
-    @slash_command(dm_permission=False)
+    @slash_command(name="play-next",dm_permission=False)
     @connected()
     async def playnext(self,inter:MyInter,*,track:str=None,song:str=None):
         player = inter.guild.voice_client
