@@ -804,6 +804,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         
         elif track == None and song != None:
             result = await player.get_tracks(query=song, ctx=inter)
+            if not result:
+                return await inter.send_author_embed("No tracks found")
+            result = result[0] if isinstance(result, list) else result.tracks[0]
             player.queue.insert(0,result)
             await inter.send_author_embed(f"Playing the song - {result} up next!")
 
