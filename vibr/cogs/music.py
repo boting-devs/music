@@ -792,7 +792,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def playnext(self,inter:MyInter,*,track:str=None,song:str=None):
         player = inter.guild.voice_client
         if track != None and song == None:
-            songplay = player.queue.pop(track - 1)
+            track_index = cast(int, track)
+            try:
+                songplay = player.queue.pop(track_index - 1)
+            except IndexError:
+                return await inter.send(
+                    "Please input a number which is within your queue!", ephemeral=True
+                )
             player.queue.insert(1, songplay)
             await inter.send_author_embed(f"Playing the song - {songplay} up next!")
         
