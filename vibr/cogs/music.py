@@ -24,7 +24,7 @@ from nextcord.ext.application_checks import (
 )
 from nextcord.ext.commands import Cog
 from nextcord.ui import Button, Select
-from nextcord.utils import MISSING, utcnow, get
+from nextcord.utils import MISSING, get, utcnow
 from pomice import Equalizer, Playlist, Rotation, Timescale, TrackLoadError
 
 from .extras.checks import connected, connected_and_playing, voted
@@ -787,11 +787,16 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         dest_index = player.queue.index(song)
         await inter.send_author_embed(f"{song} position set to {dest_index}")
 
-    @slash_command(name="play-next",dm_permission=False)
+    @slash_command(name="play-next", dm_permission=False)
     @connected()
-    async def playnext(self,inter:MyInter,track:Range[1, ...]=None,song:str=None):
+    async def playnext(
+        self,
+        inter: MyInter,
+        track: Optional[Range[1, ...]] = None,
+        song: Optional[str] = None,
+    ):
         player = inter.guild.voice_client
-        if track != None and song == None:
+        if track is not None and song is None:
             track_index = cast(int, track)
             try:
                 songplay = player.queue.pop(track_index - 1)
@@ -801,15 +806,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 )
             player.queue.insert(0, songplay)
             await inter.send_author_embed(f"Playing the song - {songplay} up next!")
-        
-        elif track == None and song != None:
-            result = await player.get_tracks(query=song, ctx=inter)
+
+        elif track is None and song is not None:
+            result = await player.get_tracks(query=song, ctx=inter)  # type: ignore
             if not result:
                 return await inter.send_author_embed("No tracks found")
             result = result[0] if isinstance(result, list) else result.tracks[0]
-            player.queue.insert(0,result)
+            player.queue.insert(0, result)
             await inter.send_author_embed(f"Playing the song - {result} up next!")
-        elif track == None and song == None:
+        elif track is None and song is None:
             await inter.send("Please fill one of the options to use the command")
         else:
             await inter.send("Please only fill one option to use this command properly")
