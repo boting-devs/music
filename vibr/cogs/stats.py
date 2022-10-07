@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from asyncio import sleep
+from contextlib import suppress
 from statistics import mean
 from typing import TYPE_CHECKING
 
+from asyncpg import UniqueViolationError
 from botbase import MyContext
 from nextcord import Embed
 from nextcord.ext.commands import Cog, command, is_owner
@@ -74,42 +76,43 @@ class Stats(Cog):
 
         time = now.replace(second=0, microsecond=0, minute=0, hour=hour)
 
-        await self.bot.db.execute(
-            """INSERT INTO hourly_stats
-                (time,
-                 guilds,
-                 active_players,
-                 total_players,
-                 lavalink_load,
-                 system_load,
-                 memory_used,
-                 memory_allocated,
-                 memory_percentage,
-                 commands,
-                 total_songs)
+        with suppress(UniqueViolationError):
+            await self.bot.db.execute(
+                """INSERT INTO hourly_stats
+                    (time,
+                    guilds,
+                    active_players,
+                    total_players,
+                    lavalink_load,
+                    system_load,
+                    memory_used,
+                    memory_allocated,
+                    memory_percentage,
+                    commands,
+                    total_songs)
 
-            VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9,
-                (SELECT SUM(amount) FROM commands), (SELECT SUM(amount) FROM songs)
+                VALUES (
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9,
+                    (SELECT SUM(amount) FROM commands), (SELECT SUM(amount) FROM songs)
+                )
+                """,
+                time,
+                guilds,
+                active_players,
+                total_players,
+                lavalink_load,
+                system_load,
+                memory_used,
+                memory_allocated,
+                memory_percentage,
             )
-            """,
-            time,
-            guilds,
-            active_players,
-            total_players,
-            lavalink_load,
-            system_load,
-            memory_used,
-            memory_allocated,
-            memory_percentage,
-        )
-        self.active_player_count.clear()
-        self.total_player_count.clear()
-        self.lavalink_load.clear()
-        self.system_load.clear()
-        self.memory_used.clear()
-        self.memory_allocated.clear()
-        self.memory_percentage.clear()
+            self.active_player_count.clear()
+            self.total_player_count.clear()
+            self.lavalink_load.clear()
+            self.system_load.clear()
+            self.memory_used.clear()
+            self.memory_allocated.clear()
+            self.memory_percentage.clear()
 
     @hourly_stats.before_loop
     async def wait_until_next_hour(self):
