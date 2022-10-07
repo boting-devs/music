@@ -787,6 +787,19 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         dest_index = player.queue.index(song)
         await inter.send_author_embed(f"{song} position set to {dest_index}")
 
+    @slash_command(dm_permission=False)
+    @connected()
+    async def playnext(self,inter:MyInter,*,track:str=None,song:str=None):
+        player = inter.guild.voice_client
+        if track != None and song == None:
+            songplay = player.queue.pop(track - 1)
+            player.queue.insert(1, songplay)
+            await inter.send_author_embed(f"Playing the song - {songplay} up next!")
+        
+        elif track == None and song != None:
+            result = await player.get_tracks(query=song, ctx=inter)
+            player.queue.insert(1,result)
+
     @staticmethod
     def truncate(fmt: str, *, length: int) -> str:
         """Return the string with `...` if necessary."""
