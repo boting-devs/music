@@ -799,12 +799,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 return await inter.send(
                     "Please input a number which is within your queue!", ephemeral=True
                 )
-            player.queue.insert(1, songplay)
+            player.queue.insert(0, songplay)
             await inter.send_author_embed(f"Playing the song - {songplay} up next!")
         
         elif track == None and song != None:
             result = await player.get_tracks(query=song, ctx=inter)
-            player.queue.insert(1,result)
+            player.queue.insert(0,result)
 
     @staticmethod
     def truncate(fmt: str, *, length: int) -> str:
