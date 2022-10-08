@@ -46,7 +46,7 @@ class LinkButtonView(View):
             self.add_item(Button(label=name, url=url))
 
 
-class PlaylistView(View):
+class PlaylistView(MyView):
     message: Message | InteractionMessage | PartialInteractionMessage
     uri: str | None
 
@@ -60,13 +60,6 @@ class PlaylistView(View):
             self.add_item(PlaylistSelect(chunk))
 
         self.uri = None
-
-    async def on_timeout(self):
-        for child in self.children:
-            if isinstance(child, (Button, Select)):
-                child.disabled = True
-
-        await self.message.edit(view=self)
 
 
 class PlaylistSelect(Select[PlaylistView]):
