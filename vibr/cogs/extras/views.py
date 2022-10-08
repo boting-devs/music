@@ -56,7 +56,7 @@ class PlaylistView(View):
         chunks = [playlists[i : i + 25] for i in range(0, len(playlists), 25)]
 
         # Only care about the first 5 chunks, thats 125, do they really need more?
-        for chunk in chunks[5:]:
+        for chunk in chunks[:5]:
             self.add_item(PlaylistSelect(chunk))
 
         self.uri = None
