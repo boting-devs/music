@@ -46,6 +46,51 @@ class LinkButtonView(View):
             self.add_item(Button(label=name, url=url))
 
 
+class TimeoutView(View):
+    message: Message
+
+    async def on_timeout(self):
+        for child in self.children:
+            if isinstance(child, (Button, Select)):
+                child.disabled = True
+
+        if self.message is not None:
+            await self.message.edit(view=self)
+
+
+class MyView(TimeoutView):
+    """A collection of on_timeout: disable buttons and interaction_check: author"""
+
+    inter: MyInter
+
+    async def interaction_check(self, interaction: Interaction) -> bool:
+        # user is an owner, or was the user that started the interaction.
+        if interaction.user and interaction.user.id in (
+            list(self.interaction.client.owner_ids) + [self.interaction.user.id]  # type: ignore
+        ):
+            return True
+
+        # We know the interaction that started this, send the error with a command.
+        if self.inter and self.inter.application_command is not None:
+            cmd = self.inter.application_command.qualified_name
+            if not isinstance(cmd, str):
+                cmd = cmd.name
+
+            await interaction.response.send_message(
+                f"This menu is for {self.inter.user.mention}, "
+                f"use `/{cmd}` to have a menu to yourself.",
+                ephemeral=True,
+            )
+        else:
+            await interaction.response.send_message(
+                f"This menu is for {self.inter.user.mention}.",
+                ephemeral=True,
+            )
+
+        # Do not contine with the button press.
+        return False
+
+
 class PlaylistView(MyView):
     message: Message | InteractionMessage | PartialInteractionMessage
     uri: str | None
@@ -247,51 +292,6 @@ class QueueSource(ListPageSource):
         embed.set_author(name=self.title)
 
         return embed
-
-
-class TimeoutView(View):
-    message: Message
-
-    async def on_timeout(self):
-        for child in self.children:
-            if isinstance(child, (Button, Select)):
-                child.disabled = True
-
-        if self.message is not None:
-            await self.message.edit(view=self)
-
-
-class MyView(TimeoutView):
-    """A collection of on_timeout: disable buttons and interaction_check: author"""
-
-    inter: MyInter
-
-    async def interaction_check(self, interaction: Interaction) -> bool:
-        # user is an owner, or was the user that started the interaction.
-        if interaction.user and interaction.user.id in (
-            list(self.interaction.client.owner_ids) + [self.interaction.user.id]  # type: ignore
-        ):
-            return True
-
-        # We know the interaction that started this, send the error with a command.
-        if self.inter and self.inter.application_command is not None:
-            cmd = self.inter.application_command.qualified_name
-            if not isinstance(cmd, str):
-                cmd = cmd.name
-
-            await interaction.response.send_message(
-                f"This menu is for {self.inter.user.mention}, "
-                f"use `/{cmd}` to have a menu to yourself.",
-                ephemeral=True,
-            )
-        else:
-            await interaction.response.send_message(
-                f"This menu is for {self.inter.user.mention}.",
-                ephemeral=True,
-            )
-
-        # Do not contine with the button press.
-        return False
 
 
 class QueueView(MyView, ButtonMenuPages):
