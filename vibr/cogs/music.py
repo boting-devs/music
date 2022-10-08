@@ -795,6 +795,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         track: Optional[Range[1, ...]] = None,
         song: Optional[str] = None,
     ):
+        """Play the song just after the current playing song"""
         player = inter.guild.voice_client
         if track is not None and song is None:
             track_index = cast(int, track)
