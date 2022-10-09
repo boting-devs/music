@@ -42,10 +42,11 @@ def voted():
 
             inter.client.voted[inter.user.id] = voted
 
-        if voted is None or voted < utcnow():
-            raise VoteRequired
+        if inter.user.id not in inter.client.owner_ids:
+            if voted is None or voted < utcnow():
+                raise VoteRequired
 
-        return True
+            return True
 
     return check(inner)
 
