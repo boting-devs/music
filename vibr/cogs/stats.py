@@ -181,7 +181,7 @@ class Stats(Cog):
         view.message = m
         await view.update()
 
-    @command(name="current-stats")
+    @command(name="cstats")
     @is_owner()
     async def current_stats(self, ctx: MyContext):
         # FIXME: remove duplication of similar code
