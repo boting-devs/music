@@ -567,14 +567,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         view = PlaylistView(all_playlists)
         view.inter = inter
 
-        m = await inter.send("Choose a public playlist", view=view)
-        if (not m and isinstance(inter, BBMyInter)) or (
-            isinstance(m, PartialInteractionMessage) and isinstance(inter, BBMyInter)
-        ):
-            m = await inter.original_message()
-
-        assert m is not None
-
+        await inter.send("Choose a public playlist", view=view)
+        m = await inter.original_message()
         view.message = m
 
         await view.wait()
