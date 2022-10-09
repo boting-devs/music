@@ -66,7 +66,7 @@ class MyView(TimeoutView):
     async def interaction_check(self, interaction: Interaction) -> bool:
         # user is an owner, or was the user that started the interaction.
         if interaction.user and interaction.user.id in (
-            list(self.interaction.client.owner_ids) + [self.interaction.user.id]  # type: ignore
+            list(interaction.client.owner_ids) + [interaction.user.id]
         ):
             return True
 
