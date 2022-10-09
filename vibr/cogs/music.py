@@ -392,7 +392,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.send_author_embed(f"Volume set to '{vol}%'")
 
     @slash_command(dm_permission=False)
-    @voted()
     async def lyrics(self, inter: MyInter, *, query: str = ""):
         """Sing along to your favourite tunes!
 
