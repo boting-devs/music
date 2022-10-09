@@ -46,7 +46,7 @@ def voted():
             if voted is None or voted < utcnow():
                 raise VoteRequired
 
-            return True
+        return True
 
     return check(inner)
 
