@@ -408,7 +408,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 raise SongNotProvided()
 
             assert inter.guild.voice_client.current.title is not None
-            q = inter.guild.voice_client.current.title[:20]
+            q = inter.guild.voice_client.current.title[:20] + inter.guild.voice_client.author
+            log.info(q)
         else:
             q = query
 

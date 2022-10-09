@@ -135,6 +135,19 @@ class Misc(Cog):
         )
         await menu.start(interaction=inter, ephemeral=True)
 
+    
+    @slash_command()
+    async def donate(self,inter:MyInter):
+        """Donate to vibr"""
+        embed = Embed(title="**Support Me:)**",color=self.bot.color)
+        embed.add_field(
+            name="**Enjoy the bot? Help us keep it the way it is**",
+            value="**[click here](https://paypal.me/botingdevs)",
+        )
+        embed.set_image(url="https://lacountylibrary.org/wp-content/uploads/2018/10/eNews-ThankYouLarge-1170x658.jpg")
+        await inter.send(embed=embed)
+
+
 
 def setup(bot: Vibr):
     bot.add_cog(Misc(bot))
