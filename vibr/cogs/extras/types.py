@@ -28,6 +28,11 @@ class MyInter(botbase.MyInter):
     guild: FakeGuild
     voice_client: Player
 
+    # Pomice fuckery.
+    @property
+    def author(self):
+        return self.user
+
 
 class SpotifyPlaylists(TypedDict):
     href: str

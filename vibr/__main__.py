@@ -11,10 +11,14 @@ import nextcord
 import uvloop
 from botbase import BotBase
 from dotenv import load_dotenv
-from nextcord import Activity, ActivityType
+from nextcord import Activity, ActivityType, StageChannel, VoiceChannel
 from nextcord.ext.ipc import Server
+from orjson import dumps, loads
 from pomice import NodeConnectionFailure, NodePool
 from spotipy import Spotify, SpotifyClientCredentials, SpotifyOauthError
+
+from .cogs.extras.hack import parse_track, serialise_track
+from .cogs.extras.types import Player
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 load_dotenv()
@@ -76,6 +80,8 @@ class Vibr(BotBase):
     async def start(self, *args, **kwargs):
         await super().start(*args, **kwargs)
 
+        await self.wait_until_ready()
+
         for row in await self.db.fetch(
             "SELECT id, whitelisted FROM guilds WHERE whitelisted IS NOT NULL"
         ):
@@ -109,10 +115,94 @@ class Vibr(BotBase):
                 log.info("Successfully connected to %s", os.getenv("LAVALINK_HOST"))
                 break
 
+        rows = await self.db.fetch(
+            "SELECT channel, tracks, position FROM players WHERE tracks IS NOT NULL"
+        )
+
+        # HACK: literally the worst, stores the interaction data and parses it.
+        # This should hopefully be easier in the future.
+        node = self.pool.nodes["MAIN"]
+
+        for row in rows:
+            # I HATE HUGE TRY EXCEPTS BUT THIS MUST TRY AS MUCH AS POSSIBLE.
+            try:
+                tracks_data = row.get("tracks")
+
+                tracks = []
+                for raw_track in tracks_data:
+                    track_data = loads(raw_track)
+                    try:
+                        track = await parse_track(node=node, data=track_data, bot=bot)
+                    except Exception:
+                        log.error(
+                            "There was an issue with parsing the track.", exc_info=True
+                        )
+                        continue
+
+                    tracks.append(track)
+
+                channel = self.get_channel(row.get("channel"))
+                if channel:
+                    assert isinstance(channel, (VoiceChannel, StageChannel))
+
+                    try:
+                        player = await channel.connect(cls=Player)
+                        await player.play(tracks[0], start=row["position"])
+                        player.queue.extend(tracks[1:])
+                    except Exception:
+                        log.error(
+                            "There was an issue with playing the resumed tracks.",
+                            exc_info=True,
+                        )
+                    else:
+                        log.info("Successfully resumed %d", channel.id)
+                else:
+                    log.warning(
+                        "Failed to get channel %s after restart", row.get("channel")
+                    )
+            except Exception:
+                log.error("There was an issue with resuming the player.", exc_info=True)
+
+        # Clear up database.
+        await self.db.execute(
+            """
+            DELETE FROM players WHERE volume=NULL;
+            UPDATE players SET tracks=NULL;
+            """
+        )
+
+    async def close(self):
+        # Alright, this is an expected close so we have time.
+        for player in self.voice_clients:
+            # I HATE HUGE TRY EXCEPTS BUT THIS MUST TRY AS MUCH AS POSSIBLE.
+            try:
+                assert isinstance(player, Player)
+                # They have no tracks to save.
+                if not player.current:
+                    continue
+
+                tracks = [player.current] + player.queue
+                track_data = [dumps(serialise_track(track)) for track in tracks]
+                position = player.position
+                channel = player.channel.id
+
+                await self.db.execute(
+                    """INSERT INTO players (channel, position, tracks)
+                    VALUES ($1, $2, $3)
+                    ON CONFLICT (channel) DO UPDATE
+                        SET position=$2, tracks=$3
+                    """,
+                    channel,
+                    position,
+                    track_data,
+                )
+            except Exception:
+                log.error("There was an issue with saving the player.", exc_info=True)
+
+        await super().close()
+
     async def on_error(self, event_method: str, *args, **kwargs):
         if self.logchannel is not None:
-            painchannel = await self.getch_channel(self.logchannel)
-
             tb = format_exc()
 
             log.error(
@@ -120,6 +210,8 @@ class Vibr(BotBase):
                 event_method,
                 exc_info=True,
             )
+
+            painchannel = await self.getch_channel(self.logchannel)
 
             try:
                 await painchannel.send_embed(desc=f"```py\n{tb}```")

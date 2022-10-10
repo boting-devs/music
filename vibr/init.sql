@@ -21,7 +21,10 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE TABLE IF NOT EXISTS players (
     channel BIGINT PRIMARY KEY,
-    volume SMALLINT
+    volume SMALLINT,
+    --- Stored as bytes as that is what orjson loves, saves conversion.
+    position BIGINT,
+    tracks BYTEA[]
 );
 -- This uh, will need changing...at 32678 guilds/32678 MiB RAM, lmao, in my dreams
 
