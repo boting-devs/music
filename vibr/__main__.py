@@ -166,7 +166,7 @@ class Vibr(BotBase):
         # Clear up database.
         await self.db.execute(
             """
-            DELETE FROM players WHERE volume=NULL;
+            DELETE FROM players WHERE volume IS NULL;
             UPDATE players SET tracks=NULL;
             """
         )
