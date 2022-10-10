@@ -294,6 +294,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 if len(player.queue) + len(toplay) > 500:
                     amount = 500 - len(player.queue)
                     await inter.send_author_embed(f"Queueing {amount} tracks...")
+                    toplay = toplay[:amount]
             else:
                 info = result[0]
                 toplay = [result[0]]
