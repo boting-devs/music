@@ -25,6 +25,7 @@ Commands Used: `{commands}`
 Songs Played: `{songs}`
 Active Players: `{active_players}`
 Total Players: `{total_players}`
+Users Listening: `{listeners}`
 Lavalink Load: `{process_load:.3f}`
 System Load: `{system_load:.3f}`
 Memory Used: `{memory_used}MiB`
@@ -44,6 +45,7 @@ class Stats(Cog):
         self.memory_used: list[int] = []
         self.memory_allocated: list[int] = []
         self.memory_percentage: list[int] = []
+        self.listeners: list[int] = []
 
         self.hourly_stats.start()
         self.minute_stats.start()
@@ -67,6 +69,7 @@ class Stats(Cog):
         memory_used = mean(self.memory_used)
         memory_allocated = mean(self.memory_allocated)
         memory_percentage = mean(self.memory_percentage)
+        listeners = mean(self.listeners)
 
         now = utcnow()
 
@@ -88,11 +91,12 @@ class Stats(Cog):
                     memory_used,
                     memory_allocated,
                     memory_percentage,
+                    listeners,
                     commands,
                     total_songs)
 
                 VALUES (
-                    $1, $2, $3, $4, $5, $6, $7, $8, $9,
+                    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
                     (SELECT SUM(amount) FROM commands), (SELECT SUM(amount) FROM songs)
                 )
                 """,
@@ -105,6 +109,7 @@ class Stats(Cog):
                 memory_used,
                 memory_allocated,
                 memory_percentage,
+                listeners,
             )
             self.active_player_count.clear()
             self.total_player_count.clear()
@@ -113,6 +118,7 @@ class Stats(Cog):
             self.memory_used.clear()
             self.memory_allocated.clear()
             self.memory_percentage.clear()
+            self.listeners.clear()
 
     @hourly_stats.before_loop
     async def wait_until_next_hour(self):
@@ -155,6 +161,15 @@ class Stats(Cog):
         self.memory_allocated.append((stats.allocated or 0) // (1024**2))
         self.memory_percentage.append(
             int((stats.used or 0) / (stats.reservable or 0) * 100)
+        )
+
+        channels = [v.channel.id for v in self.bot.voice_clients]  # type: ignore
+        self.listeners.append(
+            sum(
+                len(listeners)
+                for channel, listeners in self.bot.listeners.items()
+                if channel in channels
+            )
         )
 
     @minute_stats.before_loop
@@ -204,6 +219,8 @@ class Stats(Cog):
         commands = await self.bot.db.fetchval("SELECT SUM(amount) FROM commands")
         songs = await self.bot.db.fetchval("SELECT SUM(amount) FROM songs")
 
+        channels = [v.channel.id for v in self.bot.voice_clients]  # type: ignore
+
         embed = Embed(
             title="Current Stats",
             description=STATS.format(
@@ -218,6 +235,11 @@ class Stats(Cog):
                 memory_allocated=(stats.allocated or 0) // (1024**2),
                 memory_percentage=int(
                     (stats.used or 0) / (stats.reservable or 0) * 100
+                ),
+                listeners=sum(
+                    len(listeners)
+                    for channel, listeners in self.bot.listeners.items()
+                    if channel in channels
                 ),
             ),
             color=self.bot.color,

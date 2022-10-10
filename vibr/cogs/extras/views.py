@@ -368,7 +368,7 @@ class StatsType(Enum):
     GUILDS = "guilds"
     COMMANDS = "commands"
     SONGS = "total_songs"
-    PLAYERS = "active_players, total_players"
+    PLAYERS = "active_players, total_players, listeners"
     LOAD = "lavalink_load, system_load"
     MEMORY = "memory_used, memory_allocated, memory_percentage"
 
@@ -377,7 +377,7 @@ TYPE_TO_TITLE: dict[StatsType, str] = {
     StatsType.GUILDS: "Guild Count",
     StatsType.COMMANDS: "Commands Used",
     StatsType.SONGS: "Songs Played",
-    StatsType.PLAYERS: "Players",
+    StatsType.PLAYERS: "Players/Listeners",
     StatsType.LOAD: "CPU Load",
     StatsType.MEMORY: "Memory Usage (MiB/%)",
 }
