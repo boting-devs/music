@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypedDict
 
 from nextcord import Interaction, Member, User
-from nextcord.types.interactions import ApplicationCommandInteractionData
 from pomice import Node, Track
 
 from .types import MyInter
@@ -120,9 +119,12 @@ def serialise_track(track: Track) -> SerialisedTrack:
 async def parse_track(*, node: Node, data: SerialisedTrack, bot: Vibr) -> Track:
     """Parse a track from a dict."""
 
+    inter = MyInter(Interaction(data=data["inter"], state=bot._connection), bot)
+    inter.response._responded = True
+
     return Track(
         track_id=data["id"],
         info=data["info"],
         spotify=data["spotify"],
-        ctx=MyInter(Interaction(data=data["inter"], state=bot._connection), bot),  # type: ignore
+        ctx=inter,  # type: ignore
     )
