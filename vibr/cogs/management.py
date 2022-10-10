@@ -28,10 +28,8 @@ class Management(Cog):
                 channel = inter.channel
 
                 embed = Embed(
-                    title="Vibr Is Restarting",
-                    description=(
-                        f"Vibr is restarting...\n`ETA`: {eta}\n`Reason`: {reason}"
-                    ),
+                    title="Vibr Is Restarting...",
+                    description=(f"`ETA`: {eta}\n`Reason`: {reason}"),
                     color=Colour.greyple(),
                 )
                 embed.set_footer(
