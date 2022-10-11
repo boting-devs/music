@@ -115,7 +115,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                     channel = (
                         toplay.ctx.channel
                     )  # pyright: ignore[reportOptionalMemberAccess]
-                    await channel.send(embed=embed)
+                    if channel.permissions_for(  # type: ignore
+                        channel.guild.me  # type: ignore
+                    ).send_messages:
+                        await channel.send(embed=embed)
 
                 await self.on_pomice_track_end(player, track, "")
             else:
