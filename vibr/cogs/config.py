@@ -55,6 +55,7 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
                 "Invalid url",
                 "find your spotify url with the format "
                 "`https://open.spotify.com/users/<id>(?possible_extra)`",
+                image="https://cdn.tooty.xyz/KSzS",
             )
 
         userid = match.group("id")
