@@ -43,7 +43,8 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
     async def spotify(self, ctx: MyInter, url: str):
         """Link your spotify account :)
 
-        url: Your spotify profile url, find how to here: https://cdn.tooty.xyz/KSzS
+        url:
+            Your spotify profile url, find how to here: https://cdn.tooty.xyz/KSzS
         """
 
         # Check if input is a valid spotify account URL
