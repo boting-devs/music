@@ -248,6 +248,12 @@ class PlayButton(View):
         inter.guild.voice_client.queue.insert(0, current_song)
         await inter.send_author_embed("looping song once \U0001f502")
 
+    @button(emoji="\U0001f90d" , style=ButtonStyle.blurple,custom_id="view:like")
+    async def like(self,_:Button,inter:Interaction):
+        assert inter.guild is not None
+        inter = MyInter(inter,inter.client) # type: ignore
+        await inter.send("This will save your song . Not built yet")
+
 
 class MyMenu(ButtonMenuPages):
     inter: MyInter
