@@ -80,9 +80,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             or not inter.user.voice.channel.permissions_for(inter.me).speak
         ) and not inter.user.voice.channel.permissions_for(inter.me).administrator:
             raise BotMissingPermissions(["connect", "speak"])
-        elif not inter.app_permissions.send_messages:
+        elif not inter.channel.permissions_for(inter.guild.me).send_messages:  # type: ignore
             raise BotMissingPermissions(["send_messages"])
-        elif not inter.app_permissions.view_channel:
+        elif not inter.channel.permissions_for(inter.guild.me).view_channel:  # type: ignore
             raise BotMissingPermissions(["view_channel"])
         elif inter.guild.voice_client is not None:
             if inter.user.voice.channel.id != inter.guild.voice_client.channel.id:

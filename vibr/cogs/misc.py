@@ -95,7 +95,10 @@ class Misc(Cog):
                     "[this link](https://discord.com/api/oauth2/authorize?client_id=882491278581977179&permissions=3427392&scope=bot%20applications.commands)",
                     color=self.bot.color,
                 )
-                await message.channel.send(embed=embed)
+
+                perms = message.channel.permissions_for(message.guild.me)  # type: ignore
+                if perms.send_messages and perms.view_channel:
+                    await message.channel.send(embed=embed)
 
     @slash_command()
     async def vote(self, inter: MyInter):
@@ -130,23 +133,26 @@ class Misc(Cog):
         """Recent announcements/notifications."""
 
         notifs = await self.bot.db.fetch("SELECT * FROM notifications ORDER BY id DESC")
+        if not notifs:
+            return await inter.send("No notifications are available")
+
         menu = NotificationView(
             source=NotificationSource(list(map(Notification, notifs))), inter=inter
         )
         await menu.start(interaction=inter, ephemeral=True)
 
-    
     @slash_command()
-    async def donate(self,inter:MyInter):
+    async def donate(self, inter: MyInter):
         """Donate to vibr"""
-        embed = Embed(title="**Support Me:)**",color=self.bot.color)
+        embed = Embed(title="**Support Me :)**", color=self.bot.color)
         embed.add_field(
             name="**Enjoy the bot? Help us keep it the way it is**",
             value="**[click here](https://paypal.me/botingdevs)**",
         )
-        embed.set_image(url="https://lacountylibrary.org/wp-content/uploads/2018/10/eNews-ThankYouLarge-1170x658.jpg")
+        embed.set_image(
+            url="https://lacountylibrary.org/wp-content/uploads/2018/10/eNews-ThankYouLarge-1170x658.jpg"
+        )
         await inter.send(embed=embed)
-
 
 
 def setup(bot: Vibr):
