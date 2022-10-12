@@ -20,17 +20,17 @@ if TYPE_CHECKING:
 
 
 STATS: str = """
-Guilds: `{guilds}`
-Commands Used: `{commands}`
-Songs Played: `{songs}`
-Active Players: `{active_players}`
-Total Players: `{total_players}`
-Users Listening: `{listeners}`
+Guilds: `{guilds:,}`
+Commands Used: `{commands:,}`
+Songs Played: `{songs:,}`
+Active Players: `{active_players:,}`
+Total Players: `{total_players:,}`
+Users Listening: `{listeners:,}`
 Lavalink Load: `{process_load:.3f}`
 System Load: `{system_load:.3f}`
-Memory Used: `{memory_used}MiB`
-Memory Allocated: `{memory_allocated}MiB`
-Memory %: `{memory_percentage}%`
+Memory Used: `{memory_used:,}MiB`
+Memory Allocated: `{memory_allocated:,}MiB`
+Memory %: `{memory_percentage:.0f}%`
 """.strip()
 
 
