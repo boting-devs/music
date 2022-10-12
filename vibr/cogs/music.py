@@ -130,7 +130,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             ):
                 return
 
-            self.bot.loop.create_task(self.leave_check(track.ctx))  # type: ignore
+            if track is not None:
+                self.bot.loop.create_task(self.leave_check(track.ctx))  # type: ignore
 
     @Cog.listener()
     async def on_voice_state_update(

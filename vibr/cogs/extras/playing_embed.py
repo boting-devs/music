@@ -90,8 +90,13 @@ async def playing_embed(
     if skipped_by:
         embed.description = embed.description + "\n skipped by " + skipped_by
 
+    author = str(title) + " - " + str(author)
+
+    if len(author) > 256:
+        author = author[:253] + "..."
+
     embed.set_author(
-        name=str(title) + " - " + str(author),
+        name=author,
         url=track.uri or "https://www.youtube.com/",
     )
 
