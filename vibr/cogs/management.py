@@ -27,7 +27,7 @@ class Management(Cog):
                 assert isinstance(inter, MyInter)
                 channel = inter.channel
                 perms = channel.permissions_for(channel.guild.me)  # type: ignore
-                if not perms.view_channel or perms.send_messages:
+                if not perms.view_channel or not perms.send_messages:
                     continue
 
                 embed = Embed(
