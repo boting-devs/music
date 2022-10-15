@@ -254,7 +254,7 @@ class PlayButton(View):
         inter.guild.voice_client.queue.insert(0, current_song)
         await inter.send_author_embed("looping song once \U0001f502")
 
-    @button(emoji="\U0001f90d", style=ButtonStyle.blurple, custom_id="view:like")
+    '''@button(emoji="\U0001f90d", style=ButtonStyle.blurple, custom_id="view:like")
     async def like(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -263,7 +263,7 @@ class PlayButton(View):
             "INSERT INTO song_data(id,lavalink_id,source, name , artist , artist , length  , thumbnail  , uri) VALUES ($1 , $2 ,$3,$4,$5,$6,$7)",
             player.identifier,player.spotify,player.track_id,player.title,player.author,player.length,player.thumbnail,player.uri
         )
-        await inter.send("Saved")
+        await inter.send("Saved")'''
 
         
 
