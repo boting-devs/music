@@ -28,7 +28,7 @@ async def playing_embed(
 ):
     from . import views  # circular
 
-    view = views.PlayButton()
+    view = views.PlayButton(track)
     if isinstance(track, Playlist):
         assert track.tracks[0].ctx is not None
 
