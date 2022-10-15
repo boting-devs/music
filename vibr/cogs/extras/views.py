@@ -263,7 +263,7 @@ class PlayButton(View):
         player=inter.guild.voice_client.current
         await inter.bot.db.execute(
             "INSERT INTO song_data(id,lavalink_id, name , artist  , length  , thumbnail  , uri) VALUES ($1 , $2 ,$3,$4,$5,$6,$7)",
-            player.identifier.track_id,player.title,player.author,player.length,player.thumbnail,player.uri
+            player.identifier,player.track_id,player.title,player.author,player.length,player.thumbnail,player.uri
         )
         await inter.send("Saved")
 
