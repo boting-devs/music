@@ -54,12 +54,12 @@ CREATE TABLE IF NOT EXISTS playlists (
 CREATE TABLE IF NOT EXISTS song_data (
     id VARCHAR PRIMARY KEY,
     lavalink_id VARCHAR NOT NULL,
-    source VARCHAR NOT NULL DEFAULT 'YouTube',
+    source VARCHAR NOT NULL,
     name VARCHAR NOT NULL,
     artist VARCHAR NOT NULL,
     length INT NOT NULL,
     thumbnail VARCHAR NOT NULL,
-    uri VARCHAR NOT NULL,
+    uri VARCHAR NOT NULL
 );
 
 -- Junction table with a composite primary key - many to many relation.
