@@ -17,6 +17,7 @@ from nextcord.ext.menus import ButtonMenuPages, ListPageSource
 from nextcord.ui import Button, Select, View, button, select
 from pomice import Playlist, Track
 
+
 from .playing_embed import playing_embed
 from .types import MyInter
 
@@ -31,6 +32,8 @@ if TYPE_CHECKING:
 
     from .types import Notification
     from .types import Playlist as SpotifyPlaylist
+    from ...__main__ import Vibr
+
 
 
 log = getLogger(__name__)
@@ -148,8 +151,9 @@ class PlaylistSelect(Select[PlaylistView]):
 
 
 class PlayButton(View):
-    def __init__(self, track: Track | Playlist | None):
+    def __init__(self, track: Track | Playlist | None,bot:Vibr):
         super().__init__(timeout=None)
+        self.bot = bot
 
         if isinstance(track, Track):
             self.track = track
