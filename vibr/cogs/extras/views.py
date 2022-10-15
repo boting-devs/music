@@ -258,7 +258,14 @@ class PlayButton(View):
     async def like(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
-        await inter.send("This will save your song . Not built yet")
+        player=inter.guild.voice_client.current
+        await self.bot.db.execute(
+            "INSERT INTO song_data(id,lavalink_id, name , artist , artist , length  , thumbnail  , uri) VALUES ($1 , $2 ,$3,$4,$5,$6,$7)",
+            player.identifier,player.track_id,player.title,player.author,player.length,player.thumbnail,player.uri
+        )
+        await inter.send("Saved")
+
+        
 
 
 class MyMenu(ButtonMenuPages):
