@@ -32,7 +32,6 @@ if TYPE_CHECKING:
 
     from .types import Notification
     from .types import Playlist as SpotifyPlaylist
-    from ...__main__ import Vibr
 
 
 
@@ -151,9 +150,8 @@ class PlaylistSelect(Select[PlaylistView]):
 
 
 class PlayButton(View):
-    def __init__(self, track: Track | Playlist | None,bot:Vibr):
+    def __init__(self, track: Track | Playlist | None,):
         super().__init__(timeout=None)
-        self.bot = bot
 
         if isinstance(track, Track):
             self.track = track
@@ -263,7 +261,7 @@ class PlayButton(View):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
         player=inter.guild.voice_client.current
-        await self.bot.db.execute(
+        await inter.bot.db.execute(
             "INSERT INTO song_data(id,lavalink_id, name , artist  , length  , thumbnail  , uri) VALUES ($1 , $2 ,$3,$4,$5,$6,$7)",
             player.identifier.track_id,player.title,player.author,player.length,player.thumbnail,player.uri
         )
