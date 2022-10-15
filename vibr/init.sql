@@ -41,31 +41,4 @@ CREATE TABLE IF NOT EXISTS hourly_stats (
     memory_percentage SMALLINT NOT NULL,
     total_songs INT NOT NULL,
     listeners BIGINT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS playlists (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR NOT NULL DEFAULT 'Liked Songs',
-    owner BIGINT REFERENCES users(id) ON DELETE CASCADE,
-    description VARCHAR NOT NULL DEFAULT '',
-    UNIQUE (name, owner)
-);
-
-CREATE TABLE IF NOT EXISTS song_data (
-    id VARCHAR PRIMARY KEY,
-    lavalink_id VARCHAR NOT NULL,
-    source VARCHAR NOT NULL DEFAULT 'YouTube',
-    name VARCHAR NOT NULL,
-    artist VARCHAR NOT NULL,
-    length INT NOT NULL,
-    thumbnail VARCHAR NOT NULL,
-    uri VARCHAR NOT NULL,
-);
-
--- Junction table with a composite primary key - many to many relation.
-CREATE TABLE IF NOT EXISTS song_to_playlist (
-    song VARCHAR NOT NULL REFERENCES song_data(id) ON DELETE CASCADE,
-    playlist INT NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
-    added TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(song, playlist)
-);
+)

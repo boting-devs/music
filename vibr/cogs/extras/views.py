@@ -15,7 +15,6 @@ from matplotlib.pyplot import close, savefig, subplots
 from nextcord import ButtonStyle, Embed, File, Interaction, SelectOption
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
 from nextcord.ui import Button, Select, View, button, select
-from pomice import Playlist, Track
 
 from .playing_embed import playing_embed
 from .types import MyInter
@@ -28,9 +27,9 @@ if TYPE_CHECKING:
         PartialEmoji,
         PartialInteractionMessage,
     )
+    from pomice import Track
 
-    from .types import Notification
-    from .types import Playlist as SpotifyPlaylist
+    from .types import Notification, Playlist
 
 
 log = getLogger(__name__)
@@ -96,7 +95,7 @@ class PlaylistView(MyView):
     message: Message | InteractionMessage | PartialInteractionMessage
     uri: str | None
 
-    def __init__(self, playlists: list[SpotifyPlaylist]) -> None:
+    def __init__(self, playlists: list[Playlist]) -> None:
         super().__init__()
         # Split the playlists into chunks of 5 for the select menus.
         chunks = [playlists[i : i + 25] for i in range(0, len(playlists), 25)]
@@ -109,7 +108,7 @@ class PlaylistView(MyView):
 
 
 class PlaylistSelect(Select[PlaylistView]):
-    def __init__(self, chunk: list[SpotifyPlaylist]) -> None:
+    def __init__(self, chunk: list[Playlist]) -> None:
         super().__init__(
             placeholder="Select a playlist",
             min_values=1,
@@ -148,13 +147,8 @@ class PlaylistSelect(Select[PlaylistView]):
 
 
 class PlayButton(View):
-    def __init__(self, track: Track | Playlist | None):
+    def __init__(self):
         super().__init__(timeout=None)
-
-        if isinstance(track, Track):
-            self.track = track
-        else:
-            self.track = None
 
     async def interaction_check(self, inter: Interaction) -> bool:
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -254,11 +248,11 @@ class PlayButton(View):
         inter.guild.voice_client.queue.insert(0, current_song)
         await inter.send_author_embed("looping song once \U0001f502")
 
-    @button(emoji="\U0001f90d", style=ButtonStyle.blurple, custom_id="view:like")
-    async def like(self, _: Button, inter: Interaction):
-        assert inter.guild is not None
-        inter = MyInter(inter, inter.client)  # type: ignore
-        await inter.send("This will save your song . Not built yet")
+    # @button(emoji="\U0001f90d" , style=ButtonStyle.blurple,custom_id="view:like")
+    # async def like(self,_:Button,inter:Interaction):
+    #     assert inter.guild is not None
+    #     inter = MyInter(inter,inter.client) # type: ignore
+    #     await inter.send("This will save your song . Not built yet")
 
 
 class MyMenu(ButtonMenuPages):
