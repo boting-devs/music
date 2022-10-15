@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS playlists (
 CREATE TABLE IF NOT EXISTS song_data (
     id VARCHAR PRIMARY KEY,
     lavalink_id VARCHAR NOT NULL,
-    source VARCHAR NOT NULL,
+    spotify BOOLEAN NOT NULL,
     name VARCHAR NOT NULL,
     artist VARCHAR NOT NULL,
     length INT NOT NULL,
