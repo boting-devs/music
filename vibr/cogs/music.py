@@ -98,7 +98,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.views_added:
-            self.bot.add_view(PlayButton())
+            self.bot.add_view(PlayButton(None))
             self.bot.views_added = True
 
     @Cog.listener()
