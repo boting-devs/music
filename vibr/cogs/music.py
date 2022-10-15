@@ -127,7 +127,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
                 await self.on_pomice_track_end(player, track, "")
             else:
-                await playing_embed(toplay)
+                inter = toplay.ctx
+                perms = inter.channel.permissions_for(inter.guild.me)  # type: ignore
+                if (
+                    perms.view_channel
+                    and perms.send_messages
+                    and not (
+                        inter.guild.me.communication_disabled_until is not None  # type: ignore
+                        and inter.guild.me.communication_disabled_until > utcnow()  # type: ignore
+                    )
+                ):
+                    await playing_embed(toplay)
         else:
             if (
                 player.channel.guild.id in self.bot.whitelisted_guilds
