@@ -17,7 +17,6 @@ from nextcord.ext.menus import ButtonMenuPages, ListPageSource
 from nextcord.ui import Button, Select, View, button, select
 from pomice import Playlist, Track
 
-
 from .playing_embed import playing_embed
 from .types import MyInter
 
@@ -32,7 +31,6 @@ if TYPE_CHECKING:
 
     from .types import Notification
     from .types import Playlist as SpotifyPlaylist
-
 
 
 log = getLogger(__name__)
@@ -150,7 +148,10 @@ class PlaylistSelect(Select[PlaylistView]):
 
 
 class PlayButton(View):
-    def __init__(self, track: Track | Playlist | None,):
+    def __init__(
+        self,
+        track: Track | Playlist | None,
+    ):
         super().__init__(timeout=None)
 
         if isinstance(track, Track):
@@ -260,14 +261,34 @@ class PlayButton(View):
     async def like(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
-        player=inter.guild.voice_client.current
-        await inter.bot.db.execute(
-            "INSERT INTO song_data(id,lavalink_id,spotify, name , artist  , length  , thumbnail  , uri) VALUES ($1 , $2 ,$3,$4,$5,$6,$7,$8)",
-            self.track.identifier,self.track.track_id,self.track.spotify, self.track.title,self.track.author,self.track.length/1000,self.track.thumbnail,self.track.uri
-        )
-        await inter.send("Saved")
 
-        
+        if self.track is not None:
+            await inter.bot.db.execute(
+                """INSERT INTO song_data
+                (id,
+                lavalink_id
+                spotify,
+                name,
+                artist,
+                length,
+                thumbnail,
+                uri)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                """,
+                self.track.identifier,
+                self.track.track_id,
+                self.track.spotify,
+                self.track.title,
+                self.track.author,
+                self.track.length / 1000 if self.track.length is not None else 0,
+                self.track.thumbnail,
+                self.track.uri,
+            )
+            await inter.send("Saved")
+        else:
+            await inter.send(
+                "Could not save track, it is either a playlist or failed to be found."
+            )
 
 
 class MyMenu(ButtonMenuPages):
