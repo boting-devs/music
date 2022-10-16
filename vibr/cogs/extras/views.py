@@ -275,8 +275,8 @@ class PlayButton(View):
                 uri)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO UPDATE
                 SET likes = song_data.likes + 1;
-                INSERT INTO users (id) VALUES $9 ON CONFLICT DO NOTHING;
-                INSERT INTO playlists (owner) VALUES $9 ON CONFLICT DO NOTHING;
+                INSERT INTO users (id) VALUES ($9) ON CONFLICT DO NOTHING;
+                INSERT INTO playlists (owner) VALUES ($9) ON CONFLICT DO NOTHING;
                 INSERT INTO song_to_playlist (song, playlist)
                     VALUES ($1, (SELECT id FROM playlists WHERE owner = $9))
                     ON CONFLICT DO NOTHING;
