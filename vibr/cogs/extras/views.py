@@ -273,7 +273,13 @@ class PlayButton(View):
                 length,
                 thumbnail,
                 uri)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO UPDATE
+                SET likes = song_data.likes + 1;
+                INSERT INTO users (id) VALUES $9 ON CONFLICT DO NOTHING;
+                INSERT INTO playlists (owner) VALUES $9 ON CONFLICT DO NOTHING;
+                INSERT INTO song_to_playlist (song, playlist)
+                    VALUES ($1, (SELECT id FROM playlists WHERE owner = $9))
+                    ON CONFLICT DO NOTHING;
                 """,
                 self.track.identifier,
                 self.track.track_id,
@@ -283,11 +289,13 @@ class PlayButton(View):
                 self.track.length / 1000 if self.track.length is not None else 0,
                 self.track.thumbnail,
                 self.track.uri,
+                inter.user.id,
             )
-            await inter.send("Saved")
+            await inter.send(f"Saved {self.track.title} to your liked songs!")
         else:
             await inter.send(
-                "Could not save track, it is either a playlist or failed to be found."
+                "Could not save track, it is either a playlist, "
+                "or Vibr restarted since it was played."
             )
 
 
