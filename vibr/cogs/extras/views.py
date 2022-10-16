@@ -301,10 +301,10 @@ class PlayButton(View):
                     )
                     await con.execute(
                         """INSERT INTO song_to_playlist (song, playlist)
-                        VALUES ($1, (SELECT id FROM playlists WHERE owner = $1))
+                        VALUES ($1, (SELECT id FROM playlists WHERE owner = $2))
                         ON CONFLICT DO NOTHING""",
-                        inter.user.id,
                         self.track.identifier,
+                        inter.user.id,
                     )
             await inter.send(f"Saved {self.track.title} to your liked songs!")
         else:
