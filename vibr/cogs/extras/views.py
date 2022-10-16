@@ -276,8 +276,8 @@ class PlayButton(View):
                         length,
                         thumbnail,
                         uri)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO UPDATE
-                        SET likes = song_data.likes + 1
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id)
+                        DO UPDATE SET likes = song_data.likes + 1
                         """,
                         self.track.identifier,
                         self.track.track_id,
