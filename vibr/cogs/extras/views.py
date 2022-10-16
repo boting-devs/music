@@ -263,34 +263,49 @@ class PlayButton(View):
         inter = MyInter(inter, inter.client)  # type: ignore
 
         if self.track is not None:
-            await inter.bot.db.execute(
-                """INSERT INTO song_data
-                (id,
-                lavalink_id,
-                spotify,
-                name,
-                artist,
-                length,
-                thumbnail,
-                uri)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO UPDATE
-                SET likes = song_data.likes + 1;
-                INSERT INTO users (id) VALUES ($9) ON CONFLICT DO NOTHING;
-                INSERT INTO playlists (owner) VALUES ($9) ON CONFLICT DO NOTHING;
-                INSERT INTO song_to_playlist (song, playlist)
-                    VALUES ($1, (SELECT id FROM playlists WHERE owner = $9))
-                    ON CONFLICT DO NOTHING;
-                """,
-                self.track.identifier,
-                self.track.track_id,
-                self.track.spotify,
-                self.track.title,
-                self.track.author,
-                self.track.length / 1000 if self.track.length is not None else 0,
-                self.track.thumbnail,
-                self.track.uri,
-                inter.user.id,
-            )
+            # So all statements fail one fails
+            async with inter.bot.db.acquire() as con:
+                async with con.transaction() as t:
+                    await t.execute(
+                        """INSERT INTO song_data
+                        (id,
+                        lavalink_id,
+                        spotify,
+                        name,
+                        artist,
+                        length,
+                        thumbnail,
+                        uri)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO UPDATE
+                        SET likes = song_data.likes + 1
+                        """,
+                        self.track.identifier,
+                        self.track.track_id,
+                        self.track.spotify,
+                        self.track.title,
+                        self.track.author,
+                        self.track.length / 1000
+                        if self.track.length is not None
+                        else 0,
+                        self.track.thumbnail,
+                        self.track.uri,
+                    )
+                    await t.execute(
+                        """INSERT INTO users (id) VALUES ($1) ON CONFLICT DO NOTHING""",
+                        inter.user.id,
+                    )
+                    await t.execute(
+                        """INSERT INTO PLAYLISTS (owner)
+                        VALUES ($1) ON CONFLICT DO NOTHING""",
+                        inter.user.id,
+                    )
+                    await t.execute(
+                        """INSERT INTO song_to_playlist (song, playlist)
+                        VALUES ($1, (SELECT id FROM playlists WHERE owner = $1))
+                        ON CONFLICT DO NOTHING""",
+                        inter.user.id,
+                        self.track.identifier,
+                    )
             await inter.send(f"Saved {self.track.title} to your liked songs!")
         else:
             await inter.send(
