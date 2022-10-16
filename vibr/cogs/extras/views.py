@@ -266,7 +266,7 @@ class PlayButton(View):
             await inter.bot.db.execute(
                 """INSERT INTO song_data
                 (id,
-                lavalink_id
+                lavalink_id,
                 spotify,
                 name,
                 artist,

@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS song_data (
     length INT NOT NULL,
     thumbnail VARCHAR NOT NULL,
     uri VARCHAR NOT NULL,
-    likes INT NOT NULL DEFAULT 0,
+    likes INT NOT NULL DEFAULT 0
 );
 
 -- Junction table with a composite primary key - many to many relation.
