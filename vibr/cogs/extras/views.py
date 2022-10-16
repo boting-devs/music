@@ -265,8 +265,8 @@ class PlayButton(View):
         if self.track is not None:
             # So all statements fail one fails
             async with inter.bot.db.acquire() as con:
-                async with con.transaction() as t:
-                    await t.execute(
+                async with con.transaction():
+                    await con.execute(
                         """INSERT INTO song_data
                         (id,
                         lavalink_id,
@@ -290,16 +290,16 @@ class PlayButton(View):
                         self.track.thumbnail,
                         self.track.uri,
                     )
-                    await t.execute(
+                    await con.execute(
                         """INSERT INTO users (id) VALUES ($1) ON CONFLICT DO NOTHING""",
                         inter.user.id,
                     )
-                    await t.execute(
+                    await con.execute(
                         """INSERT INTO PLAYLISTS (owner)
                         VALUES ($1) ON CONFLICT DO NOTHING""",
                         inter.user.id,
                     )
-                    await t.execute(
+                    await con.execute(
                         """INSERT INTO song_to_playlist (song, playlist)
                         VALUES ($1, (SELECT id FROM playlists WHERE owner = $1))
                         ON CONFLICT DO NOTHING""",
