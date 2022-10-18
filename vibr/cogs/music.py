@@ -75,20 +75,19 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             raise Ignore()
         elif inter.user.voice is None or inter.user.voice.channel is None:
             raise NotInVoice()
-        elif (
-            not inter.user.voice.channel.permissions_for(inter.me).connect
-            or not inter.user.voice.channel.permissions_for(inter.me).speak
-        ) and not inter.user.voice.channel.permissions_for(inter.me).administrator:
+        elif (not perms.connect or not perms.speak) and not perms.administrator:
             raise BotMissingPermissions(["connect", "speak"])
         elif (
             inter.guild.me.communication_disabled_until is not None
             and inter.guild.me.communication_disabled_until > utcnow()
         ):
             raise BotMissingPermissions(["send_messages"])
-        elif not inter.channel.permissions_for(inter.guild.me).send_messages:  # type: ignore
+        elif not perms.send_messages:
             raise BotMissingPermissions(["send_messages"])
-        elif not inter.channel.permissions_for(inter.guild.me).view_channel:  # type: ignore
+        elif not perms.view_channel:
             raise BotMissingPermissions(["view_channel"])
+        elif not perms.embed_links:
+            raise BotMissingPermissions(["embed_links"])
         elif inter.guild.voice_client is not None:
             if inter.user.voice.channel.id != inter.guild.voice_client.channel.id:
                 raise NotInSameVoice()
