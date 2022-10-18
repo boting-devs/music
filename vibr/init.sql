@@ -45,9 +45,9 @@ CREATE TABLE IF NOT EXISTS hourly_stats (
 
 CREATE TABLE IF NOT EXISTS playlists (
     id SERIAL PRIMARY KEY,
-    name VARCHAR NOT NULL DEFAULT 'Liked Songs',
+    name VARCHAR(100) NOT NULL DEFAULT 'Liked Songs',
     owner BIGINT REFERENCES users(id) ON DELETE CASCADE,
-    description VARCHAR NOT NULL DEFAULT '',
+    description VARCHAR(300) NOT NULL DEFAULT '',
     UNIQUE (name, owner)
 );
 

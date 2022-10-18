@@ -6,7 +6,7 @@ from io import BytesIO
 from logging import getLogger
 from random import sample, shuffle
 from time import gmtime, strftime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 from botbase import MyContext
 from cycler import cycler
@@ -92,7 +92,7 @@ class MyView(TimeoutView):
         return False
 
 
-class PlaylistView(MyView):
+class UserPlaylistView(MyView):
     message: Message | InteractionMessage | PartialInteractionMessage
     uri: str | None
 
@@ -108,7 +108,7 @@ class PlaylistView(MyView):
         self.uri = None
 
 
-class PlaylistSelect(Select[PlaylistView]):
+class PlaylistSelect(Select[UserPlaylistView]):
     def __init__(self, chunk: list[SpotifyPlaylist]) -> None:
         super().__init__(
             placeholder="Select a playlist",
@@ -564,3 +564,64 @@ class StatsView(TimeoutView):
         embed.set_image("attachment://stats.png")
 
         return embed, file
+
+
+PLAYLIST_FORMAT = """
+**{index}.** [{title}]({uri}) by {artist} [{time}]
+Date Added: {added}
+"""
+
+
+class PlaylistTrack(TypedDict):
+    name: str
+    artist: str
+    length: int
+    uri: str
+    added: datetime
+
+
+class UserPlaylistView(MyView, ButtonMenuPages):
+    def __init__(self, source: ListPageSource) -> None:
+        super().__init__(source=source, style=ButtonStyle.blurple)
+
+
+class UserPlaylistSource(ListPageSource):
+    def __init__(
+        self, *, title: str, songs: list[PlaylistTrack], description: str = ""
+    ):
+        super().__init__(entries=songs, per_page=10)
+        self.songs = songs
+        self.title = title
+        self.description = description
+
+    def format_page(self, menu: MyMenu, songs: list[PlaylistTrack]) -> Embed:
+        add = self.songs.index(songs[0]) + 1
+        desc = "\n".join(
+            PLAYLIST_FORMAT.format(
+                index=i + add,
+                title=t["name"],
+                uri=t["uri"],
+                artist=t["artist"],
+                time=strftime("%H:%M:%S", gmtime((t["length"] or 0) / 1000)),
+                added=t["added"].strftime("%d/%m/%Y %H:%M:%S"),
+            )
+            for i, t in enumerate(songs)
+        )
+
+        embed = Embed(
+            description=desc,
+            color=menu.ctx.bot.color if menu.ctx else menu.interaction.client.color,  # type: ignore
+        )
+
+        maximum = self.get_max_pages()
+        # if maximum > 1:
+        c = sum((t["length"] / 1000 if t["length"] else 0) for t in self.songs)
+        a = strftime("%H:%M:%S", gmtime(round(c)))
+        embed.set_footer(
+            text=f"Page {menu.current_page + 1}/{maximum} "
+            f"({len(self.songs)} tracks - total {a})"
+        )
+
+        embed.set_author(name=self.title)
+
+        return embed
