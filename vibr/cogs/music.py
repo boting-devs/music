@@ -130,6 +130,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await self.on_pomice_track_end(player, track, "")
             else:
                 inter = toplay.ctx
+                if inter.guild is None:
+                    return  # ???
+
                 perms = inter.channel.permissions_for(inter.guild.me)  # type: ignore
                 if (
                     perms.view_channel
