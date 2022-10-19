@@ -841,7 +841,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected()
     async def likeadd(self,inter:MyInter):
         player = inter.guild.voice_client.current
-        '''await self.bot.db.execute("""INSERT INTO song_data
+        await self.bot.db.execute("""INSERT INTO song_data
                         (id,
                         lavalink_id,
                         spotify,
@@ -862,7 +862,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                         if player.length is not None
                         else 0,
                         player.thumbnail,
-                        player.uri)'''
+                        player.uri)
         await inter.send("Saved {player.title} to your liked songs!")
 
 
