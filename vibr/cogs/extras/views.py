@@ -569,7 +569,7 @@ class StatsView(TimeoutView):
 PLAYLIST_FORMAT = """
 **{index}.** [{title}]({uri}) by {artist} [{time}]
 Date Added: {added}
-"""
+""".strip()
 
 
 class PlaylistTrack(TypedDict):
