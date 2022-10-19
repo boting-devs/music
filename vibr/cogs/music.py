@@ -841,29 +841,32 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected()
     async def likeadd(self,inter:MyInter):
         player = inter.guild.voice_client.current
-        await self.bot.db.execute("""INSERT INTO song_data
-                        (id,
-                        lavalink_id,
-                        spotify,
-                        name,
-                        artist,
-                        length,
-                        thumbnail,
-                        uri)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id)
-                        DO UPDATE SET likes = song_data.likes + 1
-                        """,
-                        player.identifier,
-                        player.track_id,
-                        player.spotify,
-                        player.title,
-                        player.author,
-                        player.length/ 1000
-                        if player.length is not None
-                        else 0,
-                        player.thumbnail,
-                        player.uri)
-        await inter.send(f"Saved {player.title} to your liked songs!")
+        if player is not None:
+            await self.bot.db.execute("""INSERT INTO song_data
+                            (id,
+                            lavalink_id,
+                            spotify,
+                            name,
+                            artist,
+                            length,
+                            thumbnail,
+                            uri)
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id)
+                            DO UPDATE SET likes = song_data.likes + 1
+                            """,
+                            player.identifier,
+                            player.track_id,
+                            player.spotify,
+                            player.title,
+                            player.author,
+                            player.length/ 1000
+                            if player.length is not None
+                            else 0,
+                            player.thumbnail,
+                            player.uri)
+            await inter.send(f"Saved {player.title} to your liked songs!")
+        else:
+            await inter.send("Please play a song to save it")
 
 
     @staticmethod
