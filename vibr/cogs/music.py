@@ -34,8 +34,7 @@ from .extras.views import (
     PlayButton,
     QueueSource,
     QueueView,
-    UserPlaylistSource,
-    UserPlaylistView,
+    SpotifyPlaylistView,
 )
 
 if TYPE_CHECKING:
@@ -130,7 +129,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 await self.on_pomice_track_end(player, track, "")
             else:
                 inter = toplay.ctx
-                if inter.guild is None:
+                if inter is None or inter.guild is None:
                     return  # ???
 
                 perms = inter.channel.permissions_for(inter.guild.me)  # type: ignore
@@ -590,7 +589,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 "**You do not have any public playlists!**\nPlease refer to this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/",
             )
 
-        view = UserPlaylistView(all_playlists)
+        view = SpotifyPlaylistView(all_playlists)
         view.inter = inter
 
         await inter.send("Choose a public playlist", view=view)
@@ -840,38 +839,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send("Please fill one of the options to use the command")
         else:
             await inter.send("Please only fill one option to use this command properly")
-    
-    @slash_command(name="like-add",dm_permission=False)
-    @connected()
-    async def likeadd(self,inter:MyInter):
-        player = inter.guild.voice_client.current
-        if player is not None:
-            await self.bot.db.execute("""INSERT INTO song_data
-                            (id,
-                            lavalink_id,
-                            spotify,
-                            name,
-                            artist,
-                            length,
-                            thumbnail,
-                            uri)
-                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id)
-                            DO UPDATE SET likes = song_data.likes + 1
-                            """,
-                            player.identifier,
-                            player.track_id,
-                            player.spotify,
-                            player.title,
-                            player.author,
-                            player.length/ 1000
-                            if player.length is not None
-                            else 0,
-                            player.thumbnail,
-                            player.uri)
-            await inter.send(f"Saved {player.title} to your liked songs!")
-        else:
-            await inter.send("Please play a song to save it")
-
 
     @staticmethod
     def truncate(fmt: str, *, length: int) -> str:
@@ -914,39 +881,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 self.truncate(f"{i}. {t.title} - {t.author}", length=100): i
                 for i, t in zip(matches, tracks)
             }
-
-    @slash_command(dm_permission=False)
-    async def liked(self):
-        ...
-
-    @liked.subcommand(name="list")
-    async def liked_list(self, inter: MyInter):
-        songs = await self.bot.db.fetch(
-            """SELECT
-                song_data.name,
-                song_data.artist,
-                song_data.length,
-                song_data.uri,
-                song_to_playlist.added
-            FROM song_data
-
-            INNER JOIN song_to_playlist
-            ON song_to_playlist.song = song_data.id
-
-            INNER JOIN playlists
-            ON playlists.id = song_to_playlist.playlist
-
-            WHERE playlists.id = (
-                SELECT id FROM playlists WHERE owner=$1 AND name='Liked Songs'
-            )
-            """,
-            inter.user.id,
-        )
-
-        view = UserPlaylistView(
-            source=UserPlaylistSource(title="Liked Songs", songs=songs)
-        )
-        await view.start(interaction=inter)
 
 
 def setup(bot: Vibr):

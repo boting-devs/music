@@ -92,7 +92,7 @@ class MyView(TimeoutView):
         return False
 
 
-class UserPlaylistView(MyView):
+class SpotifyPlaylistView(MyView):
     message: Message | InteractionMessage | PartialInteractionMessage
     uri: str | None
 
