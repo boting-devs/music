@@ -101,7 +101,7 @@ async def playing_embed(
     )
 
     if inter.voice_client is not None:
-        embed.set_footer(text=f"Volume : {inter.voice_client.volume}")
+        embed.set_footer(text=f"Volume: {inter.voice_client.volume}")
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)

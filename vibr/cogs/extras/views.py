@@ -262,6 +262,8 @@ class PlayButton(View):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
+        log.info("length %d", self.track.length)
+
         if self.track is not None:
             # So all statements fail one fails
             async with inter.bot.db.acquire() as con:
