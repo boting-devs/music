@@ -863,7 +863,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                         else 0,
                         player.thumbnail,
                         player.uri)
-        await inter.send("Saved {player.title} to your liked songs!")
+        await inter.send(f"Saved {player.title} to your liked songs!")
 
 
     @staticmethod
