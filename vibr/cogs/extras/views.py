@@ -602,7 +602,7 @@ class UserPlaylistSource(ListPageSource):
                 title=t["name"],
                 uri=t["uri"],
                 artist=t["artist"],
-                time=strftime("%H:%M:%S", gmtime(t["length"] / 1000)),
+                time=strftime("%H:%M:%S", gmtime(t["length"])),
                 added=t["added"].strftime("%d/%m/%Y %H:%M:%S"),
             )
             for i, t in enumerate(songs)
