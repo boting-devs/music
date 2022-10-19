@@ -44,6 +44,7 @@ class Playlists(Cog):
             inter.user.id,
         )
 
+        await inter.send(songs)
         view = UserPlaylistView(
             source=UserPlaylistSource(title="Liked Songs", songs=songs)
         )
