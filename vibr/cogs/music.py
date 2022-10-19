@@ -67,8 +67,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if inter.channel is None:
             raise Ignore()
 
-        perms = inter.channel.permissions_for(inter.guild.me)  # type: ignore
-
         if (
             inter.guild is None
             or isinstance(inter.user, User)
@@ -78,6 +76,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         elif inter.user.voice is None or inter.user.voice.channel is None:
             raise NotInVoice()
 
+        perms = inter.app_permissions
         mperms = inter.user.voice.channel.permissions_for(inter.guild.me)
         if (not mperms.connect or not mperms.speak) and not mperms.administrator:
             raise BotMissingPermissions(["connect", "speak"])
