@@ -614,8 +614,8 @@ class UserPlaylistSource(ListPageSource):
         )
 
         maximum = self.get_max_pages()
-        # if maximum > 1:
-        c = sum((t["length"] / 1000 if t["length"] else 0) for t in self.songs)
+
+        c = sum(t["length"] for t in self.songs)
         a = strftime("%H:%M:%S", gmtime(round(c)))
         embed.set_footer(
             text=f"Page {menu.current_page + 1}/{maximum} "
