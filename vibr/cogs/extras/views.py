@@ -108,7 +108,7 @@ class SpotifyPlaylistView(MyView):
         self.uri = None
 
 
-class PlaylistSelect(Select[UserPlaylistView]):
+class PlaylistSelect(Select["UserPlaylistView"]):
     def __init__(self, chunk: list[SpotifyPlaylist]) -> None:
         super().__init__(
             placeholder="Select a playlist",

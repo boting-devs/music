@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from os import getenv
 from logging import getLogger
 
-from nextcord import Embed, Message, Permissions, slash_command
+from nextcord import Embed, Message, slash_command
 from nextcord.ext.commands import Cog, command, is_owner
 from nextcord.ext.tasks import loop
 
