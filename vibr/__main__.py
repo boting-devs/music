@@ -98,6 +98,9 @@ class Vibr(BotBase):
         for tries in range(5):
             # Try 5 times to connect to the lavalink server.
             try:
+                if self.pool.node_count > 0:
+                    break
+
                 await self.pool.create_node(
                     bot=self,
                     host=os.environ["LAVALINK_HOST"],
