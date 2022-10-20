@@ -267,7 +267,7 @@ class PlayButton(View):
             async with inter.bot.db.acquire() as con:
                 async with con.transaction():
                     song_playlist=await con.execute(
-                        """SELECT 
+                        """SELECT
                             song_to_playlist.playlist 
                         FROM song_to_playlist 
                         INNER JOIN playlists 
@@ -278,7 +278,7 @@ class PlayButton(View):
                         inter.user.id,
                         self.track.identifier,
                     )
-                    if song_playlist is not None:
+                    if song_playlist:
                         await con.execute(
                             """INSERT INTO song_data
                             (id,
