@@ -278,7 +278,7 @@ class PlayButton(View):
                         inter.user.id,
                         self.track.identifier,
                     )
-                    if song_playlist:
+                    if not song_playlist:
                         await con.execute(
                             """INSERT INTO song_data
                             (id,
