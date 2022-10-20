@@ -266,47 +266,65 @@ class PlayButton(View):
             # So all statements fail one fails
             async with inter.bot.db.acquire() as con:
                 async with con.transaction():
-                    await con.execute(
-                        """INSERT INTO song_data
-                        (id,
-                        lavalink_id,
-                        spotify,
-                        name,
-                        artist,
-                        length,
-                        thumbnail,
-                        uri)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id)
-                        DO UPDATE SET likes = song_data.likes + 1
-                        """,
+                    song_playlist=await con.execute(
+                        """SELECT 
+                            song_to_playlist.playlist 
+                        FROM song_to_playlist 
+                        INNER JOIN playlists 
+                        ON song_to_playlist.playlist = playlists.id 
+                        
+                        WHERE Playlists.owner=$1 AND song_to_playlist.song=$2""",
+
+                        inter.user.id,
                         self.track.identifier,
-                        self.track.track_id,
-                        self.track.spotify,
-                        self.track.title,
-                        self.track.author,
-                        self.track.length / 1000
-                        if self.track.length is not None
-                        else 0,
-                        self.track.thumbnail,
-                        self.track.uri,
                     )
-                    await con.execute(
-                        """INSERT INTO users (id) VALUES ($1) ON CONFLICT DO NOTHING""",
-                        inter.user.id,
-                    )
-                    await con.execute(
-                        """INSERT INTO PLAYLISTS (owner)
-                        VALUES ($1) ON CONFLICT DO NOTHING""",
-                        inter.user.id,
-                    )
-                    await con.execute(
-                        """INSERT INTO song_to_playlist (song, playlist)
-                        VALUES ($1, (SELECT id FROM playlists WHERE owner = $2))
-                        ON CONFLICT DO NOTHING""",
+                    if a is not None:
+                        await con.execute(
+                            """INSERT INTO song_data
+                            (id,
+                            lavalink_id,
+                            spotify,
+                            name,
+                            artist,
+                            length,
+                            thumbnail,
+                            uri)
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id)
+                            DO UPDATE SET likes = song_data.likes + 1
+                            """,
+                            self.track.identifier,
+                            self.track.track_id,
+                            self.track.spotify,
+                            self.track.title,
+                            self.track.author,
+                            self.track.length / 1000
+                            if self.track.length is not None
+                            else 0,
+                            self.track.thumbnail,
+                            self.track.uri,
+                        )
+                        await con.execute(
+                            """INSERT INTO users (id) VALUES ($1) ON CONFLICT DO NOTHING""",
+                            inter.user.id,
+                        )
+                        await con.execute(
+                            """INSERT INTO PLAYLISTS (owner)
+                            VALUES ($1) ON CONFLICT DO NOTHING""",
+                            inter.user.id,
+                        )
+                        await con.execute(
+                            """INSERT INTO song_to_playlist (song, playlist)
+                            VALUES ($1, (SELECT id FROM playlists WHERE owner = $2))
+                            ON CONFLICT DO NOTHING""",
+                            self.track.identifier,
+                            inter.user.id,
+                        )
+                        await inter.send(f"Saved {self.track.title} to your liked songs!")
+                    else:
+                        await con.execute("""DELETE FROM song_to_playlist WHERE song=$1 AND playlist=$2""",
                         self.track.identifier,
-                        inter.user.id,
-                    )
-            await inter.send(f"Saved {self.track.title} to your liked songs!")
+                        song_playlist)
+                        await inter.send(f"Deleted {self.track.title} from your liked songs!")
         else:
             await inter.send(
                 "Could not save track, it is either a playlist, "
