@@ -5,7 +5,7 @@ from traceback import format_exception
 from typing import TYPE_CHECKING
 
 from botbase import MyContext, MyInter
-from nextcord import ApplicationInvokeError, Color, Embed
+from nextcord import ApplicationInvokeError, Color, Embed, NotFound
 from nextcord.ext.application_checks import (
     ApplicationBotMissingPermissions as BotMissingPermissions,
 )
@@ -195,7 +195,11 @@ class Errors(Cog):
                 ),
                 color=Color.red(),
             )
-            await inter.send(embed=embed, view=self.support_view, ephemeral=True)
+            try:
+                await inter.send(embed=embed, view=self.support_view, ephemeral=True)
+            except NotFound:
+                pass
+
             if self.bot.logchannel is not None:
                 painchannel = await self.bot.getch_channel(self.bot.logchannel)
                 content = inter.application_command.qualified_name  # type: ignore
