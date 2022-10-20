@@ -319,7 +319,7 @@ class PlayButton(View):
                             self.track.identifier,
                             inter.user.id,
                         )
-                        await inter.send(f"Saved {self.track.title} to your liked songs!")
+                        await inter.send(song_playlist)
                     else:
                         await con.execute("""DELETE FROM song_to_playlist WHERE song=$1 AND playlist=$2""",
                         self.track.identifier,
