@@ -542,7 +542,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """Play one of your spotify playlists."""
 
         userid = self.bot.spotify_users.get(inter.user.id, MISSING)
-        log.info("#pass1")
 
         if userid is MISSING:
             userid = await self.bot.db.fetchval(
@@ -570,7 +569,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         all_playlists = []
         
-        log.info(all_playlists)
         count = 0
         total = 25
 
