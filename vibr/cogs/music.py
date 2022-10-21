@@ -542,6 +542,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """Play one of your spotify playlists."""
 
         userid = self.bot.spotify_users.get(inter.user.id, MISSING)
+        log.info("#pass1")
 
         if userid is MISSING:
             userid = await self.bot.db.fetchval(
@@ -568,6 +569,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             )
 
         all_playlists = []
+        
+        log.info(all_playlists)
         count = 0
         total = 25
 
@@ -582,15 +585,12 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             count += len(playlists["items"])
             all_playlists += playlists["items"]
             total = playlists["total"]
-        
-        all_playlists=[i[:100] for i in all_playlists]
 
         if not len(all_playlists):
             return await inter.send_embed(
                 "No playlists",
                 "**You do not have any public playlists!**\nPlease refer to this to make your playlist public- https://www.androidauthority.com/make-spotify-playlist-public-3075538/",
             )
-
 
         view = SpotifyPlaylistView(all_playlists)
         view.inter = inter
