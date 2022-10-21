@@ -568,6 +568,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             )
 
         all_playlists = []
+        log.debug(all_playlists)
         count = 0
         total = 25
 
