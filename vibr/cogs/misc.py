@@ -152,7 +152,7 @@ class Misc(Cog):
         embed.set_image(
             url="https://lacountylibrary.org/wp-content/uploads/2018/10/eNews-ThankYouLarge-1170x658.jpg"
         )
-        await inter.send("h")
+        await inter.send(embed=embed)
 
 
 def setup(bot: Vibr):
