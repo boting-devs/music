@@ -118,16 +118,8 @@ class PlaylistSelect(Select["UserPlaylistView"]):
                 # Now this is confusing as hell.
                 # This truncates the description to 100 chars if its above, with ...
                 SelectOption(
-                    label=("No name defined?"),
-                    description=(
-                        (
-                            p["description"]
-                            if len(p["description"]) < 100
-                            else p["description"][:97] + "..."
-                        )
-                        if p["description"]
-                        else None
-                    ),
+                    label=(p["name"] or "No name defined?"),
+                    
                     value=p["external_urls"]["spotify"] or p["url"],
                 )
                 for p in chunk
