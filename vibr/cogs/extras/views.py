@@ -328,8 +328,7 @@ class PlayButton(View):
                         )
                         await inter.send(song_playlist)
                     else:
-                        await con.execute("""DELETE song_to_playlist 
-                        FROM song_to_playlist 
+                        await con.execute("""DELETE FROM song_to_playlist 
                         INNER JOIN playlists 
                         ON song_to_playlist.playlist = playlists.id  
                         WHERE song_to_playlist.song=$1 AND Playlists.owner=$2""",
