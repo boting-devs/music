@@ -31,6 +31,9 @@ class Misc(Cog):
 
     @loop(minutes=30)
     async def topgg(self):
+        if getenv("topgg_token") is None:
+            return
+
         headers = {"Authorization": getenv("topgg_token")}
         data = {"server_count": len(self.bot.guilds)}
         assert self.bot.user is not None
