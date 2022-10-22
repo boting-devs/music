@@ -42,31 +42,3 @@ CREATE TABLE IF NOT EXISTS hourly_stats (
     total_songs INT NOT NULL,
     listeners BIGINT NOT NULL
 );
-
-CREATE TABLE IF NOT EXISTS playlists (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL DEFAULT 'Liked Songs',
-    owner BIGINT REFERENCES users(id) ON DELETE CASCADE,
-    description VARCHAR(300) NOT NULL DEFAULT '',
-    UNIQUE (name, owner)
-);
-
-CREATE TABLE IF NOT EXISTS song_data (
-    id VARCHAR PRIMARY KEY,
-    lavalink_id VARCHAR NOT NULL,
-    spotify BOOLEAN NOT NULL,
-    name VARCHAR NOT NULL,
-    artist VARCHAR NOT NULL,
-    length INT NOT NULL,
-    thumbnail VARCHAR NOT NULL,
-    uri VARCHAR NOT NULL,
-    likes INT NOT NULL DEFAULT 0
-);
-
--- Junction table with a composite primary key - many to many relation.
-CREATE TABLE IF NOT EXISTS song_to_playlist (
-    song VARCHAR NOT NULL REFERENCES song_data(id) ON DELETE CASCADE,
-    playlist INT NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
-    added TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(song, playlist)
-);
