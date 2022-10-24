@@ -151,12 +151,12 @@ class PlaylistSelect(Select["UserPlaylistView"]):
         self.view.stop()
 
 
-class PlayButton(View):
+class PlayButton(TimeoutView):
     def __init__(
         self,
         track: Track | Playlist | None,
     ):
-        super().__init__(timeout=None)
+        super().__init__(timeout=5)
 
         if isinstance(track, Track):
             self.track = track

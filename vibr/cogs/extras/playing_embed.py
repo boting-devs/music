@@ -112,15 +112,15 @@ async def playing_embed(
         ch = inter
 
     if queue:
-        await ch.send(embed=embed, content="Queued", view=view)  # type: ignore
+        m = await ch.send(embed=embed, content="Queued", view=view)  # type: ignore
         # why on earth can that be a voice channel
     elif length:
-        await ch.send(embed=embed, view=view)  # type: ignore
+        m = await ch.send(embed=embed, view=view)  # type: ignore
         # why on earth can that be a voice channel
     elif save:
-        await inter.user.send(embed=embed)
+        m = await inter.user.send(embed=embed)
     else:
-        await ch.send(embed=embed, view=view)  # type: ignore
+        m = await ch.send(embed=embed, view=view)  # type: ignore
         # why on earth can that be a stage channel
 
         if isinstance(track, Playlist):
@@ -141,3 +141,5 @@ async def playing_embed(
         log.debug(
             "Added song %s to database for user %d", track.identifier, inter.user.id
         )
+
+    view.message = m

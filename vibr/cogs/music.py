@@ -97,12 +97,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return True
 
     @Cog.listener()
-    async def on_ready(self):
-        if not self.bot.views_added:
-            self.bot.add_view(PlayButton(None))
-            self.bot.views_added = True
-
-    @Cog.listener()
     async def on_pomice_track_end(self, player: Player, track: Track, _: str):
         await sleep(0.1)
         if player.is_playing:
@@ -568,7 +562,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             )
 
         all_playlists = []
-        
+
         count = 0
         total = 25
 
