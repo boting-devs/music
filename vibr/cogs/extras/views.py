@@ -156,7 +156,7 @@ class PlayButton(TimeoutView):
         self,
         track: Track | Playlist | None,
     ):
-        super().__init__(timeout=5)
+        super().__init__(timeout=300)
 
         if isinstance(track, Track):
             self.track = track
