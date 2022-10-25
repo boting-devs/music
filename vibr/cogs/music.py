@@ -102,8 +102,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if player.is_playing:
             return
         
-        if player.loop:
+        if player.looped_track:
             await player.play(player.looped_track)
+            await playing_embed(player.looped_track,loop=True)
 
 
         if player.queue:
@@ -358,6 +359,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
 
         player.queue = []
+        player.looped_track = None
         await player.stop()
         log.debug("Stopped player for guild %d", inter.guild.id)
 
@@ -479,12 +481,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         player = inter.guild.voice_client
         if not player.queue:
+            player.looped_track = None
             await player.stop()
             log.debug("Stopping due to no queue for guild %d", inter.guild.id)
             return await inter.send_author_embed("Nothing in queue. Stopping the music")
 
         toplay = player.queue.pop(0)
         await player.play(toplay)
+        player.looped_track = None
         log.debug("Skipping song for guild %d to %s", inter.guild.id, toplay.title)
         await playing_embed(toplay, skipped_by=inter.user.mention, override_inter=inter)
 
@@ -503,7 +507,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @slash_command(dm_permission=False)
     async def shuffle(self, inter: MyInter):
         """Switch things up"""
-
+        if not inter.guild.voice_client.queue:
+            return await inter.send_author_embed("Queue is empty")
         shuffle(inter.guild.voice_client.queue)
         log.debug("Shuffled queue for guild %d", inter.guild.id)
 
@@ -529,14 +534,13 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """It hit so hard so you play it again"""
 
         player = inter.guild.voice_client
-        if not player.loop:
-            player.loop = True
+        if not player.looped_track:
             player.looped_track = player.current
-            await inter.send("Looped")
+            await inter.send_author_embed("Loop Mode ON")
         else:
-            player.loop = False
-            await inter.send("Loop removed")
             player.looped_track=None
+            await inter.send_author_embed("Loop Mode OFF")
+            
 
     @slash_command(dm_permission=False)
     async def playlists(self, inter: MyInter):
