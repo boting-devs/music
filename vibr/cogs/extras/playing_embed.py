@@ -25,7 +25,6 @@ async def playing_embed(
     save: bool = False,
     skipped_by: str | None = None,
     override_inter: MyInter | None = None,
-    loop : bool =False,
 ):
     from . import views  # circular
 
@@ -90,11 +89,8 @@ async def playing_embed(
 
     if skipped_by:
         embed.description = embed.description + "\n skipped by " + skipped_by
-    
-    if loop:
-        author = "Looping Song" + "\n" +str(title) + " - " + str(author)
-    else:
-        author =str(title) + " - " + str(author)
+
+    author = str(title) + " - " + str(author)
 
     if len(author) > 256:
         author = author[:253] + "..."

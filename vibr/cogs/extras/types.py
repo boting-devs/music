@@ -13,7 +13,6 @@ class Player(pomice.Player):
         super().__init__(*args, **kwargs)
 
         self.queue: list[pomice.Track] = []
-        self.looped_track=None
 
 
 class MyContext(botbase.MyContext):
