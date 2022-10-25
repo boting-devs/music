@@ -101,6 +101,11 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await sleep(0.1)
         if player.is_playing:
             return
+        
+        if player.loop:
+            await player.play(player.looped_track)
+
+
         if player.queue:
             toplay = player.queue.pop(0)
 
@@ -524,12 +529,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """It hit so hard so you play it again"""
 
         player = inter.guild.voice_client
-
-        current = player.current
-        player.queue.insert(0, current)
-        log.debug("Looped song %s for guild %d", current.title, inter.guild.id)
-
-        await inter.send_author_embed("Looping once")
+        if not player.loop:
+            player.loop = True
+            player.looped_track = player.current
+            await inter.send("Looped")
+        else:
+            player.loop = False
+            await inter.send("Loop removed")
+            player.looped_track=None
 
     @slash_command(dm_permission=False)
     async def playlists(self, inter: MyInter):
