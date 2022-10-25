@@ -210,7 +210,9 @@ class PlayButton(TimeoutView):
         if not player.queue:
             return await inter.send_embed("Nothing in queue", ephemeral=True)
 
+        
         toplay = player.queue.pop(0)
+        player.looped_track = None
         await player.play(toplay)
         await playing_embed(toplay, skipped_by=inter.user.mention)
 
@@ -223,6 +225,7 @@ class PlayButton(TimeoutView):
             return await inter.send_embed("No song is playing", ephemeral=True)
 
         inter.guild.voice_client.queue = []
+        inter.guild.voice_client.looped_track = None
         await inter.guild.voice_client.stop()
         await inter.send_author_embed("Stopped")
 
@@ -232,7 +235,8 @@ class PlayButton(TimeoutView):
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
-
+        if not inter.guild.voice_client.queue:
+            return await inter.send_author_embed("Queue is empty")       
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
 
@@ -250,16 +254,20 @@ class PlayButton(TimeoutView):
         menu = QueueView(source=QueueSource(current, queue), inter=inter)
         await menu.start(interaction=inter, ephemeral=True)
 
-    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop", row=1)
+    @button(emoji="\U0001f501", style=ButtonStyle.blurple, custom_id="view:loop", row=1)
     async def loop(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
         if not inter.guild.voice_client.is_playing:
             return await inter.send_embed("No song is playing", ephemeral=True)
-        current_song = inter.guild.voice_client.current
-        inter.guild.voice_client.queue.insert(0, current_song)
-        await inter.send_author_embed("looping song once \U0001f502")
+        player = inter.guild.voice_client
+        if not player.looped_track:
+            player.looped_track = player.current
+            await inter.send_author_embed("Loop Mode ON")
+        else:
+            player.looped_track=None
+            await inter.send_author_embed("Loop Mode OFF")
 
 
 class MyMenu(ButtonMenuPages):
