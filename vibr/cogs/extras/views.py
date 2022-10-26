@@ -217,11 +217,16 @@ class PlayButton(TimeoutView):
 
         player = inter.guild.voice_client
 
-        if not player.queue:
+        if not player.queue and not player.looped_track:
             return await inter.send_embed("Nothing in queue", ephemeral=True)
 
-        toplay = player.queue.pop(0)
-        player.looped_track = None
+        if player.looped_track is not None:
+            toplay = player.looped_track
+            looped = True
+        else:
+            toplay = player.queue.pop(0)
+            looped = False
+
         await player.play(toplay)
         await playing_embed(toplay, skipped_by=inter.user.mention)
 
@@ -263,7 +268,7 @@ class PlayButton(TimeoutView):
         menu = QueueView(source=QueueSource(current, queue), inter=inter)
         await menu.start(interaction=inter, ephemeral=True)
 
-    @button(emoji="\U0001f501", style=ButtonStyle.blurple, custom_id="view:loop", row=1)
+    @button(emoji=SINGLE_LOOP, style=ButtonStyle.blurple, custom_id="view:loop", row=1)
     async def loop(self, button: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -274,7 +279,7 @@ class PlayButton(TimeoutView):
             return await inter.send_embed("No song is playing", ephemeral=True)
 
         # The button has not been used yet.
-        if button.style is ButtonStyle.blurple and button.emoji == SINGLE_LOOP:
+        if button.style is ButtonStyle.blurple and str(button.emoji) == SINGLE_LOOP:
             player.queue.insert(0, player.current)
             button.emoji = MULTI_LOOP
             await inter.send_author_embed("Looping once")
@@ -282,6 +287,14 @@ class PlayButton(TimeoutView):
             if player.looped_track is None:
                 player.looped_track = player.current
                 button.style = ButtonStyle.grey
+
+                # Remove from front of queue if it is already playing.
+                if (
+                    len(player.queue) != 0
+                    and player.queue[0].track_id == player.current.track_id
+                ):
+                    player.queue.pop(0)
+
                 await inter.send_author_embed("Looping track forever")
             else:
                 player.looped_track = None

@@ -30,12 +30,7 @@ from .extras.errors import (
 )
 from .extras.playing_embed import playing_embed
 from .extras.types import MyInter, Player
-from .extras.views import (
-    PlayButton,
-    QueueSource,
-    QueueView,
-    SpotifyPlaylistView,
-)
+from .extras.views import PlayButton, QueueSource, QueueView, SpotifyPlaylistView
 
 if TYPE_CHECKING:
     from nextcord import VoiceState
@@ -101,11 +96,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await sleep(0.1)
         if player.is_playing:
             return
-        
+
         if player.looped_track:
             await player.play(player.looped_track)
-            await playing_embed(player.looped_track,loop=True)
-
+            await playing_embed(player.looped_track, loop=True)
 
         if player.queue:
             toplay = player.queue.pop(0)
@@ -480,17 +474,24 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """When the beat isn't hitting right"""
 
         player = inter.guild.voice_client
-        if not player.queue:
+        if not player.queue and not player.looped_track:
             player.looped_track = None
             await player.stop()
             log.debug("Stopping due to no queue for guild %d", inter.guild.id)
             return await inter.send_author_embed("Nothing in queue. Stopping the music")
 
-        toplay = player.queue.pop(0)
+        if player.looped_track is not None:
+            toplay = player.looped_track
+            looped = True
+        else:
+            toplay = player.queue.pop(0)
+            looped = False
+
         await player.play(toplay)
-        player.looped_track = None
         log.debug("Skipping song for guild %d to %s", inter.guild.id, toplay.title)
-        await playing_embed(toplay, skipped_by=inter.user.mention, override_inter=inter)
+        await playing_embed(
+            toplay, skipped_by=inter.user.mention, override_inter=inter, loop=looped
+        )
 
     @connected_and_playing()
     @slash_command(name="now-playing", dm_permission=False)
@@ -549,7 +550,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     #     player = inter.guild.voice_client
     #     log.debug("queue for %d : %s",inter.guild.id,player.queue)
     #     inter.send("try")
-            
 
     @slash_command(dm_permission=False)
     async def playlists(self, inter: MyInter):
