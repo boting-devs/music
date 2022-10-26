@@ -48,7 +48,7 @@ class LinkButtonView(View):
 
 
 class TimeoutView(View):
-    message: Message
+    message: Message | PartialInteractionMessage | None = None
 
     async def on_timeout(self):
         for child in self.children:
@@ -151,10 +151,16 @@ class PlaylistSelect(Select["UserPlaylistView"]):
         self.view.stop()
 
 
+MULTI_LOOP = "\U0001f501"
+SINGLE_LOOP = "\U0001f502"
+
+
 class PlayButton(TimeoutView):
     def __init__(
         self,
         track: Track | Playlist | None,
+        *,
+        loop: bool,
     ):
         super().__init__(timeout=300)
 
@@ -162,6 +168,10 @@ class PlayButton(TimeoutView):
             self.track = track
         else:
             self.track = None
+
+        if loop:
+            self.loop.emoji = MULTI_LOOP
+            self.loop.style = ButtonStyle.grey
 
     async def interaction_check(self, inter: Interaction) -> bool:
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -210,7 +220,6 @@ class PlayButton(TimeoutView):
         if not player.queue:
             return await inter.send_embed("Nothing in queue", ephemeral=True)
 
-        
         toplay = player.queue.pop(0)
         player.looped_track = None
         await player.play(toplay)
@@ -236,7 +245,7 @@ class PlayButton(TimeoutView):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
         if not inter.guild.voice_client.queue:
-            return await inter.send_author_embed("Queue is empty")       
+            return await inter.send_author_embed("Queue is empty")
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
 
@@ -255,19 +264,33 @@ class PlayButton(TimeoutView):
         await menu.start(interaction=inter, ephemeral=True)
 
     @button(emoji="\U0001f501", style=ButtonStyle.blurple, custom_id="view:loop", row=1)
-    async def loop(self, _: Button, inter: Interaction):
+    async def loop(self, button: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
-        if not inter.guild.voice_client.is_playing:
-            return await inter.send_embed("No song is playing", ephemeral=True)
         player = inter.guild.voice_client
-        if not player.looped_track:
-            player.looped_track = player.current
-            await inter.send_author_embed("Loop Mode ON")
+
+        if not player.is_playing:
+            return await inter.send_embed("No song is playing", ephemeral=True)
+
+        # The button has not been used yet.
+        if button.style is ButtonStyle.blurple and button.emoji == SINGLE_LOOP:
+            player.queue.insert(0, player.current)
+            button.emoji = MULTI_LOOP
+            await inter.send_author_embed("Looping once")
         else:
-            player.looped_track=None
-            await inter.send_author_embed("Loop Mode OFF")
+            if player.looped_track is None:
+                player.looped_track = player.current
+                button.style = ButtonStyle.grey
+                await inter.send_author_embed("Looping track forever")
+            else:
+                player.looped_track = None
+                button.emoji = SINGLE_LOOP
+                button.style = ButtonStyle.blurple
+                await inter.send_author_embed("Looping disabled")
+
+        # Update with the new styling.
+        await inter.edit(view=self)
 
 
 class MyMenu(ButtonMenuPages):
