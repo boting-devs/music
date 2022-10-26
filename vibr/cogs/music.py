@@ -529,7 +529,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await menu.start(interaction=inter)
 
     @connected_and_playing()
-    @slash_command(dm_permission=False)
+    @slash_command(name="loop track",dm_permission=False)
     async def loop(self, inter: MyInter):
         """It hit so hard so you play it again"""
 
@@ -540,6 +540,15 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             player.looped_track=None
             await inter.send_author_embed("Loop Mode OFF")
+
+    @connected_and_playing()
+    @slash_command(name="loop queue",dm_permission=False)
+    async def loopq(self,inter: MyInter):
+        """Loop the whole queue"""
+
+        player = inter.guild.voice_client
+        log.debug("queue for %d : %s",inter.guild.id,player.queue)
+        inter.send("try")
             
 
     @slash_command(dm_permission=False)
