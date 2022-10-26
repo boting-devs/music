@@ -35,7 +35,10 @@ class Misc(Cog):
             return
 
         headers = {"Authorization": getenv("topgg_token")}
-        data = {"server_count": len(self.bot.guilds)}
+        data = {
+            "server_count": len(self.bot.guilds),
+            "shard_count": self.bot.shard_count or 1,
+        }
         assert self.bot.user is not None
         await self.bot.session.post(
             f"https://top.gg/api/bots/{self.bot.user.id}/stats",
@@ -58,7 +61,7 @@ class Misc(Cog):
     async def invite(self, inter: MyInter):
         """Invite me!"""
 
-        servers = list(self.bot.guilds)
+        servers = self.bot.guilds
         embed = Embed(title="**Invite Link**", color=self.bot.color)
         embed.add_field(
             name=f"**The bot is currently in {len(servers)} servers**",
