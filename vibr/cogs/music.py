@@ -574,7 +574,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.looped_queue_check = True
             player.loop_queue = [player.current]
             await inter.send_author_embed("Looping Queue")
-            log.info("queue for %d : %s", inter.guild.id, player.loop_queue)
         else:
             player.looped_queue_check = False
             await inter.send_author_embed("Looping Queue Disabled")
