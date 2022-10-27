@@ -1,5 +1,8 @@
 from os import getenv
 
+
+version = "1.0.0"
+
 if uri := getenv("DB_URI"):
     db_url = uri
 elif host := getenv("DB_HOST"):
