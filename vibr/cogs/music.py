@@ -106,6 +106,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         if player.looped_track:
             await player.play(player.looped_track)
             await playing_embed(player.looped_track, loop=True)
+            return
 
         if player.looped_queue_check:
             player.queue += player.loop_queue
