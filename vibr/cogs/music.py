@@ -95,7 +95,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def on_pomice_track_start(self, player: Player, _: str):
         if player.looped_queue_check:
             player.loop_queue = [player.current]
-            log.debug("%d", player.loop_queue)
+            log.debug("looping queue for guild %d", player.guild.id)
 
     @Cog.listener()
     async def on_pomice_track_end(self, player: Player, track: Track, _: str):
