@@ -548,29 +548,29 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @connected_and_playing()
     @loop.subcommand()
     async def track(self, inter: MyInter):
-        """It hit so hard so you play it again"""
+        """Loop the current track again, and again, and again."""
 
         player = inter.guild.voice_client
         if not player.looped_track:
             player.looped_track = player.current
-            await inter.send_author_embed("Loop Mode ON")
+            await inter.send_author_embed("Loop mode ON")
         else:
             player.looped_track = None
-            await inter.send_author_embed("Loop Mode OFF")
+            await inter.send_author_embed("Loop mode OFF")
 
     @connected_and_playing()
     @loop.subcommand()
     async def queue(self, inter: MyInter):
-        """Loop the whole queue"""
+        """Loop the whole queue, going around in circles."""
 
         player = inter.guild.voice_client
         if not player.looped_queue_check:
             player.looped_queue_check = True
             player.loop_queue = [player.current]
-            await inter.send_author_embed("Looping Queue")
+            await inter.send_author_embed("Looping queue")
         else:
             player.looped_queue_check = False
-            await inter.send_author_embed("Looping Queue Disabled")
+            await inter.send_author_embed("Looping queue disabled")
 
     @slash_command(dm_permission=False)
     async def playlists(self, inter: MyInter):
