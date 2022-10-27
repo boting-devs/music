@@ -251,8 +251,10 @@ class PlayButton(TimeoutView):
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
+
         if not inter.guild.voice_client.queue:
             return await inter.send_author_embed("Queue is empty")
+
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
 

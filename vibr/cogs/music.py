@@ -366,6 +366,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player.looped_track = None
         player.looped_queue_check = False
         await player.stop()
+
         log.debug("Stopped player for guild %d", inter.guild.id)
 
         await inter.send_author_embed("Stopped")
@@ -486,7 +487,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         player = inter.guild.voice_client
         if not player.queue:
-            player.looped_track = None
             await player.stop()
             log.debug("Stopping due to no queue for guild %d", inter.guild.id)
             return await inter.send_author_embed("Nothing in queue. Stopping the music")
@@ -521,8 +521,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     @slash_command(dm_permission=False)
     async def shuffle(self, inter: MyInter):
         """Switch things up"""
-        if not inter.guild.voice_client.queue:
-            return await inter.send_author_embed("Queue is empty")
+
         shuffle(inter.guild.voice_client.queue)
         log.debug("Shuffled queue for guild %d", inter.guild.id)
 
@@ -552,6 +551,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         """Loop the current track again, and again, and again."""
 
         player = inter.guild.voice_client
+
         if not player.looped_track:
             player.looped_track = player.current
             await inter.send_author_embed("Loop mode ON")
