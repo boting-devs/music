@@ -490,12 +490,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             log.debug("Stopping due to no queue for guild %d", inter.guild.id)
             return await inter.send_author_embed("Nothing in queue. Stopping the music")
 
-        """if player.looped_track is not None:
-            toplay = player.looped_track
-            looped = True
-        else:
-            toplay = player.queue.pop(0)
-            looped = False"""
         if player.looped_track is not None:
             player.looped_track = None
             toplay = player.queue.pop(0)
