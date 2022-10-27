@@ -48,7 +48,7 @@ class LinkButtonView(View):
 
 
 class TimeoutView(View):
-    message: Message
+    message: Message | PartialInteractionMessage | None = None
 
     async def on_timeout(self):
         for child in self.children:
@@ -151,10 +151,16 @@ class PlaylistSelect(Select["UserPlaylistView"]):
         self.view.stop()
 
 
+MULTI_LOOP = "\U0001f501"
+SINGLE_LOOP = "\U0001f502"
+
+
 class PlayButton(TimeoutView):
     def __init__(
         self,
         track: Track | Playlist | None,
+        *,
+        loop: bool,
     ):
         super().__init__(timeout=300)
 
@@ -162,6 +168,10 @@ class PlayButton(TimeoutView):
             self.track = track
         else:
             self.track = None
+
+        if loop:
+            self.loop.emoji = MULTI_LOOP
+            self.loop.style = ButtonStyle.grey
 
     async def interaction_check(self, inter: Interaction) -> bool:
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -210,7 +220,13 @@ class PlayButton(TimeoutView):
         if not player.queue:
             return await inter.send_embed("Nothing in queue", ephemeral=True)
 
+        if player.looped_track is not None:
+            player.looped_track = None
+        elif player.looped_queue_check:
+            player.queue += player.loop_queue
+
         toplay = player.queue.pop(0)
+
         await player.play(toplay)
         await playing_embed(toplay, skipped_by=inter.user.mention)
 
@@ -219,11 +235,14 @@ class PlayButton(TimeoutView):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
-        if not inter.guild.voice_client.is_playing:
+        player = inter.guild.voice_client
+        if not player.is_playing:
             return await inter.send_embed("No song is playing", ephemeral=True)
 
-        inter.guild.voice_client.queue = []
-        await inter.guild.voice_client.stop()
+        player.queue = []
+        player.looped_track = None
+        player.looped_queue_check = False
+        await player.stop()
         await inter.send_author_embed("Stopped")
 
     @button(
@@ -232,6 +251,9 @@ class PlayButton(TimeoutView):
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
+
+        if not inter.guild.voice_client.queue:
+            return await inter.send_author_embed("Queue is empty")
 
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
@@ -250,16 +272,42 @@ class PlayButton(TimeoutView):
         menu = QueueView(source=QueueSource(current, queue), inter=inter)
         await menu.start(interaction=inter, ephemeral=True)
 
-    @button(emoji="\U0001f502", style=ButtonStyle.blurple, custom_id="view:loop", row=1)
-    async def loop(self, _: Button, inter: Interaction):
+    @button(emoji=SINGLE_LOOP, style=ButtonStyle.blurple, custom_id="view:loop", row=1)
+    async def loop(self, button: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
-        if not inter.guild.voice_client.is_playing:
+        player = inter.guild.voice_client
+
+        if not player.is_playing:
             return await inter.send_embed("No song is playing", ephemeral=True)
-        current_song = inter.guild.voice_client.current
-        inter.guild.voice_client.queue.insert(0, current_song)
-        await inter.send_author_embed("looping song once \U0001f502")
+
+        # The button has not been used yet.
+        if button.style is ButtonStyle.blurple and str(button.emoji) == SINGLE_LOOP:
+            player.queue.insert(0, player.current)
+            button.emoji = MULTI_LOOP
+            await inter.send_author_embed("Looping once")
+        else:
+            if player.looped_track is None:
+                player.looped_track = player.current
+                button.style = ButtonStyle.grey
+
+                # Remove from front of queue if it is already playing.
+                if (
+                    len(player.queue) != 0
+                    and player.queue[0].track_id == player.current.track_id
+                ):
+                    player.queue.pop(0)
+
+                await inter.send_author_embed("Looping track forever")
+            else:
+                player.looped_track = None
+                button.emoji = SINGLE_LOOP
+                button.style = ButtonStyle.blurple
+                await inter.send_author_embed("Looping disabled")
+
+        # Update with the new styling.
+        await inter.edit(view=self)
 
 
 class MyMenu(ButtonMenuPages):

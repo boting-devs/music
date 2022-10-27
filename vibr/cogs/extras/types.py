@@ -13,6 +13,9 @@ class Player(pomice.Player):
         super().__init__(*args, **kwargs)
 
         self.queue: list[pomice.Track] = []
+        self.looped_track: pomice.Track | None = None
+        self.looped_queue_check: bool = False
+        self.loop_queue: list[pomice.Track] = []
 
 
 class MyContext(botbase.MyContext):

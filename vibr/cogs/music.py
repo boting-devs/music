@@ -30,12 +30,7 @@ from .extras.errors import (
 )
 from .extras.playing_embed import playing_embed
 from .extras.types import MyInter, Player
-from .extras.views import (
-    PlayButton,
-    QueueSource,
-    QueueView,
-    SpotifyPlaylistView,
-)
+from .extras.views import PlayButton, QueueSource, QueueView, SpotifyPlaylistView
 
 if TYPE_CHECKING:
     from nextcord import VoiceState
@@ -97,10 +92,25 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         return True
 
     @Cog.listener()
+    async def on_pomice_track_start(self, player: Player, _: str):
+        if player.looped_queue_check:
+            player.loop_queue = [player.current]
+            log.debug("looping queue for guild %d", player.guild.id)
+
+    @Cog.listener()
     async def on_pomice_track_end(self, player: Player, track: Track, _: str):
         await sleep(0.1)
         if player.is_playing:
             return
+
+        if player.looped_track:
+            await player.play(player.looped_track)
+            await playing_embed(player.looped_track, loop=True)
+            return
+
+        if player.looped_queue_check:
+            player.queue += player.loop_queue
+
         if player.queue:
             toplay = player.queue.pop(0)
 
@@ -353,7 +363,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         player = inter.guild.voice_client
 
         player.queue = []
+        player.looped_track = None
+        player.looped_queue_check = False
         await player.stop()
+
         log.debug("Stopped player for guild %d", inter.guild.id)
 
         await inter.send_author_embed("Stopped")
@@ -478,7 +491,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             log.debug("Stopping due to no queue for guild %d", inter.guild.id)
             return await inter.send_author_embed("Nothing in queue. Stopping the music")
 
-        toplay = player.queue.pop(0)
+        if player.looped_track is not None:
+            player.looped_track = None
+            toplay = player.queue.pop(0)
+
+        elif player.looped_queue_check:
+            toplay = player.queue.pop(0)
+            player.queue += player.loop_queue
+
+        else:
+            toplay = player.queue.pop(0)
+
         await player.play(toplay)
         log.debug("Skipping song for guild %d to %s", inter.guild.id, toplay.title)
         await playing_embed(toplay, skipped_by=inter.user.mention, override_inter=inter)
@@ -505,8 +528,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.send_author_embed("Shuffled the queue")
 
     @connected()
-    @slash_command(dm_permission=False)
-    async def queue(self, inter: MyInter):
+    @slash_command(name="queue", dm_permission=False)
+    async def qu(self, inter: MyInter):
         """Show the queue of the beats."""
 
         current = inter.guild.voice_client.current
@@ -518,18 +541,37 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await menu.start(interaction=inter)
 
-    @connected_and_playing()
     @slash_command(dm_permission=False)
-    async def loop(self, inter: MyInter):
-        """It hit so hard so you play it again"""
+    async def loop(self, *_):
+        ...
+
+    @connected_and_playing()
+    @loop.subcommand()
+    async def track(self, inter: MyInter):
+        """Loop the current track again, and again, and again."""
 
         player = inter.guild.voice_client
 
-        current = player.current
-        player.queue.insert(0, current)
-        log.debug("Looped song %s for guild %d", current.title, inter.guild.id)
+        if not player.looped_track:
+            player.looped_track = player.current
+            await inter.send_author_embed("Loop mode ON")
+        else:
+            player.looped_track = None
+            await inter.send_author_embed("Loop mode OFF")
 
-        await inter.send_author_embed("Looping once")
+    @connected_and_playing()
+    @loop.subcommand()
+    async def queue(self, inter: MyInter):
+        """Loop the whole queue, going around in circles."""
+
+        player = inter.guild.voice_client
+        if not player.looped_queue_check:
+            player.looped_queue_check = True
+            player.loop_queue = [player.current]
+            await inter.send_author_embed("Looping queue")
+        else:
+            player.looped_queue_check = False
+            await inter.send_author_embed("Looping queue disabled")
 
     @slash_command(dm_permission=False)
     async def playlists(self, inter: MyInter):
