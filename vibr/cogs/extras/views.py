@@ -217,15 +217,28 @@ class PlayButton(TimeoutView):
 
         player = inter.guild.voice_client
 
-        if not player.queue and not player.looped_track:
+        if not player.queue :
             return await inter.send_embed("Nothing in queue", ephemeral=True)
-
-        if player.looped_track is not None:
+        
+        '''if player.looped_track is not None:
             toplay = player.looped_track
             looped = True
         else:
             toplay = player.queue.pop(0)
-            looped = False
+            looped = False'''
+
+        if player.looped_track is not None:
+            player.looped_track=None
+            toplay =player.queue.pop(0)
+        
+
+        elif player.looped_queue_check:
+            toplay =player.queue.pop(0)
+            player.queue += player.loop_queue
+        
+        else:
+            toplay =player.queue.pop(0)
+        
 
         await player.play(toplay)
         await playing_embed(toplay, skipped_by=inter.user.mention)
@@ -240,6 +253,7 @@ class PlayButton(TimeoutView):
 
         inter.guild.voice_client.queue = []
         inter.guild.voice_client.looped_track = None
+        inter.guild.voice_client.looped_queue_check=False
         await inter.guild.voice_client.stop()
         await inter.send_author_embed("Stopped")
 
