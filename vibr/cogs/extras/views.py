@@ -479,7 +479,7 @@ class StatsView(TimeoutView):
             for row in data:
                 time: datetime = row["time"]
                 if time.hour == 0:
-                    times.append(time.replace(day=time.day + 1))
+                    times.append(time + timedelta(days=1))
                 else:
                     times.append(time)
 
