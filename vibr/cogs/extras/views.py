@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, TypedDict
 from botbase import MyContext
 from cycler import cycler
 from matplotlib import rc_context
+from matplotlib.dates import DateFormatter
 from matplotlib.pyplot import close, savefig, subplots
 from nextcord import ButtonStyle, Embed, File, Interaction, SelectOption
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
@@ -482,6 +483,18 @@ class StatsView(TimeoutView):
                     times.append(time + timedelta(days=1))
                 else:
                     times.append(time)
+
+            if self.timeframe is StatsTime.WEEK:
+                # Wed 13
+                date_form = DateFormatter("%a %d")
+            elif self.timeframe is StatsTime.DAY:
+                # 23:
+                date_form = DateFormatter("%H:")
+            else:
+                # 13-11
+                date_form = DateFormatter("%d-%m")
+
+            axes.xaxis.set_major_formatter(date_form)
 
             handles = [
                 axes.plot(
