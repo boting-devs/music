@@ -27,6 +27,7 @@ from .extras.errors import (
     SongNotProvided,
     TooManyTracks,
     VoteRequired,
+    YoutubeLink
 )
 from .extras.views import LinkButtonView
 
@@ -69,6 +70,10 @@ errors: dict[Type[Exception], tuple[str, str]] = {
         "Please Play A Song",
         "To use this command, play a song using </play:987418268635639848>",
     ),
+    YoutubeLink:(
+        "Unsupported link",
+        "Youtube link is not supported. Try searching for the song instead."
+    )
 }
 e: dict[str, tuple[str, str]] = {k.__name__: v for k, v in errors.items()}
 

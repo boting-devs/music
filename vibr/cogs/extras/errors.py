@@ -35,3 +35,6 @@ class VoteRequired(CheckFailure):
 
 class NotPlaying(CheckFailure):
     """Raised when song isnt playing where it should supposedly do so"""
+
+class YoutubeLink(CheckFailure):
+    """Raised when youtube link is detected"""
