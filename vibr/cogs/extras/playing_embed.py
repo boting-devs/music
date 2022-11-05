@@ -102,7 +102,7 @@ async def playing_embed(
     embed.set_author(
         name=author,
         #url=track.uri or "https://www.youtube.com/",
-        url=f"https://odesli.co/{track.uri}"
+        url=f"https://odesli.co/{track.uri}" if track.uri else None
     )
 
     if inter.voice_client is not None:
