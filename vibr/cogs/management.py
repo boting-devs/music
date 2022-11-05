@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from botbase import MyInter
-from nextcord import Colour, Embed
+from nextcord import Colour, Embed, HTTPException
 from nextcord.ext.commands import Cog, command, is_owner
 
 from .extras.types import MyContext, Player
@@ -39,7 +39,11 @@ class Management(Cog):
                     text="Playback *should* resume shortly after Vibr returns online."
                 )
 
-                await channel.send(embed=embed)
+                try:
+                    await channel.send(embed=embed)
+                except HTTPException:
+                    continue
+                # We want to notify as many as possible.
 
         await ctx.send(f"Closing with ETA of {eta} for {reason}")
         await self.bot.close()
