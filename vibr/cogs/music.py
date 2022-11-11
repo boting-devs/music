@@ -746,12 +746,17 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         player = inter.guild.voice_client
 
-        if player.filters.has_filter(filter_tag="boost"):
-            await player.remove_filter(filter_tag="boost")
+        if player.filters.has_filter(filter_tag="Equalizer"):
+            await player.remove_filter(filter_tag="Equalizer")
             await inter.send_author_embed("Bass Filter reset")
             log.debug("Bass Filter reset for guild %d", inter.guild.id)
         else:
-            await player.add_filter(Equalizer.boost(), fast_apply=True)
+            await player.add_filter(Equalizer(tag="Equalizer",levels=[
+            (0, -0.075), (1, 0.125), (2, 0.15), (3, 0.20), (4, 0.17),
+            (5, 0.12), (6, 0.075), (7, 0.0), (8, 0.0), (9, 0.0),
+            (10, 0.0), (11, 0.0), (12, 0.125), (13, 0.15), (14, 0.05)
+        ]
+        ), fast_apply=True)
             await inter.send_author_embed("Bassboost filter activated")
             log.debug("Bassboost filter activated for guild %d", inter.guild.id)
 
