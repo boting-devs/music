@@ -27,6 +27,7 @@ from .extras.errors import (
     SongNotProvided,
     TooManyTracks,
     VoteRequired,
+    GeneralError
 )
 from .extras.views import LinkButtonView
 
@@ -69,6 +70,10 @@ errors: dict[Type[Exception], tuple[str, str]] = {
         "Please Play A Song",
         "To use this command, play a song using </play:987418268635639848>",
     ),
+    GeneralError:(
+        "Error occurred",
+        "An error occured. Pls try again later."
+    )
 }
 e: dict[str, tuple[str, str]] = {k.__name__: v for k, v in errors.items()}
 

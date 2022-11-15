@@ -27,6 +27,7 @@ from .extras.errors import (
     NotInVoice,
     SongNotProvided,
     TooManyTracks,
+    GeneralError
 )
 from .extras.playing_embed import playing_embed
 from .extras.types import MyInter, Player
@@ -286,8 +287,10 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await self.join(inter)
 
         player = inter.guild.voice_client
-        result = await player.get_tracks(query=query, ctx=inter)  # type: ignore
 
+        if len(query)==0:
+            raise GeneralError()
+        result = await player.get_tracks(query=query, ctx=inter)  # type: ignore
         if not result:
             return await inter.send_author_embed("No tracks found")
 
@@ -727,6 +730,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.send(f"Searching `{query}`")
 
         player = inter.guild.voice_client
+        if len(query)==0:
+            raise GeneralError()
         result = await player.get_tracks(query=query, ctx=inter)  # type: ignore
 
         if not result:
@@ -871,6 +876,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send_author_embed(f"Playing the song - {songplay} up next!")
 
         elif track is None and song is not None:
+            if len(song)==0:
+                raise GeneralError
             result = await player.get_tracks(query=song, ctx=inter)  # type: ignore
             if not result:
                 return await inter.send_author_embed("No tracks found")
