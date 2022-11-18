@@ -1,11 +1,8 @@
-FROM fredboat/lavalink:3.5
+FROM fredboat/lavalink:v3.6
 
 COPY application.beta.yml application.yml
 
 USER root
-
-# FIXME: use lavalink stable when available
-COPY Lavalink.jar Lavalink.jar
 
 COPY entrypoint.sh ./
 ENTRYPOINT ["/bin/sh", "entrypoint.sh"]

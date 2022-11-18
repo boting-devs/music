@@ -30,6 +30,7 @@ if TYPE_CHECKING:
         PartialInteractionMessage,
     )
 
+    from ...__main__ import Vibr
     from .types import Notification
     from .types import Playlist as SpotifyPlaylist
 
@@ -58,6 +59,8 @@ class TimeoutView(View):
 
         if self.message is not None:
             await self.message.edit(view=self)
+
+        self.stop()
 
 
 class MyView(TimeoutView):
@@ -309,6 +312,78 @@ class PlayButton(TimeoutView):
 
         # Update with the new styling.
         await inter.edit(view=self)
+
+    @button(emoji="\U0001f90d", style=ButtonStyle.blurple, custom_id="view:like")
+    async def like(self, _: Button, inter: Interaction):
+        assert inter.guild is not None
+        inter = MyInter(inter, inter.client)  # type: ignore
+
+        if self.track is not None:
+            # So all statements fail one fails
+            async with inter.bot.db.acquire() as con:
+                async with con.transaction():
+                    song_playlist = await con.execute(
+                        """SELECT
+                            song_to_playlist.playlist 
+                        FROM song_to_playlist 
+                        INNER JOIN playlists 
+                        ON song_to_playlist.playlist = playlists.id 
+                        
+                        WHERE Playlists.owner=$1 AND song_to_playlist.song=$2""",
+                        inter.user.id,
+                        self.track.identifier,
+                    )
+                    if not song_playlist:
+                        await con.execute(
+                            """INSERT INTO song_data
+                            (id,
+                            lavalink_id,
+                            spotify,
+                            name,
+                            artist,
+                            length,
+                            thumbnail,
+                            uri)
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id)
+                            DO UPDATE SET likes = song_data.likes + 1
+                            """,
+                            self.track.identifier,
+                            self.track.track_id,
+                            self.track.spotify,
+                            self.track.title,
+                            self.track.author,
+                            self.track.length / 1000
+                            if self.track.length is not None
+                            else 0,
+                            self.track.thumbnail,
+                            self.track.uri,
+                        )
+                        await con.execute(
+                            """INSERT INTO users (id) VALUES ($1) ON CONFLICT DO NOTHING""",
+                            inter.user.id,
+                        )
+                        await con.execute(
+                            """INSERT INTO PLAYLISTS (owner)
+                            VALUES ($1) ON CONFLICT DO NOTHING""",
+                            inter.user.id,
+                        )
+                        await con.execute(
+                            """INSERT INTO song_to_playlist (song, playlist)
+                            VALUES ($1, (SELECT id FROM playlists WHERE owner = $2))
+                            ON CONFLICT DO NOTHING""",
+                            self.track.identifier,
+                            inter.user.id,
+                        )
+                        await inter.send(song_playlist)
+                    else:
+                        await con.execute(
+                            """DELETE FROM song_to_playlist WHERE song=$1 AND playlist=$2""",
+                            self.track.identifier,
+                            song_playlist,
+                        )
+                        await inter.send(
+                            f"Deleted {self.track.title} from your liked songs!"
+                        )
 
 
 class MyMenu(ButtonMenuPages):
@@ -587,3 +662,111 @@ class PlaylistTrack(TypedDict):
     length: int
     uri: str
     added: datetime
+
+
+class UserPlaylistView(MyView, ButtonMenuPages):
+    def __init__(self, source: ListPageSource) -> None:
+        super().__init__(source=source, style=ButtonStyle.blurple)
+
+
+class UserPlaylistSource(ListPageSource):
+    def __init__(
+        self, *, title: str, songs: list[PlaylistTrack], description: str = ""
+    ):
+        super().__init__(entries=songs, per_page=10)
+        self.songs = songs
+        self.title = title
+        self.description = description
+
+    def format_page(self, menu: MyMenu, songs: list[PlaylistTrack]) -> Embed:
+        add = self.songs.index(songs[0]) + 1
+        desc = "\n".join(
+            PLAYLIST_FORMAT.format(
+                index=i + add,
+                title=t["name"],
+                uri=t["uri"],
+                artist=t["artist"],
+                time=strftime("%H:%M:%S", gmtime(t["length"])),
+                added=t["added"].strftime("%d/%m/%Y %H:%M:%S"),
+            )
+            for i, t in enumerate(songs)
+        )
+
+        embed = Embed(
+            description=desc,
+            color=menu.ctx.bot.color if menu.ctx else menu.interaction.client.color,  # type: ignore
+        )
+
+        maximum = self.get_max_pages()
+
+        c = sum(t["length"] for t in self.songs)
+        a = strftime("%H:%M:%S", gmtime(round(c)))
+        embed.set_footer(
+            text=f"Page {menu.current_page + 1}/{maximum} "
+            f"({len(self.songs)} tracks - total {a})"
+        )
+
+        embed.set_author(name=self.title)
+
+        return embed
+
+
+def truncate(fmt: str, *, length: int) -> str:
+    """Return the string with `...` if necessary."""
+
+    if len(fmt) > length:
+        return fmt[: length - 3] + "..."
+
+    return fmt
+
+
+class SearchSelect(Select["SearchView"]):
+    def __init__(self, tracks: list[Track]):
+        super().__init__(
+            placeholder="Select a track to play.",
+            options=[
+                SelectOption(
+                    label=truncate(
+                        f"{track.title} - {track.author}" or "Unknown Title", length=100
+                    ),
+                    description=truncate(track.uri or "Unknown URL", length=100),
+                    value=str(i),
+                )
+                for i, track in enumerate(tracks)
+            ],
+        )
+
+        self.inter: Interaction | None = None
+        """The interaction that this select is in, can be used to respond with playing embed"""
+
+    async def callback(self, interaction: Interaction) -> None:
+        self.disabled = True
+
+        assert self.view is not None
+        self.view.selected_track = self.view.tracks[int(self.values[0])]
+
+        await interaction.response.defer()
+        self.inter = interaction
+
+        self.view.stop()
+
+
+class SearchView(MyView):
+    def __init__(self, tracks: list[Track]):
+        super().__init__(timeout=60)
+
+        self.tracks = tracks
+        self.selected_track: Track | None = None
+        self.add_item(SearchSelect(tracks))
+
+
+def create_search_embed(*, bot: Vibr, tracks: list[Track]) -> Embed:
+    return Embed(
+        title="Search Results",
+        color=bot.color,
+        description="\n".join(
+            f"**{i}.** [{t.title}]({t.uri}) by "
+            f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
+            for i, t in enumerate(tracks)
+        ),
+    )
