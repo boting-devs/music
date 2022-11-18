@@ -241,16 +241,16 @@ class Playlists(Cog):
 
         for song in songs:
             if song["spotify"]:
-                tracks = await player.get_tracks(
+                result = await player.get_tracks(
                     song["uri"],
                     ctx=inter,  # type: ignore
                 )
-                assert not isinstance(tracks, Playlist)
+                assert not isinstance(result, Playlist)
 
-                if not tracks:
+                if not result:
                     continue
 
-                track = tracks[0]
+                track = result[0]
             else:
                 track = await player.node.build_track(song["lavalink_id"])
 

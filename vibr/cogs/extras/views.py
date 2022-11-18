@@ -322,14 +322,14 @@ class PlayButton(TimeoutView):
             # So all statements fail one fails
             async with inter.bot.db.acquire() as con:
                 async with con.transaction():
-                    song_playlist = await con.execute(
+                    song_playlist = await con.fetchrow(
                         """SELECT
-                            song_to_playlist.playlist 
-                        FROM song_to_playlist 
-                        INNER JOIN playlists 
-                        ON song_to_playlist.playlist = playlists.id 
-                        
-                        WHERE Playlists.owner=$1 AND song_to_playlist.song=$2""",
+                            song_to_playlist.playlist
+                        FROM song_to_playlist
+                        INNER JOIN playlists
+                        ON song_to_playlist.playlist = playlists.id
+
+                        WHERE playlists.owner=$1 AND song_to_playlist.song=$2""",
                         inter.user.id,
                         self.track.identifier,
                     )
@@ -374,15 +374,15 @@ class PlayButton(TimeoutView):
                             self.track.identifier,
                             inter.user.id,
                         )
-                        await inter.send(song_playlist)
+                        await inter.send(f"Added `{self.track.title}` to your playlist")
                     else:
                         await con.execute(
                             """DELETE FROM song_to_playlist WHERE song=$1 AND playlist=$2""",
                             self.track.identifier,
-                            song_playlist,
+                            song_playlist["playlist"],
                         )
                         await inter.send(
-                            f"Deleted {self.track.title} from your liked songs!"
+                            f"Deleted `{self.track.title}` from your liked songs!"
                         )
 
 
