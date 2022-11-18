@@ -49,6 +49,8 @@ class Playlists(Cog):
             WHERE playlists.id = (
                 SELECT id FROM playlists WHERE owner=$1 AND name='Liked Songs'
             )
+
+            ORDER BY song_to_playlist.added ASC;
             """,
             inter.user.id,
         )
