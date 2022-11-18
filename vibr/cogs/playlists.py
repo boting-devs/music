@@ -150,6 +150,51 @@ class Playlists(Cog):
 
         await inter.send(f"Saved `{track.title}` to your liked songs!")
 
+    @liked.subcommand(name="remove")
+    async def like_remove(self, inter: MyInter, index: int):
+        index = index - 1
+
+        songs = await self.bot.db.fetch(
+            """SELECT song_data.id, song_data.name FROM song_data
+
+            INNER JOIN song_to_playlist
+            ON song_to_playlist.song = song_data.id
+
+            INNER JOIN playlists
+            ON playlists.id = song_to_playlist.playlist
+
+            WHERE playlists.id = (
+                SELECT id FROM playlists WHERE owner=$1 AND name='Liked Songs'
+            )
+
+            ORDER BY song_to_playlist.added ASC;
+            """,
+            inter.user.id,
+        )
+
+        if index >= len(songs):
+            return await inter.send_author_embed("Invalid index.")
+
+        song = songs[index]
+
+        async with inter.bot.db.acquire() as con:
+            async with con.transaction():
+                await con.execute(
+                    """DELETE FROM song_to_playlist
+                    WHERE song = $1 AND playlist = (
+                        SELECT id FROM playlists WHERE owner = $2
+                    )""",
+                    song["id"],
+                    inter.user.id,
+                )
+                await con.execute(
+                    """UPDATE song_data SET likes = song_data.likes - 1
+                    WHERE id = $1""",
+                    song["id"],
+                )
+
+        await inter.send(f"Removed `{song['name']}` from your liked songs!")
+
 
 def setup(bot: Vibr):
     bot.add_cog(Playlists(bot))
