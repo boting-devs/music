@@ -7,6 +7,7 @@ from nextcord.ext.commands import Cog
 from pomice import Playlist
 
 from .error import NotConnected
+from .extras.playing_embed import playing_embed
 from .extras.types import MyInter
 from .extras.views import (
     SearchView,
@@ -16,6 +17,8 @@ from .extras.views import (
 )
 
 if TYPE_CHECKING:
+    from pomice import Track
+
     from ..__main__ import Vibr
 
 
@@ -199,6 +202,86 @@ class Playlists(Cog):
                 )
 
         await inter.send(f"Removed `{song['name']}` from your liked songs!")
+
+    @liked.subcommand(name="play")
+    async def like_play(self, inter: MyInter):
+        """Play your liked songs."""
+
+        if inter.guild is None or inter.guild.voice_client is None:
+            raise NotConnected
+
+        player = inter.guild.voice_client
+
+        songs = await self.bot.db.fetch(
+            """SELECT
+                song_data.lavalink_id, song_data.uri, song_data.spotify
+            FROM song_data
+
+            INNER JOIN song_to_playlist
+            ON song_to_playlist.song = song_data.id
+
+            INNER JOIN playlists
+            ON playlists.id = song_to_playlist.playlist
+
+            WHERE playlists.id = (
+                SELECT id FROM playlists WHERE owner=$1 AND name='Liked Songs'
+            )
+
+            ORDER BY song_to_playlist.added ASC;
+            """,
+            inter.user.id,
+        )
+
+        if not songs:
+            return await inter.send_author_embed(
+                "You have no liked songs, use /liked add to add to your liked songs."
+            )
+
+        tracks: list[Track] = []
+
+        for song in songs:
+            if song["spotify"]:
+                tracks = await player.get_tracks(
+                    song["uri"],
+                    ctx=inter,  # type: ignore
+                )
+                assert not isinstance(tracks, Playlist)
+
+                if not tracks:
+                    continue
+
+                track = tracks[0]
+            else:
+                track = await player.node.build_track(song["lavalink_id"])
+
+            tracks.append(track)
+
+        if not tracks:
+            return await inter.send_author_embed("No tracks found.")
+
+        if not player.queue and not player.is_playing:
+            track = tracks[0]
+            toplay = tracks[1:]
+
+            if len(player.queue) + len(toplay) > 500:
+                amount = 500 - len(player.queue)
+                await inter.send_author_embed(f"Queueing {amount} tracks...")
+                toplay = toplay[:amount]
+
+            await player.play(track=track)
+
+            await playing_embed(tracks[0])
+        else:
+            toplay = tracks
+            if len(player.queue) + len(toplay) > 500:
+                amount = 500 - len(player.queue)
+                await inter.send_author_embed(f"Queueing {amount} tracks...")
+                toplay = toplay[:amount]
+
+            await playing_embed(tracks[0], queue=True)
+
+        if toplay:
+            player.queue += toplay
 
 
 def setup(bot: Vibr):
