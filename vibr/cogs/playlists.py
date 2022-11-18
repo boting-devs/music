@@ -55,6 +55,11 @@ class Playlists(Cog):
             inter.user.id,
         )
 
+        if not songs:
+            return await inter.send_author_embed(
+                "You have no liked songs, use /liked add to add to your liked songs."
+            )
+
         view = UserPlaylistView(
             source=UserPlaylistSource(title="Liked Songs", songs=songs)
         )
