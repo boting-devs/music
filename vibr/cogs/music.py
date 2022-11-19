@@ -146,58 +146,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                     )
                 ):
                     await playing_embed(toplay)
-        else:
-            if (
-                player.channel.guild.id in self.bot.whitelisted_guilds
-                and self.bot.whitelisted_guilds[player.channel.guild.id] > utcnow()
-            ):
-                return
-
-            if track is not None:
-                self.bot.loop.create_task(self.leave_check(track.ctx))  # type: ignore
-
-    @Cog.listener()
-    async def on_voice_state_update(
-        self, member: Member, before: VoiceState, after: VoiceState
-    ):
-        await sleep(0.5)
-        if (
-            after.channel
-            or not before.channel
-            or not member.guild.voice_client
-            or self.bot.user.id == member.id  # type: ignore
-            or len(self.bot.listeners.get(before.channel.id, set())) > 0
-        ):
-            return
-
-        if (
-            member.guild.id in self.bot.whitelisted_guilds
-            and self.bot.whitelisted_guilds[member.guild.id] > utcnow()
-        ):
-            return
-
-        async def task():
-            await sleep(60)
-
-            assert before.channel
-
-            if len(self.bot.listeners.get(before.channel.id, set())) > 0:
-                self.bot.listener_tasks.pop(member.guild.id, None)
-                return
-
-            if not member.guild.voice_client:
-                self.bot.listener_tasks.pop(member.guild.id, None)
-                return
-
-            if c := member.guild.voice_client.current:  # type: ignore
-                await c.ctx.send_author_embed("Disconnecting on no listeners")
-
-            await member.guild.voice_client.destroy()  # type: ignore
-
-            self.bot.listener_tasks.pop(member.guild.id, None)
-
-        t = self.bot.loop.create_task(task())
-        self.bot.listener_tasks[member.guild.id] = t
 
     async def set_persistent_settings(self, player: Player, channel: int) -> None:
         volume = await self.bot.db.fetchval(
@@ -231,40 +179,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await self.set_persistent_settings(player, channel.id)
 
         self.bot.loop.create_task(self.leave_check(inter))
-
-    async def leave_check(self, inter: MyInter):
-        if (
-            inter.guild.id in self.bot.whitelisted_guilds
-            and self.bot.whitelisted_guilds[inter.guild.id] > utcnow()
-        ):
-            return
-
-        async def task():
-            await sleep(60)
-
-            if not inter.guild.voice_client:
-                self.bot.activity_tasks.pop(inter.guild.id, None)
-                return
-
-            if not inter.guild.voice_client.is_playing:
-                await inter.send_author_embed("Disconnecting on no activity")
-                await inter.guild.voice_client.destroy()
-
-            self.bot.activity_tasks.pop(inter.guild.id, None)
-
-        t = self.bot.loop.create_task(task())
-        self.bot.activity_tasks[inter.guild.id] = t
-
-    @Cog.listener()
-    async def on_application_command_completion(self, inter: MyInter):
-        if (
-            inter.application_command
-            and inter.application_command.parent_cog
-            and inter.application_command.parent_cog.qualified_name  # type: ignore
-            == self.qualified_name
-            and inter.application_command.name != "join"
-        ):
-            self.bot.activity_tasks.pop(inter.guild.id, None)
 
     @slash_command(dm_permission=False)
     async def play(self, inter: MyInter, *, query: str):
@@ -751,12 +665,29 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send_author_embed("Bass Filter reset")
             log.debug("Bass Filter reset for guild %d", inter.guild.id)
         else:
-            await player.add_filter(Equalizer(tag="Equalizer",levels=[
-            (0, -0.075), (1, 0.125), (2, 0.15), (3, 0.20), (4, 0.17),
-            (5, 0.12), (6, 0.075), (7, 0.0), (8, 0.0), (9, 0.0),
-            (10, 0.0), (11, 0.0), (12, 0.125), (13, 0.15), (14, 0.05)
-        ]
-        ), fast_apply=True)
+            await player.add_filter(
+                Equalizer(
+                    tag="Equalizer",
+                    levels=[
+                        (0, -0.075),
+                        (1, 0.125),
+                        (2, 0.15),
+                        (3, 0.20),
+                        (4, 0.17),
+                        (5, 0.12),
+                        (6, 0.075),
+                        (7, 0.0),
+                        (8, 0.0),
+                        (9, 0.0),
+                        (10, 0.0),
+                        (11, 0.0),
+                        (12, 0.125),
+                        (13, 0.15),
+                        (14, 0.05),
+                    ],
+                ),
+                fast_apply=True,
+            )
             await inter.send_author_embed("Bassboost filter activated")
             log.debug("Bassboost filter activated for guild %d", inter.guild.id)
 

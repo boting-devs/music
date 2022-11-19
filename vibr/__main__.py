@@ -31,11 +31,7 @@ class Vibr(BotBase):
 
         self.pool = NodePool()
         self.views_added = False
-        self.listeners: dict[int, set[int]] = {}
         self.spotify_users: dict[int, Optional[str]] = {}
-        self.listener_tasks: dict[int, asyncio.Task[None]] = {}
-        self.activity_tasks: dict[int, asyncio.Task[None]] = {}
-        self.whitelisted_guilds: dict[int, datetime] = {}
         self.notified_users: set[int] = set()
         """A set of all users who have been notified, this is a cache.
 
@@ -76,21 +72,6 @@ class Vibr(BotBase):
         # env var BETA exists, set our logging to DEBUG (all loggings in `vibr/`)
         if os.getenv("BETA"):
             getLogger("vibr").setLevel(DEBUG)
-
-    async def start(self, *args, **kwargs):
-        await super().start(*args, **kwargs)
-
-        await self.wait_until_ready()
-
-        for row in await self.db.fetch(
-            "SELECT id, whitelisted FROM guilds WHERE whitelisted IS NOT NULL"
-        ):
-            self.whitelisted_guilds[row.get("id")] = row.get("whitelisted")
-            log.debug(
-                "Added whitelisted guild %s to cache, until %s",
-                row.get("id"),
-                row.get("whitelisted"),
-            )
 
     async def on_ready(self):
         await asyncio.sleep(10)

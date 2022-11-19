@@ -41,49 +41,6 @@ class Events(Cog):
                 await player.set_pause(True)
                 await sleep(1)
                 await player.set_pause(paused)
-        else:
-            # Someone joined, add them to cache
-            if not before.channel and after.channel and not member.bot:
-                if after.channel.id not in self.bot.listeners:
-                    self.bot.listeners[after.channel.id] = {member.id}
-                else:
-                    self.bot.listeners[after.channel.id].add(member.id)
-
-                if task := self.bot.listener_tasks.get(member.guild.id):
-                    task.cancel()
-                    del self.bot.listener_tasks[member.guild.id]
-            # Someone left, remove them from cache
-            elif before.channel and not after.channel:
-                if before.channel.id in self.bot.listeners:
-                    self.bot.listeners.get(before.channel.id, set()).discard(member.id)
-                    if not self.bot.listeners.get(before.channel.id, {1}):
-                        del self.bot.listeners[before.channel.id]
-            # They moved, move the cache of them too.
-            elif (
-                before.channel
-                and after.channel
-                and before.channel.id != after.channel.id
-            ):
-                if before.channel.id in self.bot.listeners:
-                    self.bot.listeners.get(before.channel.id, set()).discard(member.id)
-                    if not self.bot.listeners.get(before.channel.id, {1}):
-                        del self.bot.listeners[before.channel.id]
-
-                if after.channel.id not in self.bot.listeners:
-                    self.bot.listeners[after.channel.id] = {member.id}
-                else:
-                    self.bot.listeners[after.channel.id].add(member.id)
-
-    @Cog.listener()
-    async def on_guild_available(self, guild: Guild):
-        # Hacky, but this gets the first voice states when we know about a guild.
-        # This stores the initial states in cache.
-        for m, vs in guild._voice_states.items():
-            if vs.channel:
-                if vs.channel.id not in self.bot.listeners:
-                    self.bot.listeners[vs.channel.id] = {m}
-                else:
-                    self.bot.listeners[vs.channel.id].add(m)
 
     @Cog.listener()
     async def on_application_command_completion(self, inter: MyInter):
