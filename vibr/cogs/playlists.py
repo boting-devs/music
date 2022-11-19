@@ -27,7 +27,7 @@ class Playlists(Cog):
         self.bot = bot
 
     @slash_command()
-    async def liked(self):
+    async def liked(self, _: MyInter):
         ...
 
     @liked.subcommand(name="list")
