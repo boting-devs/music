@@ -1,11 +1,30 @@
 from __future__ import annotations
 
-import datetime
-from typing import TypedDict
+import datetime  # noqa: F401  # wtf
+from asyncio import create_task
+from logging import getLogger
+from typing import TYPE_CHECKING, TypedDict
 
 import botbase
 import nextcord
 import pomice
+
+if TYPE_CHECKING:
+    from asyncio import TimerHandle
+
+    from pomice import Track
+
+log = getLogger(__name__)
+
+# LEAVE_TIMEOUT = 5 * 60
+# FIXME:
+LEAVE_TIMEOUT = 10
+"""The time to wait until auto-leaving the vc."""
+
+# PAUSE_TIMEOUT = 30
+# FIXME:
+PAUSE_TIMEOUT = 5
+"""The time to wait before auto-pausing the player."""
 
 
 class Player(pomice.Player):
@@ -16,6 +35,96 @@ class Player(pomice.Player):
         self.looped_track: pomice.Track | None = None
         self.looped_queue_check: bool = False
         self.loop_queue: list[pomice.Track] = []
+        self.leave_timer: TimerHandle | None = None
+        """This is the object returned by call_later that lets us cancel autoleave."""
+
+    def invoke_leave_timer(self, track: Track) -> None:
+        """This is called when the player should auto-leave."""
+
+        inter: MyInter = track.ctx  # type: ignore
+
+        log.info("Invoking leave timer for %d", inter.guild.id)
+        self.leave_timer = self.client.loop.call_later(
+            LEAVE_TIMEOUT, create_task, self.leave(inter)
+        )
+
+    def cancel_leave_timer(self) -> None:
+        """This is called when the player should not auto-leave."""
+
+        if self.leave_timer is not None:
+            log.info("Cancelling leave timer for %d", self.current.ctx.guild.id)  # type: ignore
+            self.leave_timer.cancel()
+            self.leave_timer = None
+
+    def invoke_pause_timer(self) -> None:
+        """This is called when the player should auto-pause."""
+
+        inter: MyInter = self.current.ctx  # type: ignore
+
+        log.info("Invoking pause timer for %d", inter.guild.id)
+        self.client.loop.call_later(PAUSE_TIMEOUT, create_task, self.autopause(inter))
+
+    def cancel_pause_timer(self) -> None:
+        """This is called when the player should not auto-pause."""
+
+        if self.pause_timer is not None:
+            log.info("Cancelling pause timer for %d", self.current.ctx.guild.id)  # type: ignore
+            self.pause_timer.cancel()
+            self.pause_timer = None
+
+    def track_end(self, track: Track) -> None:
+        """Called when a track ends and nothing is in the queue.
+
+        Track is given to use the last known interaction.
+        """
+
+        self.invoke_leave_timer(track)
+
+    async def play(
+        self,
+        track: Track,
+        *,
+        start: int = 0,
+        end: int = 0,
+        ignore_if_playing: bool = False,
+    ) -> Track:
+        ret = await super().play(
+            track, start=start, end=end, ignore_if_playing=ignore_if_playing
+        )
+
+        self.cancel_leave_timer()
+
+        return ret
+
+    async def leave(self, inter: MyInter) -> None:
+        """This is called when autoleave should be invoked."""
+
+        await inter.send_embed(
+            "Ok", "Please edit this to be like 'waa waa u ignored me' kty"
+        )
+
+        log.info("Auto-destroying player for %d", inter.guild.id)
+        await self.destroy()
+
+    async def autopause(self, inter: MyInter) -> None:
+        """This is called when autopause should be invoked."""
+
+        await inter.send_embed(
+            "Ok", "Please edit this to be like 'waa waa u left me' kty"
+        )
+
+        log.info("Auto-pausing player for %d", inter.guild.id)
+        await self.set_pause(True)
+
+    async def set_pause(self, pause: bool) -> bool:
+        ret = await super().set_pause(pause)
+
+        if ret:
+            self.invoke_leave_timer(self.current)
+        else:
+            self.cancel_leave_timer()
+
+        return ret
 
 
 class MyContext(botbase.MyContext):
@@ -50,7 +159,7 @@ class SpotifyPlaylists(TypedDict):
 class Playlist(TypedDict):
     url: str
     type: str
-    tracks: list[Track]
+    tracks: list[SpotifyTrack]
     snapshot_id: str
     public: bool
     owner: SpotifyUser
@@ -70,7 +179,7 @@ class Image(TypedDict):
     url: str
 
 
-class Track(TypedDict):
+class SpotifyTrack(TypedDict):
     total: int
     previous: str | None
     offset: str

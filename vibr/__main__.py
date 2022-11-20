@@ -69,6 +69,9 @@ class Vibr(BotBase):
         self.vote_webhook: nextcord.Webhook | None = None
         """The webhook in #vote-for-us for top.gg."""
 
+        self.listeners: dict[int, set[int]] = {}
+        """`channel: set[member]`, used for auto-pause"""
+
         # env var BETA exists, set our logging to DEBUG (all loggings in `vibr/`)
         if os.getenv("BETA"):
             getLogger("vibr").setLevel(DEBUG)

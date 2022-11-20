@@ -97,56 +97,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             player.loop_queue = [player.current]
             log.debug("looping queue for guild %d", player.guild.id)
 
-    @Cog.listener()
-    async def on_pomice_track_end(self, player: Player, track: Track, _: str):
-        await sleep(0.1)
-        if player.is_playing:
-            return
-
-        if player.looped_track:
-            await player.play(player.looped_track)
-            await playing_embed(player.looped_track, loop=True)
-            return
-
-        if player.looped_queue_check:
-            player.queue += player.loop_queue
-
-        if player.queue:
-            toplay = player.queue.pop(0)
-
-            try:
-                await player.play(toplay)
-            except Exception as e:
-                embed = Embed(
-                    title="Error when playing queued track",
-                    description=f"{e}\nAttempting to play next track...",
-                )
-                if toplay.ctx:
-                    channel = (
-                        toplay.ctx.channel
-                    )  # pyright: ignore[reportOptionalMemberAccess]
-                    if channel.permissions_for(  # type: ignore
-                        channel.guild.me  # type: ignore
-                    ).send_messages:
-                        await channel.send(embed=embed)
-
-                await self.on_pomice_track_end(player, track, "")
-            else:
-                inter = toplay.ctx
-                if inter is None or inter.guild is None:
-                    return  # ???
-
-                perms = inter.channel.permissions_for(inter.guild.me)  # type: ignore
-                if (
-                    perms.view_channel
-                    and perms.send_messages
-                    and not (
-                        inter.guild.me.communication_disabled_until is not None  # type: ignore
-                        and inter.guild.me.communication_disabled_until > utcnow()  # type: ignore
-                    )
-                ):
-                    await playing_embed(toplay)
-
     async def set_persistent_settings(self, player: Player, channel: int) -> None:
         volume = await self.bot.db.fetchval(
             "SELECT volume FROM players WHERE channel=$1",
@@ -177,8 +127,6 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         await inter.send_author_embed(f"Connected to {channel.name}")
 
         await self.set_persistent_settings(player, channel.id)
-
-        self.bot.loop.create_task(self.leave_check(inter))
 
     @slash_command(dm_permission=False)
     async def play(self, inter: MyInter, *, query: str):
