@@ -684,7 +684,7 @@ class UserPlaylistSource(ListPageSource):
             PLAYLIST_FORMAT.format(
                 index=i + add,
                 title=t["name"],
-                uri=t["uri"],
+                uri="https://odesli.co/"+t["uri"],
                 artist=t["artist"],
                 time=strftime("%H:%M:%S", gmtime(t["length"])),
                 added=t["added"].strftime("%d/%m/%Y %H:%M:%S"),
@@ -765,7 +765,7 @@ def create_search_embed(*, bot: Vibr, tracks: list[Track]) -> Embed:
         title="Search Results",
         color=bot.color,
         description="\n".join(
-            f"**{i}.** [{t.title}]({t.uri}) by "
+            f"**{i+1}.** [{t.title}](https://odesli.co/{t.uri}) by "
             f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
             for i, t in enumerate(tracks)
         ),

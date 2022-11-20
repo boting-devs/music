@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from nextcord import slash_command
 from nextcord.ext.commands import Cog
 from pomice import Playlist
+from logging import getLogger
 
 from .error import NotConnected
 from .extras.playing_embed import playing_embed
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
 
     from ..__main__ import Vibr
 
+log = getLogger(__name__)
 
 class Playlists(Cog):
     def __init__(self, bot: Vibr):
@@ -109,11 +111,36 @@ class Playlists(Cog):
                 return await inter.send_author_embed("No track selected.")
 
             track = view.selected_track
+
         elif track is None:
             return await inter.send_embed(
                 "No Track Given",
                 "Something must be playing or `query` must be specified.",
             )
+        
+        songs = await self.bot.db.fetch(
+            """SELECT
+                song_data.lavalink_id, song_data.uri, song_data.spotify
+            FROM song_data
+
+            INNER JOIN song_to_playlist
+            ON song_to_playlist.song = song_data.id
+
+            INNER JOIN playlists
+            ON playlists.id = song_to_playlist.playlist
+
+            WHERE playlists.id = (
+                SELECT id FROM playlists WHERE owner=$1 AND name='Liked Songs'
+            )
+
+            ORDER BY song_to_playlist.added ASC;
+            """,
+            inter.user.id,
+        )
+
+        for song in songs:
+            if song["uri"] == track.uri:
+                return await inter.send("Song already in liked list")
 
         async with inter.bot.db.acquire() as con:
             async with con.transaction():
