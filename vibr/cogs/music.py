@@ -30,7 +30,14 @@ from .extras.errors import (
 )
 from .extras.playing_embed import playing_embed
 from .extras.types import MyInter, Player
-from .extras.views import PlayButton, QueueSource, QueueView, SpotifyPlaylistView,SearchView,create_search_embed
+from .extras.views import (
+    PlayButton,
+    QueueSource,
+    QueueView,
+    SearchView,
+    SpotifyPlaylistView,
+    create_search_embed,
+)
 
 if TYPE_CHECKING:
     from nextcord import VoiceState
@@ -751,12 +758,29 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send_author_embed("Bass Filter reset")
             log.debug("Bass Filter reset for guild %d", inter.guild.id)
         else:
-            await player.add_filter(Equalizer(tag="Equalizer",levels=[
-            (0, -0.075), (1, 0.125), (2, 0.15), (3, 0.20), (4, 0.17),
-            (5, 0.12), (6, 0.075), (7, 0.0), (8, 0.0), (9, 0.0),
-            (10, 0.0), (11, 0.0), (12, 0.125), (13, 0.15), (14, 0.05)
-        ]
-        ), fast_apply=True)
+            await player.add_filter(
+                Equalizer(
+                    tag="Equalizer",
+                    levels=[
+                        (0, -0.075),
+                        (1, 0.125),
+                        (2, 0.15),
+                        (3, 0.20),
+                        (4, 0.17),
+                        (5, 0.12),
+                        (6, 0.075),
+                        (7, 0.0),
+                        (8, 0.0),
+                        (9, 0.0),
+                        (10, 0.0),
+                        (11, 0.0),
+                        (12, 0.125),
+                        (13, 0.15),
+                        (14, 0.05),
+                    ],
+                ),
+                fast_apply=True,
+            )
             await inter.send_author_embed("Bassboost filter activated")
             log.debug("Bassboost filter activated for guild %d", inter.guild.id)
 
@@ -882,16 +906,21 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             await inter.send("Please only fill one option to use this command properly")
 
-    @slash_command(name="search",dm_permission=False)
+    @slash_command(name="search", dm_permission=False)
     @connected()
-    async def search(self,inter:MyInter, query:str):
+    async def search(self, inter: MyInter, query: str):
+        """Search for a song and play it.
+
+        query:
+            The song to search for.
+        """
         player = inter.guild.voice_client
         tracks = await inter.guild.voice_client.get_tracks(
-                query=query,
-                ctx=inter,  # type: ignore
-            )
+            query=query,
+            ctx=inter,  # type: ignore
+        )
         if not tracks:
-                return await inter.send_author_embed("No tracks found")
+            return await inter.send_author_embed("No tracks found")
         elif isinstance(tracks, Playlist):
             return await inter.send_author_embed(
                 "You cannot add a playlist to your liked songs right now."
