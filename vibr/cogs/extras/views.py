@@ -399,9 +399,10 @@ class QueueSource(ListPageSource):
 
     def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
         add = self.queue.index(tracks[0]) + 1
+        
         desc = "\n".join(
             # 1. title by author [length]
-            f"**{i + add}.** [{t.title}]({t.uri}) by "
+            f"**{i + add}.** [{t.title}](https://odesli.co/{t.uri}) by "
             f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
             for i, t in enumerate(tracks)
         )
@@ -409,7 +410,7 @@ class QueueSource(ListPageSource):
         if tracks[0].track_id == self.queue[0].track_id:
             c = self.now
             desc = (
-                f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
+                f"\U0001f3b6 Now Playing:\n[{c.title}](https://odesli.co/{t.uri}) by {c.author}\n\n"
                 f"\U0001f3b6 Up Next:\n" + desc
             )
         embed = Embed(
