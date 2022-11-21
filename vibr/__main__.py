@@ -158,6 +158,14 @@ class Vibr(BotBase):
             """
         )
 
+        await asyncio.sleep(1)
+
+        # Clean up the inactive players.
+        for player in self.voice_clients:
+            if len(self.listeners.get(player.channel.id, set())) == 0:  # type: ignore
+                assert isinstance(player, Player)
+                player.invoke_pause_timer()
+
     async def close(self):
         # Alright, this is an expected close so we have time.
         for player in self.voice_clients:
