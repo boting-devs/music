@@ -34,6 +34,9 @@ class Player(pomice.Player):
         self.leave_timer: TimerHandle | None = None
         """This is the object returned by call_later that lets us cancel autoleave."""
 
+        self.pause_timer: TimerHandle | None = None
+        """This is the object returned by call_later that lets us cancel autopause."""
+
     def invoke_leave_timer(self, track: Track) -> None:
         """This is called when the player should auto-leave."""
 
@@ -58,7 +61,9 @@ class Player(pomice.Player):
         inter: MyInter = self.current.ctx  # type: ignore
 
         log.info("Invoking pause timer for %d", inter.guild.id)
-        self.client.loop.call_later(PAUSE_TIMEOUT, create_task, self.autopause(inter))
+        self.pause_timer = self.client.loop.call_later(
+            PAUSE_TIMEOUT, create_task, self.autopause(inter)
+        )
 
     def cancel_pause_timer(self) -> None:
         """This is called when the player should not auto-pause."""
