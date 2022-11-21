@@ -47,7 +47,7 @@ class Player(pomice.Player):
 
         log.info("Invoking leave timer for %d", inter.guild.id)
         self.leave_timer = self.client.loop.call_later(
-            LEAVE_TIMEOUT, create_task, self.leave(inter)
+            LEAVE_TIMEOUT, lambda: create_task(self.leave(inter))
         )
 
     def cancel_leave_timer(self) -> None:
@@ -68,7 +68,7 @@ class Player(pomice.Player):
 
         log.info("Invoking pause timer for %d", inter.guild.id)
         self.pause_timer = self.client.loop.call_later(
-            PAUSE_TIMEOUT, create_task, self.autopause(inter)
+            PAUSE_TIMEOUT, lambda: create_task(self.autopause(inter))
         )
 
     def cancel_pause_timer(self) -> None:
