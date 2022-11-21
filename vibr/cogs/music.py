@@ -30,7 +30,14 @@ from .extras.errors import (
 )
 from .extras.playing_embed import playing_embed
 from .extras.types import MyInter, Player
-from .extras.views import PlayButton, QueueSource, QueueView, SpotifyPlaylistView
+from .extras.views import (
+    PlayButton,
+    QueueSource,
+    QueueView,
+    SearchView,
+    SpotifyPlaylistView,
+    create_search_embed,
+)
 
 if TYPE_CHECKING:
     from nextcord import VoiceState
@@ -760,6 +767,44 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await inter.send("Please fill one of the options to use the command")
         else:
             await inter.send("Please only fill one option to use this command properly")
+
+    @slash_command(name="search", dm_permission=False)
+    @connected()
+    async def search(self, inter: MyInter, query: str):
+        """Search for a song and play it.
+
+        query:
+            The song to search for.
+        """
+        player = inter.guild.voice_client
+        tracks = await inter.guild.voice_client.get_tracks(
+            query=query,
+            ctx=inter,  # type: ignore
+        )
+        if not tracks:
+            return await inter.send_author_embed("No tracks found")
+        elif isinstance(tracks, Playlist):
+            return await inter.send_author_embed(
+                "You cannot add a playlist to your liked songs right now."
+            )
+
+        view = SearchView(tracks)
+
+        m = await inter.send(
+            embed=create_search_embed(bot=self.bot, tracks=tracks), view=view
+        )
+        view.message = m  # type: ignore
+        await view.wait()
+        if view.selected_track is None:
+            return await inter.send_author_embed("No track selected.")
+
+        track = view.selected_track
+        if not player.queue and not player.is_playing:
+            await player.play(track=track)
+            await playing_embed(track)
+        else:
+            player.queue.append(track)
+            await playing_embed(track, queue=True)
 
     @staticmethod
     def truncate(fmt: str, *, length: int) -> str:
