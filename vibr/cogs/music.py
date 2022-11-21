@@ -9,7 +9,7 @@ from time import gmtime, strftime
 from typing import TYPE_CHECKING, Optional, cast
 
 from bs4 import BeautifulSoup
-from nextcord import ClientUser, Embed, Member, Range, User, slash_command
+from nextcord import ClientUser, Embed, Member, Range, User, slash_command ,SlashOption
 from nextcord.ext.application_checks import (
     ApplicationBotMissingPermissions as BotMissingPermissions,
 )
@@ -854,8 +854,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def playnext(
         self,
         inter: MyInter,
-        track: Optional[Range[1, ...]] = None,
-        song: Optional[str] = None,
+        track: Optional[Range[1, ...]] = SlashOption(name="queue-item",description="Choose item from queue",default=None) ,
+        song: Optional[str] = SlashOption(name="search-song",description="Search song to be played next",default=None),
     ):
         """Play the song just after the current playing song"""
         player = inter.guild.voice_client
