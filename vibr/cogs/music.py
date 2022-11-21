@@ -912,7 +912,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await player.play(track=track)
             await playing_embed(track)
         else:
-            player.queue += [track]
+            player.queue.append(track)
             await playing_embed(track, queue=True)
 
     @staticmethod
