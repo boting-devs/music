@@ -16,14 +16,10 @@ if TYPE_CHECKING:
 
 log = getLogger(__name__)
 
-# LEAVE_TIMEOUT = 5 * 60
-# FIXME:
-LEAVE_TIMEOUT = 10
+LEAVE_TIMEOUT = 5 * 60
 """The time to wait until auto-leaving the vc."""
 
-# PAUSE_TIMEOUT = 30
-# FIXME:
-PAUSE_TIMEOUT = 5
+PAUSE_TIMEOUT = 30
 """The time to wait before auto-pausing the player."""
 
 
