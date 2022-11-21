@@ -31,11 +31,7 @@ class Vibr(BotBase):
 
         self.pool = NodePool()
         self.views_added = False
-        self.listeners: dict[int, set[int]] = {}
         self.spotify_users: dict[int, Optional[str]] = {}
-        self.listener_tasks: dict[int, asyncio.Task[None]] = {}
-        self.activity_tasks: dict[int, asyncio.Task[None]] = {}
-        self.whitelisted_guilds: dict[int, datetime] = {}
         self.notified_users: set[int] = set()
         """A set of all users who have been notified, this is a cache.
 
@@ -73,24 +69,12 @@ class Vibr(BotBase):
         self.vote_webhook: nextcord.Webhook | None = None
         """The webhook in #vote-for-us for top.gg."""
 
+        self.listeners: dict[int, set[int]] = {}
+        """`channel: set[member]`, used for auto-pause"""
+
         # env var BETA exists, set our logging to DEBUG (all loggings in `vibr/`)
         if os.getenv("BETA"):
             getLogger("vibr").setLevel(DEBUG)
-
-    async def start(self, *args, **kwargs):
-        await super().start(*args, **kwargs)
-
-        await self.wait_until_ready()
-
-        for row in await self.db.fetch(
-            "SELECT id, whitelisted FROM guilds WHERE whitelisted IS NOT NULL"
-        ):
-            self.whitelisted_guilds[row.get("id")] = row.get("whitelisted")
-            log.debug(
-                "Added whitelisted guild %s to cache, until %s",
-                row.get("id"),
-                row.get("whitelisted"),
-            )
 
     async def on_ready(self):
         await asyncio.sleep(10)
@@ -173,6 +157,14 @@ class Vibr(BotBase):
             UPDATE players SET tracks=NULL;
             """
         )
+
+        await asyncio.sleep(1)
+
+        # Clean up the inactive players.
+        for player in self.voice_clients:
+            if len(self.listeners.get(player.channel.id, set())) == 0:  # type: ignore
+                assert isinstance(player, Player)
+                player.invoke_pause_timer()
 
     async def close(self):
         # Alright, this is an expected close so we have time.
