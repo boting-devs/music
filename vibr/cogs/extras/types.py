@@ -42,6 +42,9 @@ class Player(pomice.Player):
 
         inter: MyInter = track.ctx  # type: ignore
 
+        if self.leave_timer is not None:
+            self.leave_timer.cancel()
+
         log.info("Invoking leave timer for %d", inter.guild.id)
         self.leave_timer = self.client.loop.call_later(
             LEAVE_TIMEOUT, create_task, self.leave(inter)
@@ -59,6 +62,9 @@ class Player(pomice.Player):
         """This is called when the player should auto-pause."""
 
         inter: MyInter = self.current.ctx  # type: ignore
+
+        if self.pause_timer is not None:
+            self.pause_timer.cancel()
 
         log.info("Invoking pause timer for %d", inter.guild.id)
         self.pause_timer = self.client.loop.call_later(
