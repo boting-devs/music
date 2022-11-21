@@ -100,7 +100,8 @@ class Player(pomice.Player):
         """This is called when autoleave should be invoked."""
 
         await inter.send_embed(
-            "Ok", "Please edit this to be like 'waa waa u ignored me' kty"
+            "Disconnecting Due to No Activity",
+            "To prevent unnecessary resource usage, I have disconnected the player.",
         )
 
         log.info("Auto-destroying player for %d", inter.guild.id)
@@ -110,7 +111,8 @@ class Player(pomice.Player):
         """This is called when autopause should be invoked."""
 
         await inter.send_embed(
-            "Ok", "Please edit this to be like 'waa waa u left me' kty"
+            "Pausing Due to No Listeners",
+            "To prevent unnecessary resource usage, I have paused the player.",
         )
 
         log.info("Auto-pausing player for %d", inter.guild.id)
