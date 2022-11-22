@@ -399,9 +399,10 @@ class QueueSource(ListPageSource):
 
     def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
         add = self.queue.index(tracks[0]) + 1
+
         desc = "\n".join(
             # 1. title by author [length]
-            f"**{i + add}.** [{t.title}]({t.uri}) by "
+            f"**{i + add}.** [{t.title}](https://odesli.co/{t.uri}) by "
             f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
             for i, t in enumerate(tracks)
         )
@@ -409,7 +410,7 @@ class QueueSource(ListPageSource):
         if tracks[0].track_id == self.queue[0].track_id:
             c = self.now
             desc = (
-                f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
+                f"\U0001f3b6 Now Playing:\n[{c.title}](https://odesli.co/{c.uri}) by {c.author}\n\n"
                 f"\U0001f3b6 Up Next:\n" + desc
             )
         embed = Embed(
@@ -684,7 +685,7 @@ class UserPlaylistSource(ListPageSource):
             PLAYLIST_FORMAT.format(
                 index=i + add,
                 title=t["name"],
-                uri="https://odesli.co/"+t["uri"],
+                uri="https://odesli.co/" + t["uri"],
                 artist=t["artist"],
                 time=strftime("%H:%M:%S", gmtime(t["length"])),
                 added=t["added"].strftime("%d/%m/%Y %H:%M:%S"),
@@ -727,9 +728,9 @@ class SearchSelect(Select["SearchView"]):
             options=[
                 SelectOption(
                     label=truncate(
-                        f"{track.title} - {track.author}" or "Unknown Title", length=100
+                        f"{i}. {track.title} - {track.author}",
+                        length=100,
                     ),
-                    description=truncate(track.uri or "Unknown URL", length=100),
                     value=str(i),
                 )
                 for i, track in enumerate(tracks)
@@ -745,7 +746,8 @@ class SearchSelect(Select["SearchView"]):
         assert self.view is not None
         self.view.selected_track = self.view.tracks[int(self.values[0])]
 
-        await interaction.response.defer()
+        self.disabled = True
+        await interaction.edit(view=self.view)
         self.inter = interaction
 
         self.view.stop()
