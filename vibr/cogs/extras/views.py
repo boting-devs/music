@@ -576,6 +576,35 @@ class StatsView(TimeoutView):
             timedelta(seconds=float(self.timeframe.value)),
         )
 
+        # No clue why postgres decides its in one day but 00:00 is the next?
+        # last_day = None
+        # for row in data:
+        #     time: datetime = row["time"]
+        #     if time.hour == 0 and (time.day == last_day):
+        #         times.append(time + timedelta(days=1))
+        #     else:
+        #         times.append(time)
+
+        #     last_day = time.day
+
+        collected: dict | None = None
+
+        new_data = []
+        for row in data:
+            time = row["time"]
+
+            if time.hour == 0:
+                if collected:
+                    new_data.append(collected)
+
+                collected = {**row, "time": time + timedelta(days=1)}
+            else:
+                new_data.append(row)
+
+        data = new_data
+
+        data.sort(key=lambda x: x["time"])
+
         embed = Embed(title="Stats", color=self.ctx.bot.color)
 
         colours = [f"#{hex(c)[2:]}" for c in self.ctx.bot.colors]
@@ -598,15 +627,7 @@ class StatsView(TimeoutView):
                 f"{TYPE_TO_TITLE[self.type]} ({self.timeframe.name.title()})"
             )
 
-            times = []
-
-            # No clue why postgres decides its in one day but 00:00 is the next?
-            for row in data:
-                time: datetime = row["time"]
-                if time.hour == 0:
-                    times.append(time + timedelta(days=1))
-                else:
-                    times.append(time)
+            times = [row["time"] for row in data]
 
             if self.timeframe is StatsTime.WEEK:
                 # Wed 13
@@ -619,6 +640,10 @@ class StatsView(TimeoutView):
                 date_form = DateFormatter("%d-%m")
 
             axes.xaxis.set_major_formatter(date_form)
+
+            d = [row[self.type.value.split(", ")[0]] for row in data]
+            __import__("logging").info("\n".join(str(i) for i in zip(times, d)))
+            __import__("logging").info(d)
 
             handles = [
                 axes.plot(
