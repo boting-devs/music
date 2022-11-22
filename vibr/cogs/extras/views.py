@@ -410,7 +410,7 @@ class QueueSource(ListPageSource):
         if tracks[0].track_id == self.queue[0].track_id:
             c = self.now
             desc = (
-                f"\U0001f3b6 Now Playing:\n[{c.title}](https://odesli.co/{t.uri}) by {c.author}\n\n"
+                f"\U0001f3b6 Now Playing:\n[{c.title}](https://odesli.co/{c.uri}) by {c.author}\n\n"
                 f"\U0001f3b6 Up Next:\n" + desc
             )
         embed = Embed(
