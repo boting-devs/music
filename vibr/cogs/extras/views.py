@@ -576,17 +576,6 @@ class StatsView(TimeoutView):
             timedelta(seconds=float(self.timeframe.value)),
         )
 
-        # No clue why postgres decides its in one day but 00:00 is the next?
-        # last_day = None
-        # for row in data:
-        #     time: datetime = row["time"]
-        #     if time.hour == 0 and (time.day == last_day):
-        #         times.append(time + timedelta(days=1))
-        #     else:
-        #         times.append(time)
-
-        #     last_day = time.day
-
         collected: dict | None = None
 
         new_data = []
@@ -638,10 +627,6 @@ class StatsView(TimeoutView):
                 date_form = DateFormatter("%d-%m")
 
             axes.xaxis.set_major_formatter(date_form)
-
-            d = [row[self.type.value.split(", ")[0]] for row in data]
-            __import__("logging").info("\n".join(str(i) for i in zip(times, d)))
-            __import__("logging").info(d)
 
             handles = [
                 axes.plot(
