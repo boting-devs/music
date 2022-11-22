@@ -601,9 +601,7 @@ class StatsView(TimeoutView):
             else:
                 new_data.append(row)
 
-        data = new_data
-
-        data.sort(key=lambda x: x["time"])
+        data = sorted(new_data, key=lambda x: x["time"])
 
         embed = Embed(title="Stats", color=self.ctx.bot.color)
 
