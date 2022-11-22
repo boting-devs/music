@@ -61,6 +61,10 @@ class Player(pomice.Player):
     def invoke_pause_timer(self) -> None:
         """This is called when the player should auto-pause."""
 
+        if self.current is None:
+            create_task(self.set_pause(True))
+            return
+
         inter: MyInter = self.current.ctx  # type: ignore
 
         if self.pause_timer is not None:
