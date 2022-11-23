@@ -730,7 +730,7 @@ class SearchSelect(Select["SearchView"]):
             options=[
                 SelectOption(
                     label=truncate(
-                        f"{i}. {track.title} - {track.author}",
+                        f"{i+1}. {track.title} - {track.author}",
                         length=100,
                     ),
                     value=str(i),
