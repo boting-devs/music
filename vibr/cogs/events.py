@@ -136,14 +136,7 @@ class Events(Cog):
                 )
 
                 if latest:
-                    notifs_command = get(
-                        self.bot.get_all_application_commands(), name="notifications"
-                    )
-                    notifs_mention = (
-                        notifs_command.get_mention()  # type: ignore[member-access]
-                        if notifs_command
-                        else "`/notifications`"
-                    )
+                    notifs_mention = self.bot.get_mention("notifications list")
 
                     await inter.send(
                         f"{inter.user.mention} You have a new notification "
