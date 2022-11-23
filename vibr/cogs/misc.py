@@ -1,23 +1,81 @@
 from __future__ import annotations
 
 from asyncio import sleep
+from datetime import timedelta
 from logging import getLogger
 from os import getenv
 from typing import TYPE_CHECKING
 
-from nextcord import Embed, Message, slash_command
-from nextcord.ext.commands import Cog, command, is_owner
+from humanfriendly import parse_timespan
+from nextcord import Embed, Message, Permissions, TextInputStyle, slash_command
+from nextcord.ext.application_checks import is_owner
+from nextcord.ext.commands import Cog, Converter
 from nextcord.ext.tasks import loop
+from nextcord.ui import Modal, TextInput
+from nextcord.utils import utcnow
 
 from .extras.types import MyContext, MyInter, Notification
 from .extras.views import NotificationSource, NotificationView
 
 if TYPE_CHECKING:
+
     from ..__main__ import Vibr
 
 
-TEST = [802586580766162964, 939509053623795732]
 log = getLogger(__name__)
+TEST_IDS = [939509053623795732]
+
+
+class NotificationCreate(Modal):
+    def __init__(self):
+        super().__init__(title="Create a Notification")
+
+        self._title = TextInput(
+            label="Enter a title for the notification.", max_length=256, required=True
+        )
+        self.time = TextInput(
+            label="Enter an expiry time for the notification",
+            required=True,
+            default_value="7d",
+        )
+        self.description = TextInput(
+            label="Enter a description for the notification",
+            required=True,
+            style=TextInputStyle.paragraph,
+        )
+
+        self.add_item(self._title)
+        self.add_item(self.time)
+        self.add_item(self.description)
+
+    async def callback(self, inter: MyInter):
+        title = self._title.value
+        notification = self.description.value
+
+        try:
+            if self.time.value is None:
+                raise ValueError
+
+            expiry = timedelta(seconds=parse_timespan(self.time.value))
+        except ValueError:
+            await inter.response.send_message(
+                "Invalid time, please try again.", ephemeral=True
+            )
+            return
+
+        await inter.client.db.execute(
+            """INSERT INTO notifications(title, notification, expiry)
+            VALUES ($1, $2, $3)""",
+            title,
+            notification,
+            utcnow() + expiry,
+        )
+        await inter.send("Saved in db")
+
+        await inter.client.db.execute("UPDATE users SET notified=false")
+        inter.client.notified_users.clear()
+        await inter.send("Set all users to un-notified")
+        log.info("Distributing notification %s", title)
 
 
 class Misc(Cog):
@@ -120,22 +178,50 @@ class Misc(Cog):
         )
         await inter.send(embed=embed)
 
-    @command(hidden=True)
+    @slash_command(
+        name="create-notification",
+        default_member_permissions=Permissions(8),
+        guild_ids=TEST_IDS,
+    )
     @is_owner()
-    async def notif_create(self, ctx: MyContext, title: str, *, notification: str):
-        await self.bot.db.execute(
-            "INSERT INTO notifications(title, notification) VALUES ($1, $2)",
-            title,
-            notification,
-        )
-        await ctx.send("Saved in db")
-        await self.bot.db.execute("UPDATE users SET notified=false")
-        self.bot.notified_users.clear()
-        await ctx.send("Set all users to un-notified")
-        log.info("Distributing notification %s", title)
+    async def create_notification(self, inter: MyInter):
+        """Create a notification."""
+
+        await inter.response.send_modal(NotificationCreate())
 
     @slash_command()
-    async def notifications(self, inter: MyInter):
+    async def notifications(self, _: MyInter):
+        ...
+
+    @notifications.subcommand(name="toggle")
+    async def notifications_toggle(self, inter: MyInter):
+        """Toggle notification messages for you."""
+
+        enabled = await self.bot.db.fetchval(
+            "SELECT notifications FROM users WHERE id=$1", inter.user.id
+        )
+
+        if enabled is None:
+            enabled = True
+
+        new = not enabled
+
+        await self.bot.db.execute(
+            """INSERT INTO users (id, notifications)
+            VALUES ($1, $2)
+            ON CONFLICT (id) DO UPDATE
+                SET notifications=$2""",
+            inter.user.id,
+            new,
+        )
+
+        await inter.send(
+            f"Notifications are now {'enabled' if new else 'disabled'} for you.",
+            ephemeral=True,
+        )
+
+    @notifications.subcommand(name="list")
+    async def notifications_list(self, inter: MyInter):
         """Recent announcements/notifications."""
 
         notifs = await self.bot.db.fetch("SELECT * FROM notifications ORDER BY id DESC")

@@ -11,7 +11,15 @@ import nextcord
 import uvloop
 from botbase import BotBase
 from dotenv import load_dotenv
-from nextcord import Activity, ActivityType, StageChannel, VoiceChannel
+from nextcord import (
+    Activity,
+    ActivityType,
+    SlashApplicationCommand,
+    SlashApplicationSubcommand,
+    StageChannel,
+    VoiceChannel,
+)
+from nextcord.abc import Snowflake
 from nextcord.ext.ipc import Server
 from orjson import dumps, loads
 from pomice import NodeConnectionFailure, NodePool
@@ -212,6 +220,17 @@ class Vibr(BotBase):
                 await painchannel.send_embed(desc=f"```py\n{tb}```")
             except Exception:
                 log.warning("Failed to send to logchannel %d", self.logchannel)
+
+    def get_mention(self, name: str, *, guild: Snowflake | None = None) -> str:
+        """Get a slash command mention from the name, space separated."""
+
+        for slash in self.get_all_application_commands():
+            if isinstance(slash, (SlashApplicationCommand, SlashApplicationSubcommand)):
+                for item in list(slash.children.values()) + [slash]:
+                    if item.qualified_name == name:
+                        return item.get_mention(guild=guild)
+
+        return f"`/{name}`"
 
 
 intents = nextcord.Intents.none()

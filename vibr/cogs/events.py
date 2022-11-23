@@ -124,25 +124,19 @@ class Events(Cog):
     @Cog.listener()
     async def on_application_command_completion(self, inter: MyInter):
         if inter.user.id not in self.bot.notified_users:
-            is_notified = await self.bot.db.fetchval(
-                "SELECT notified FROM users WHERE id=$1", inter.user.id
+            row = await self.bot.db.fetchrow(
+                "SELECT notified, notifications FROM users WHERE id=$1", inter.user.id
             )
 
             # They were not notified, notify them.
-            if not is_notified:
+            if not row or (row["notifications"] and not row["notified"]):
                 latest = await self.bot.db.fetchrow(
-                    "SELECT * FROM notifications ORDER BY id DESC LIMIT 1"
+                    """SELECT * FROM notifications WHERE expiry > CURRENT_TIMESTAMP
+                    ORDER BY id DESC LIMIT 1"""
                 )
 
                 if latest:
-                    notifs_command = get(
-                        self.bot.get_all_application_commands(), name="notifications"
-                    )
-                    notifs_mention = (
-                        notifs_command.get_mention()  # type: ignore[member-access]
-                        if notifs_command
-                        else "`/notifications`"
-                    )
+                    notifs_mention = self.bot.get_mention("notifications list")
 
                     await inter.send(
                         f"{inter.user.mention} You have a new notification "
