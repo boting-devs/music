@@ -393,9 +393,10 @@ class QueueSource(ListPageSource):
 
     def format_page(self, menu: MyMenu, tracks: list[Track]) -> Embed:
         add = self.queue.index(tracks[0]) + 1
+
         desc = "\n".join(
             # 1. title by author [length]
-            f"**{i + add}.** [{t.title}]({t.uri}) by "
+            f"**{i + add}.** [{t.title}](https://odesli.co/{t.uri}) by "
             f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
             for i, t in enumerate(tracks)
         )
@@ -403,7 +404,7 @@ class QueueSource(ListPageSource):
         if tracks[0].track_id == self.queue[0].track_id:
             c = self.now
             desc = (
-                f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
+                f"\U0001f3b6 Now Playing:\n[{c.title}](https://odesli.co/{c.uri}) by {c.author}\n\n"
                 f"\U0001f3b6 Up Next:\n" + desc
             )
         embed = Embed(
@@ -569,6 +570,22 @@ class StatsView(TimeoutView):
             timedelta(seconds=float(self.timeframe.value)),
         )
 
+        collected: dict | None = None
+
+        new_data = []
+        for row in data:
+            time = row["time"]
+
+            if time.hour == 0:
+                if collected:
+                    new_data.append(collected)
+
+                collected = {**row, "time": time + timedelta(days=1)}
+            else:
+                new_data.append(row)
+
+        data = sorted(new_data, key=lambda x: x["time"])
+
         embed = Embed(title="Stats", color=self.ctx.bot.color)
 
         colours = [f"#{hex(c)[2:]}" for c in self.ctx.bot.colors]
@@ -591,15 +608,7 @@ class StatsView(TimeoutView):
                 f"{TYPE_TO_TITLE[self.type]} ({self.timeframe.name.title()})"
             )
 
-            times = []
-
-            # No clue why postgres decides its in one day but 00:00 is the next?
-            for row in data:
-                time: datetime = row["time"]
-                if time.hour == 0:
-                    times.append(time + timedelta(days=1))
-                else:
-                    times.append(time)
+            times = [row["time"] for row in data]
 
             if self.timeframe is StatsTime.WEEK:
                 # Wed 13
@@ -721,9 +730,9 @@ class SearchSelect(Select["SearchView"]):
             options=[
                 SelectOption(
                     label=truncate(
-                        f"{track.title} - {track.author}" or "Unknown Title", length=100
+                        f"{i}. {track.title} - {track.author}",
+                        length=100,
                     ),
-                    description=truncate(track.uri or "Unknown URL", length=100),
                     value=str(i),
                 )
                 for i, track in enumerate(tracks)
