@@ -1,23 +1,31 @@
 from __future__ import annotations
 
 from asyncio import sleep
+from datetime import timedelta
 from logging import getLogger
 from os import getenv
 from typing import TYPE_CHECKING
 
+from humanfriendly import parse_timespan
 from nextcord import Embed, Message, slash_command
-from nextcord.ext.commands import Cog, command, is_owner
+from nextcord.ext.commands import Cog, Converter, command, is_owner
 from nextcord.ext.tasks import loop
+from nextcord.utils import utcnow
 
 from .extras.types import MyContext, MyInter, Notification
 from .extras.views import NotificationSource, NotificationView
 
 if TYPE_CHECKING:
+
     from ..__main__ import Vibr
 
 
-TEST = [802586580766162964, 939509053623795732]
 log = getLogger(__name__)
+
+
+class TimeConverter(Converter, timedelta):
+    async def convert(self, _: MyContext, argument: str) -> timedelta:
+        return timedelta(seconds=parse_timespan(argument))
 
 
 class Misc(Cog):
@@ -122,11 +130,14 @@ class Misc(Cog):
 
     @command(hidden=True)
     @is_owner()
-    async def notif_create(self, ctx: MyContext, title: str, *, notification: str):
+    async def notif_create(
+        self, ctx: MyContext, title: str, expiry: TimeConverter, *, notification: str
+    ):
         await self.bot.db.execute(
-            "INSERT INTO notifications(title, notification) VALUES ($1, $2)",
+            "INSERT INTO notifications(title, notification, expiry) VALUES ($1, $2, $3)",
             title,
             notification,
+            utcnow() + expiry,
         )
         await ctx.send("Saved in db")
         await self.bot.db.execute("UPDATE users SET notified=false")
@@ -135,7 +146,38 @@ class Misc(Cog):
         log.info("Distributing notification %s", title)
 
     @slash_command()
-    async def notifications(self, inter: MyInter):
+    async def notifications(self, _: MyInter):
+        ...
+
+    @notifications.subcommand(name="toggle")
+    async def notifications_toggle(self, inter: MyInter):
+        """Toggle notification messages for you."""
+
+        enabled = await self.bot.db.fetchval(
+            "SELECT notifications FROM users WHERE id=$1", inter.user.id
+        )
+
+        if enabled is None:
+            enabled = True
+
+        new = not enabled
+
+        await self.bot.db.execute(
+            """INSERT INTO users (id, notifications)
+            VALUES ($1, $2)
+            ON CONFLICT (id) DO UPDATE
+                SET notifications=$2""",
+            inter.user.id,
+            new,
+        )
+
+        await inter.send(
+            f"Notifications are now {'enabled' if new else 'disabled'} for you.",
+            ephemeral=True,
+        )
+
+    @notifications.subcommand(name="list")
+    async def notifications_list(self, inter: MyInter):
         """Recent announcements/notifications."""
 
         notifs = await self.bot.db.fetch("SELECT * FROM notifications ORDER BY id DESC")

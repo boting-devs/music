@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS notifications (
     id SERIAL PRIMARY KEY,
     notification TEXT NOT NULL,
     datetime TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    title TEXT NOT NULL
+    title TEXT NOT NULL,
+    expiry TIMESTAMPTZ NOT NULL
 );
 CREATE TABLE IF NOT EXISTS songs (
     id VARCHAR NOT NULL PRIMARY KEY,
@@ -17,7 +18,8 @@ CREATE TABLE IF NOT EXISTS users (
     spotify VARCHAR,
     notified BOOLEAN NOT NULL DEFAULT FALSE,
     vote TIMESTAMPTZ,
-    total_time INT
+    total_time INT,
+    notifications BOOLEAN NOT NULL DEFAULT TRUE
 );
 CREATE TABLE IF NOT EXISTS players (
     channel BIGINT PRIMARY KEY,
