@@ -40,6 +40,9 @@ class Player(pomice.Player):
     def invoke_leave_timer(self, track: Track) -> None:
         """This is called when the player should auto-leave."""
 
+        if not self.is_connected:
+            return
+
         inter: MyInter = track.ctx if track is not None else None  # type: ignore
 
         if self.leave_timer is not None:
@@ -60,6 +63,9 @@ class Player(pomice.Player):
 
     def invoke_pause_timer(self) -> None:
         """This is called when the player should auto-pause."""
+
+        if not self.is_connected:
+            return
 
         if self.current is None:
             create_task(self.set_pause(True))
