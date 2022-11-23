@@ -26,11 +26,6 @@ log = getLogger(__name__)
 TEST_IDS = [939509053623795732]
 
 
-class TimeConverter(Converter, timedelta):
-    async def convert(self, _: MyContext, argument: str) -> timedelta:
-        return timedelta(seconds=parse_timespan(argument))
-
-
 class NotificationCreate(Modal):
     def __init__(self):
         super().__init__(title="Create a Notification")
@@ -61,7 +56,7 @@ class NotificationCreate(Modal):
             if self.time.value is None:
                 raise ValueError
 
-            expiry = timedelta(parse_timespan(self.time.value))
+            expiry = timedelta(seconds=parse_timespan(self.time.value))
         except ValueError:
             await inter.response.send_message(
                 "Invalid time, please try again.", ephemeral=True
