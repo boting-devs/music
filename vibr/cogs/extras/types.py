@@ -40,12 +40,15 @@ class Player(pomice.Player):
     def invoke_leave_timer(self, track: Track) -> None:
         """This is called when the player should auto-leave."""
 
-        inter: MyInter = track.ctx  # type: ignore
+        if not self.is_connected:
+            return
+
+        inter: MyInter = track.ctx if track is not None else None  # type: ignore
 
         if self.leave_timer is not None:
             self.leave_timer.cancel()
 
-        log.info("Invoking leave timer for %d", inter.guild.id)
+        log.info("Invoking leave timer for %d", self.guild.id)
         self.leave_timer = self.client.loop.call_later(
             LEAVE_TIMEOUT, lambda: create_task(self.leave(inter))
         )
@@ -54,12 +57,15 @@ class Player(pomice.Player):
         """This is called when the player should not auto-leave."""
 
         if self.leave_timer is not None:
-            log.info("Cancelling leave timer for %d", self.current.ctx.guild.id)  # type: ignore
+            log.info("Cancelling leave timer for %d", self.guild.id)  # type: ignore
             self.leave_timer.cancel()
             self.leave_timer = None
 
     def invoke_pause_timer(self) -> None:
         """This is called when the player should auto-pause."""
+
+        if not self.is_connected:
+            return
 
         if self.current is None:
             create_task(self.set_pause(True))
@@ -70,7 +76,7 @@ class Player(pomice.Player):
         if self.pause_timer is not None:
             self.pause_timer.cancel()
 
-        log.info("Invoking pause timer for %d", inter.guild.id)
+        log.info("Invoking pause timer for %d", self.guild.id)
         self.pause_timer = self.client.loop.call_later(
             PAUSE_TIMEOUT, lambda: create_task(self.autopause(inter))
         )
@@ -79,7 +85,7 @@ class Player(pomice.Player):
         """This is called when the player should not auto-pause."""
 
         if self.pause_timer is not None:
-            log.info("Cancelling pause timer for %d", self.current.ctx.guild.id)  # type: ignore
+            log.info("Cancelling pause timer for %d", self.guild.id)  # type: ignore
             self.pause_timer.cancel()
             self.pause_timer = None
 
@@ -107,15 +113,16 @@ class Player(pomice.Player):
 
         return ret
 
-    async def leave(self, inter: MyInter) -> None:
+    async def leave(self, inter: MyInter | None) -> None:
         """This is called when autoleave should be invoked."""
 
-        await inter.send_embed(
-            "Disconnecting Due to No Activity",
-            "To prevent unnecessary resource usage, I have disconnected the player.",
-        )
+        if inter is not None:
+            await inter.send_embed(
+                "Disconnecting Due to No Activity",
+                "To prevent unnecessary resource usage, I have disconnected the player.",
+            )
 
-        log.info("Auto-destroying player for %d", inter.guild.id)
+        log.info("Auto-destroying player for %d", self.guild.id)
         await self.destroy()
 
     async def autopause(self, inter: MyInter) -> None:
@@ -126,7 +133,7 @@ class Player(pomice.Player):
             "To prevent unnecessary resource usage, I have paused the player.",
         )
 
-        log.info("Auto-pausing player for %d", inter.guild.id)
+        log.info("Auto-pausing player for %d", self.guild.id)
         await self.set_pause(True)
 
     async def set_pause(self, pause: bool) -> bool:
