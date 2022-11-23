@@ -155,8 +155,8 @@ class PlaylistSelect(Select["UserPlaylistView"]):
         self.view.stop()
 
 
-MULTI_LOOP = "\U0001f501"
-SINGLE_LOOP = "\U0001f502"
+MULTI_LOOP = "<:loopall:1044708055234904094>"
+SINGLE_LOOP = "<:loop:1044708068639903907>"
 
 
 class PlayButton(TimeoutView):
@@ -164,7 +164,7 @@ class PlayButton(TimeoutView):
         self,
         track: Track | Playlist | None,
         *,
-        loop: bool,
+        loop: bool = False,
     ):
         super().__init__(timeout=300)
 
@@ -200,9 +200,7 @@ class PlayButton(TimeoutView):
 
         return True
 
-    @button(
-        emoji="\U000023ef\U0000fe0f", style=ButtonStyle.blurple, custom_id="view:pp"
-    )
+    @button(emoji="<:playpause:1044619888146255975>", style=ButtonStyle.blurple)
     async def playpause(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -214,7 +212,7 @@ class PlayButton(TimeoutView):
             await inter.guild.voice_client.set_pause(False)
             await inter.send_author_embed("Resumed")
 
-    @button(emoji="\U000023ed", style=ButtonStyle.blurple, custom_id="view:next")
+    @button(emoji="<:skip:1044620351390363739>", style=ButtonStyle.blurple)
     async def skip(self, _: Button, inter: Interaction):
         inter = MyInter(inter, inter.client)  # type: ignore
         assert inter.guild is not None
@@ -234,8 +232,8 @@ class PlayButton(TimeoutView):
         await player.play(toplay)
         await playing_embed(toplay, skipped_by=inter.user.mention)
 
-    @button(emoji="\U000023f9", style=ButtonStyle.blurple, custom_id="view:stop")
-    async def stop(self, _: Button, inter: Interaction):
+    @button(emoji="<:stop:1044661767504134164>", style=ButtonStyle.blurple)
+    async def stop_(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
@@ -249,9 +247,7 @@ class PlayButton(TimeoutView):
         await player.stop()
         await inter.send_author_embed("Stopped")
 
-    @button(
-        emoji="\U0001f500", style=ButtonStyle.blurple, custom_id="view:shuffle", row=1
-    )
+    @button(emoji="<:shuffle:1044699214803894293>", style=ButtonStyle.blurple, row=1)
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -262,9 +258,7 @@ class PlayButton(TimeoutView):
         shuffle(inter.guild.voice_client.queue)
         await inter.send_author_embed("Shuffled the queue")
 
-    @button(
-        emoji="\U0001f523", style=ButtonStyle.blurple, custom_id="view:queue", row=1
-    )
+    @button(emoji="<:queue:1044702819992748138>", style=ButtonStyle.blurple, row=1)
     async def queue(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -313,7 +307,7 @@ class PlayButton(TimeoutView):
         # Update with the new styling.
         await inter.edit(view=self)
 
-    @button(emoji="\U0001f90d", style=ButtonStyle.blurple, custom_id="view:like")
+    @button(emoji="<:vibrheart:1044662164587290664>", style=ButtonStyle.blurple)
     async def like(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
@@ -754,9 +748,10 @@ class SearchSelect(Select["SearchView"]):
         assert self.view is not None
         self.view.selected_track = self.view.tracks[int(self.values[0])]
 
+        self.inter = interaction
+
         self.disabled = True
         await interaction.edit(view=self.view)
-        self.inter = interaction
 
         self.view.stop()
 
