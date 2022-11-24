@@ -346,7 +346,8 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         embed = Embed(title=title, description=lyrics, color=self.bot.color)
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
-
+        if query is None:
+            embed.set_footer(text="The above information may not be accurate. Use query for better results")
         await a.edit(embed=embed)
 
     @connected()
