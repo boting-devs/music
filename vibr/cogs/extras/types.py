@@ -146,6 +146,11 @@ class Player(pomice.Player):
 
         return ret
 
+    async def stop(self) -> None:
+        await super().stop()
+
+        self.invoke_leave_timer(self.current)
+
 
 class MyContext(botbase.MyContext):
     voice_client: Player
