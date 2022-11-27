@@ -127,11 +127,11 @@ class Player(pomice.Player):
 
     async def autopause(self, inter: MyInter) -> None:
         """This is called when autopause should be invoked."""
-
-        await inter.send_embed(
-            "Pausing Due to No Listeners",
-            "To prevent unnecessary resource usage, I have paused the player.",
-        )
+        if not self.is_paused:
+            await inter.send_embed(
+                "Pausing Due to No Listeners",
+                "To prevent unnecessary resource usage, I have paused the player.",
+            )
 
         log.info("Auto-pausing player for %d", self.guild.id)
         await self.set_pause(True)
