@@ -67,8 +67,6 @@ class Player(pomice.Player):
         if not self.is_connected:
             return
 
-        if self.is_paused:
-            return
 
         if self.current is None:
             create_task(self.set_pause(True))
@@ -130,6 +128,9 @@ class Player(pomice.Player):
 
     async def autopause(self, inter: MyInter) -> None:
         """This is called when autopause should be invoked."""
+
+        if self.is_paused:
+            return
 
         await inter.send_embed(
             "Pausing Due to No Listeners",
