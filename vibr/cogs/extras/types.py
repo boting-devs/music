@@ -44,13 +44,16 @@ class Player(pomice.Player):
             return
 
         inter: MyInter = track.ctx if track is not None else None  # type: ignore
+        channel = (
+            None if inter is None else botbase.WrappedChannel(inter.channel, inter.bot)
+        )
 
         if self.leave_timer is not None:
             self.leave_timer.cancel()
 
         log.info("Invoking leave timer for %d", self.guild.id)
         self.leave_timer = self.client.loop.call_later(
-            LEAVE_TIMEOUT, lambda: create_task(self.leave(inter))
+            LEAVE_TIMEOUT, lambda: create_task(self.leave(channel))
         )
 
     def cancel_leave_timer(self) -> None:
@@ -72,13 +75,16 @@ class Player(pomice.Player):
             return
 
         inter: MyInter = self.current.ctx  # type: ignore
+        channel = (
+            None if inter is None else botbase.WrappedChannel(inter.channel, inter.bot)
+        )
 
         if self.pause_timer is not None:
             self.pause_timer.cancel()
 
         log.info("Invoking pause timer for %d", self.guild.id)
         self.pause_timer = self.client.loop.call_later(
-            PAUSE_TIMEOUT, lambda: create_task(self.autopause(inter))
+            PAUSE_TIMEOUT, lambda: create_task(self.autopause(channel))
         )
 
     def cancel_pause_timer(self) -> None:
@@ -113,11 +119,14 @@ class Player(pomice.Player):
 
         return ret
 
-    async def leave(self, inter: MyInter | None) -> None:
+    async def leave(self, channel: botbase.WrappedChannel | None) -> None:
         """This is called when autoleave should be invoked."""
 
-        if inter is not None:
-            await inter.send_embed(
+        if not self.is_connected:
+            return
+
+        if channel is not None:
+            await channel.send_embed(
                 "Disconnecting Due to No Activity",
                 "To prevent unnecessary resource usage, I have disconnected the player.",
             )
@@ -125,13 +134,20 @@ class Player(pomice.Player):
         log.info("Auto-destroying player for %d", self.guild.id)
         await self.destroy()
 
-    async def autopause(self, inter: MyInter) -> None:
+    async def autopause(self, channel: botbase.WrappedChannel | None) -> None:
         """This is called when autopause should be invoked."""
 
-        await inter.send_embed(
-            "Pausing Due to No Listeners",
-            "To prevent unnecessary resource usage, I have paused the player.",
-        )
+        if self.is_paused:
+            return
+
+        if not self.is_connected:
+            return
+
+        if channel is not None:
+            await channel.send_embed(
+                "Pausing Due to No Listeners",
+                "To prevent unnecessary resource usage, I have paused the player.",
+            )
 
         log.info("Auto-pausing player for %d", self.guild.id)
         await self.set_pause(True)
@@ -145,6 +161,11 @@ class Player(pomice.Player):
             self.cancel_leave_timer()
 
         return ret
+
+    async def stop(self) -> None:
+        await super().stop()
+
+        self.invoke_leave_timer(self.current)
 
 
 class MyContext(botbase.MyContext):
