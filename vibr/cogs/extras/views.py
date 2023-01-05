@@ -42,7 +42,7 @@ class LinkButtonView(View):
     def __init__(
         self, name: str, url: str, emoji: str | PartialEmoji | Emoji | None = None
     ):
-        super().__init__()
+        super().__init__(timeout=0)
         if emoji is not None:
             self.add_item(Button(label=name, url=url, emoji=emoji))
         else:
@@ -53,14 +53,14 @@ class TimeoutView(View):
     message: Message | PartialInteractionMessage | None = None
 
     async def on_timeout(self):
+        self.stop()
+
         for child in self.children:
             if isinstance(child, (Button, Select)):
                 child.disabled = True
 
         if self.message is not None:
             await self.message.edit(view=self)
-
-        self.stop()
 
 
 class MyView(TimeoutView):
