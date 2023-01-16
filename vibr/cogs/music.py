@@ -309,7 +309,19 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 raise SongNotProvided()
 
             assert inter.guild.voice_client.current.title is not None
-            q = inter.guild.voice_client.current.title[:20]
+            q = inter.guild.voice_client.current.title
+
+            rem_words=["(",")","[","]",".","hd","music","video","|","-","song","feat","ft","4k","official"]
+            log.info("Before title %s",q)
+            qwords=q.split()
+
+            finalwords = [word for word in qwords if word.lower() not in rem_words]
+            q = ' '.join(finalwords[:5])
+            for word in rem_words:
+                if word in q:
+                    q = q.replace(word,"").lower()        
+
+            log.info("FInal :%s",q)
         else:
             q = query
 
