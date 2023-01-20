@@ -14,8 +14,10 @@ from nextcord.ext.tasks import loop
 from nextcord.ui import Modal, TextInput
 from nextcord.utils import utcnow
 
-from .extras.types import MyContext, MyInter, Notification
-from .extras.views import NotificationSource, NotificationView
+from pomice import NoNodesAvailable
+
+from .extras.types import MyInter, Notification
+from .extras.views import NotificationSource, NotificationView , StatsView
 
 if TYPE_CHECKING:
 
@@ -24,6 +26,14 @@ if TYPE_CHECKING:
 
 log = getLogger(__name__)
 TEST_IDS = [939509053623795732]
+
+STATS: str="""
+Guilds: `{guilds:,}`
+Commands used: `{commands:,}`
+Songs Played:`{songs:,}`
+Total Players: `{total_players:,}`
+Users Listening: `{listeners:,}`
+""".strip()
 
 
 class NotificationCreate(Modal):
@@ -245,6 +255,48 @@ class Misc(Cog):
             url="https://lacountylibrary.org/wp-content/uploads/2018/10/eNews-ThankYouLarge-1170x658.jpg"
         )
         await inter.send(embed=embed)
+
+    @slash_command()
+    async def botstats(self , inter:MyInter):
+        """Stats about Vibr Bot"""
+        stats = None
+        for tries in range(5):
+            try:
+                node = self.bot.pool.get_node()
+            except NoNodesAvailable:
+                await sleep(2.5 * tries)
+            else:
+                stats = node.stats
+        
+        guilds = len(self.bot.guilds)
+        commands = await self.bot.db.fetchval("SELECT SUM(amount) FROM commands")
+        songs = await self.bot.db.fetchval("SELECT SUM(amount) FROM songs")
+
+        channels = [v.channel.id for v in self.bot.voice_clients]
+        
+        embed = Embed(title="**Vibr Stats**",
+        description=STATS.format(
+            guilds = guilds,
+            commands = commands,
+            songs = songs,
+            total_players = stats.players_total or 0,
+            listeners=sum(
+                    len(listeners)
+                    for channel, listeners in self.bot.listeners.items()
+                    if channel in channels
+                ),
+            ),
+            color= self.bot.color,
+            
+        )
+        view = StatsView(inter,public=True)
+        await inter.send(embed=embed)
+        m = await inter.send(view=view)
+        view.message = m
+        await view.update()
+        
+
+        
 
 
 def setup(bot: Vibr):
