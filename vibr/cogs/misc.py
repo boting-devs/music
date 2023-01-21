@@ -14,6 +14,8 @@ from nextcord.ext.tasks import loop
 from nextcord.ui import Modal, TextInput
 from nextcord.utils import utcnow
 
+import aiohttp
+
 from pomice import NoNodesAvailable
 
 from .extras.types import MyInter, Notification
@@ -33,6 +35,8 @@ Commands used: `{commands:,}`
 Songs Played:`{songs:,}`
 Total Players: `{total_players:,}`
 Users Listening: `{listeners:,}`
+Monthly votes : `{votes:,}`
+Shard Count : `{shard_count:,}`
 """.strip()
 
 
@@ -97,6 +101,18 @@ class Misc(Cog):
     def cog_unload(self):
         self.topgg.stop()
 
+    async def get_votes(self):
+        url = f"https://top.gg/api/bots/882491278581977179"
+        headers = {"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg4MjQ5MTI3ODU4MTk3NzE3OSIsImJvdCI6dHJ1ZSwiaWF0IjoxNjY0NDg2MDg1fQ.aIxEz1t-8ym6vIanNbBSpk0AHqS0b0oHXZ2OqHuK-5Q"}
+
+        async with self.bot.session.get(url,headers=headers) as response:
+            data = await response.json()
+            log.info("data:%s",data)
+            monthly_votes = data["monthlyPoints"]
+            shards = data["shard_count"]
+            return monthly_votes ,shards
+            
+            
     @loop(minutes=30)
     async def topgg(self):
         if getenv("topgg_token") is None:
@@ -273,7 +289,8 @@ class Misc(Cog):
         songs = await self.bot.db.fetchval("SELECT SUM(amount) FROM songs")
 
         channels = [v.channel.id for v in self.bot.voice_clients]
-        
+        topggdata = await self.get_votes()
+
         embed = Embed(title="**Vibr Stats**",
         description=STATS.format(
             guilds = guilds,
@@ -285,15 +302,18 @@ class Misc(Cog):
                     for channel, listeners in self.bot.listeners.items()
                     if channel in channels
                 ),
+            votes = topggdata[0],
+            shard_count = topggdata[1],
+            
             ),
             color= self.bot.color,
             
         )
-        view = StatsView(inter,public=True)
+        view = StatsView(inter)
         await inter.send(embed=embed)
-        m = await inter.send(view=view)
+        '''m = await inter.send(view=view)
         view.message = m
-        await view.update()
+        await view.update()'''
         
 
         
