@@ -187,6 +187,7 @@ class Playlists(Cog):
 
     @liked.subcommand(name="remove")
     async def like_remove(self, inter: MyInter, index: int):
+        """Remove a song from your liked list."""
         index = index - 1
 
         songs = await self.bot.db.fetch(
