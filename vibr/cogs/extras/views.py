@@ -523,7 +523,6 @@ class StatsView(TimeoutView):
     def __init__(self, ctx: MyContext) -> None:
         super().__init__()
         self.ctx = ctx
-        self.public = public
 
         self.timeframe = StatsTime.ALL
         self.type = StatsType.GUILDS
