@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 log = getLogger(__name__)
 
-LEAVE_TIMEOUT = 5 * 60
+LEAVE_TIMEOUT = 10 * 60
 """The time to wait until auto-leaving the vc."""
 
 PAUSE_TIMEOUT = 30
