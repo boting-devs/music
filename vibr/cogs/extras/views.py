@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from .types import Notification
     from .types import Playlist as SpotifyPlaylist
 
+from .errors import NotPlaying
 
 log = getLogger(__name__)
 
@@ -205,6 +206,9 @@ class PlayButton(TimeoutView):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
+        if not inter.guild.voice_client.is_playing:
+            return await inter.send_embed("No song is playing", ephemeral=True)
+
         if not inter.guild.voice_client.is_paused:
             await inter.guild.voice_client.set_pause(True)
             await inter.send_author_embed("Paused")
@@ -251,6 +255,7 @@ class PlayButton(TimeoutView):
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
+
 
         if not inter.guild.voice_client.queue:
             return await inter.send_author_embed("Queue is empty")
@@ -516,9 +521,10 @@ TYPE_TO_TITLE: dict[StatsType, str] = {
 
 
 class StatsView(TimeoutView):
-    def __init__(self, ctx: MyContext) -> None:
+    def __init__(self, ctx: MyContext,public:bool=False) -> None:
         super().__init__()
         self.ctx = ctx
+        self.public = public
 
         self.timeframe = StatsTime.ALL
         self.type = StatsType.GUILDS
@@ -536,6 +542,7 @@ class StatsView(TimeoutView):
         await inter.response.defer()
         await self.update_stats_time(select.values[0])
 
+            
     @select(
         placeholder="Select a type.",
         options=[
