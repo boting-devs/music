@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from logging import getLogger
 from typing import TYPE_CHECKING, Optional
 
 from nextcord import slash_command
 from nextcord.ext.commands import Cog
 from pomice import Playlist
-from logging import getLogger
 
 from .error import NotConnected
 from .extras.playing_embed import playing_embed
@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from ..__main__ import Vibr
 
 log = getLogger(__name__)
+
 
 class Playlists(Cog):
     def __init__(self, bot: Vibr):
@@ -117,7 +118,7 @@ class Playlists(Cog):
                 "No Track Given",
                 "Something must be playing or `query` must be specified.",
             )
-        
+
         songs = await self.bot.db.fetch(
             """SELECT
                 song_data.lavalink_id, song_data.uri, song_data.spotify
@@ -231,7 +232,7 @@ class Playlists(Cog):
         await inter.send(f"Removed `{song['name']}` from your liked songs!")
 
     @liked.subcommand(name="play")
-    async def like_play(self, inter: MyInter):
+    async def liked_play(self, inter: MyInter):
         """Play your liked songs."""
 
         if inter.guild is None or inter.guild.voice_client is None:
@@ -279,7 +280,7 @@ class Playlists(Cog):
 
                 track = result[0]
             else:
-                track = await player.node.build_track(song["lavalink_id"])
+                track = await player.node.build_track(song["lavalink_id"], ctx=inter)  # type: ignore
 
             tracks.append(track)
 
