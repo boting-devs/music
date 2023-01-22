@@ -102,8 +102,8 @@ class Misc(Cog):
         self.topgg.stop()
 
     async def get_votes(self):
-        url = f"https://top.gg/api/bots/882491278581977179"
-        headers = {"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg4MjQ5MTI3ODU4MTk3NzE3OSIsImJvdCI6dHJ1ZSwiaWF0IjoxNjY0NDg2MDg1fQ.aIxEz1t-8ym6vIanNbBSpk0AHqS0b0oHXZ2OqHuK-5Q"}
+        url = f"https://top.gg/api/bots/{self.bot.user.id}"
+        headers = {"Authorization":getenv("topgg_token")}
 
         async with self.bot.session.get(url,headers=headers) as response:
             data = await response.json()
