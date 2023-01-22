@@ -309,15 +309,11 @@ class Misc(Cog):
             color= self.bot.color,
             
         )
-        view = StatsView(inter)
         await inter.send(embed=embed)
-        '''m = await inter.send(view=view)
-        view.message = m
-        await view.update()'''
         
-
         
-
+        
+        
 
 def setup(bot: Vibr):
     bot.add_cog(Misc(bot))
