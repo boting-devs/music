@@ -9,7 +9,7 @@ from time import gmtime, strftime
 from typing import TYPE_CHECKING, Optional, cast
 
 from bs4 import BeautifulSoup
-from nextcord import ClientUser, Embed, Member, Range, User, slash_command ,SlashOption
+from nextcord import ClientUser, Embed, Member, Range, SlashOption, User, slash_command
 from nextcord.ext.application_checks import (
     ApplicationBotMissingPermissions as BotMissingPermissions,
 )
@@ -311,17 +311,33 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             assert inter.guild.voice_client.current.title is not None
             q = inter.guild.voice_client.current.title
 
-            rem_words=["(",")","[","]",".","hd","music","video","|","-","song","feat","ft","4k","official"]
-            log.info("Before title %s",q)
-            qwords=q.split()
+            rem_words = [
+                "(",
+                ")",
+                "[",
+                "]",
+                ".",
+                "hd",
+                "music",
+                "video",
+                "|",
+                "-",
+                "song",
+                "feat",
+                "ft",
+                "4k",
+                "official",
+            ]
+            log.info("Before title %s", q)
+            qwords = q.split()
 
             finalwords = [word for word in qwords if word.lower() not in rem_words]
-            q = ' '.join(finalwords[:5])
+            q = " ".join(finalwords[:5])
             for word in rem_words:
                 if word in q:
-                    q = q.replace(word,"").lower()        
+                    q = q.replace(word, "").lower()
 
-            log.info("FInal :%s",q)
+            log.info("FInal :%s", q)
         else:
             q = query
 
@@ -359,7 +375,9 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
         if not query:
-            embed.set_footer(text="The above information may not be accurate. Use query for better results")
+            embed.set_footer(
+                text="The above information may not be accurate. Use query for better results"
+            )
         await a.edit(embed=embed)
 
     @connected()
@@ -753,8 +771,14 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
     async def playnext(
         self,
         inter: MyInter,
-        track: Optional[Range[1, ...]] = SlashOption(name="queue-item",description="Choose item from queue",default=None) ,
-        song: Optional[str] = SlashOption(name="search-song",description="Search song to be played next",default=None),
+        track: Optional[Range[1, ...]] = SlashOption(
+            name="queue-item", description="Choose item from queue", default=None
+        ),
+        song: Optional[str] = SlashOption(
+            name="search-song",
+            description="Search song to be played next",
+            default=None,
+        ),
     ):
         """Play the song just after the current playing song"""
         player = inter.guild.voice_client
