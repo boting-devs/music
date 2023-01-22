@@ -328,16 +328,21 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
                 "4k",
                 "official",
             ]
-            log.info("Before title %s", q)
-            qwords = q.split()
+            before = q
+            words = before.split()
 
-            finalwords = [word for word in qwords if word.lower() not in rem_words]
+            finalwords = [word for word in words if word.lower() not in rem_words]
             q = " ".join(finalwords[:5])
             for word in rem_words:
                 if word in q:
                     q = q.replace(word, "").lower()
 
-            log.info("FInal :%s", q)
+            log.info(
+                "Lyrics: before title `%s`, after title `%s` for user %s",
+                before,
+                q,
+                inter.user.id,
+            )
         else:
             q = query
 
