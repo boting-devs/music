@@ -34,7 +34,6 @@ if TYPE_CHECKING:
     from .types import Notification
     from .types import Playlist as SpotifyPlaylist
 
-from .errors import NotPlaying
 
 log = getLogger(__name__)
 
@@ -521,7 +520,7 @@ TYPE_TO_TITLE: dict[StatsType, str] = {
 
 
 class StatsView(TimeoutView):
-    def __init__(self, ctx: MyContext,public:bool=False) -> None:
+    def __init__(self, ctx: MyContext) -> None:
         super().__init__()
         self.ctx = ctx
         self.public = public
