@@ -110,7 +110,7 @@ async def playing_embed(
         embed.set_footer(text=f"Volume: {inter.voice_client.volume}")
 
     if liked:
-        embed.set_footer(text=f"Liked Song • Volume: {inter.voice_client.volume}")
+        embed.set_footer(text=f"Liked Song \u2764 • Volume: {inter.voice_client.volume}")
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
