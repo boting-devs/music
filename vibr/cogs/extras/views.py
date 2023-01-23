@@ -42,7 +42,7 @@ class LinkButtonView(View):
     def __init__(
         self, name: str, url: str, emoji: str | PartialEmoji | Emoji | None = None
     ):
-        super().__init__()
+        super().__init__(timeout=0)
         if emoji is not None:
             self.add_item(Button(label=name, url=url, emoji=emoji))
         else:
@@ -53,14 +53,14 @@ class TimeoutView(View):
     message: Message | PartialInteractionMessage | None = None
 
     async def on_timeout(self):
+        self.stop()
+
         for child in self.children:
             if isinstance(child, (Button, Select)):
                 child.disabled = True
 
         if self.message is not None:
             await self.message.edit(view=self)
-
-        self.stop()
 
 
 class MyView(TimeoutView):
@@ -205,6 +205,9 @@ class PlayButton(TimeoutView):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
+        if not inter.guild.voice_client.is_playing:
+            return await inter.send_embed("No song is playing", ephemeral=True)
+
         if not inter.guild.voice_client.is_paused:
             await inter.guild.voice_client.set_pause(True)
             await inter.send_author_embed("Paused")
@@ -251,6 +254,7 @@ class PlayButton(TimeoutView):
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
+
 
         if not inter.guild.voice_client.queue:
             return await inter.send_author_embed("Queue is empty")
@@ -536,6 +540,7 @@ class StatsView(TimeoutView):
         await inter.response.defer()
         await self.update_stats_time(select.values[0])
 
+            
     @select(
         placeholder="Select a type.",
         options=[

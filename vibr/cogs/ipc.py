@@ -26,7 +26,7 @@ class Ipc(Cog):
         if data_type == "upvote":
             user = int(user)
             # The time when the vote expires
-            votetime = utcnow() + timedelta(hours=24)
+            votetime = utcnow() + timedelta(hours=12)
             await self.bot.db.execute(
                 """INSERT INTO users (id, vote)
                 VALUES ($1, $2)

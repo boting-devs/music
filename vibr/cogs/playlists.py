@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from logging import getLogger
 from typing import TYPE_CHECKING, Optional
 
 from nextcord import slash_command
 from nextcord.ext.commands import Cog
 from pomice import Playlist
-from logging import getLogger
 
 from .error import NotConnected
 from .extras.playing_embed import playing_embed
@@ -16,6 +16,7 @@ from .extras.views import (
     UserPlaylistView,
     create_search_embed,
 )
+from .music import Music
 
 if TYPE_CHECKING:
     from pomice import Track
@@ -117,7 +118,7 @@ class Playlists(Cog):
                 "No Track Given",
                 "Something must be playing or `query` must be specified.",
             )
-        
+
         songs = await self.bot.db.fetch(
             """SELECT
                 song_data.lavalink_id, song_data.uri, song_data.spotify
@@ -187,6 +188,11 @@ class Playlists(Cog):
 
     @liked.subcommand(name="remove")
     async def like_remove(self, inter: MyInter, index: int):
+        """Remove a song from your liked list.
+
+        index:
+            The number of the song to remove, found in /liked list.
+        """
         index = index - 1
 
         songs = await self.bot.db.fetch(
@@ -231,11 +237,14 @@ class Playlists(Cog):
         await inter.send(f"Removed `{song['name']}` from your liked songs!")
 
     @liked.subcommand(name="play")
-    async def like_play(self, inter: MyInter):
+    async def liked_play(self, inter: MyInter):
         """Play your liked songs."""
 
-        if inter.guild is None or inter.guild.voice_client is None:
+        if inter.guild is None:
             raise NotConnected
+
+        if not inter.guild.voice_client:
+            await Music.join(inter)
 
         player = inter.guild.voice_client
 
@@ -279,7 +288,7 @@ class Playlists(Cog):
 
                 track = result[0]
             else:
-                track = await player.node.build_track(song["lavalink_id"])
+                track = await player.node.build_track(song["lavalink_id"], ctx=inter)  # type: ignore
 
             tracks.append(track)
 
@@ -296,8 +305,8 @@ class Playlists(Cog):
                 toplay = toplay[:amount]
 
             await player.play(track=track)
-
-            await playing_embed(tracks[0])
+            
+            await playing_embed(tracks[0],liked=True)
         else:
             toplay = tracks
             if len(player.queue) + len(toplay) > 500:
