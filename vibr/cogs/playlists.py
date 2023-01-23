@@ -16,6 +16,7 @@ from .extras.views import (
     UserPlaylistView,
     create_search_embed,
 )
+from .music import Music
 
 if TYPE_CHECKING:
     from pomice import Track
@@ -23,7 +24,6 @@ if TYPE_CHECKING:
     from ..__main__ import Vibr
 
 log = getLogger(__name__)
-
 
 class Playlists(Cog):
     def __init__(self, bot: Vibr):
@@ -240,8 +240,11 @@ class Playlists(Cog):
     async def liked_play(self, inter: MyInter):
         """Play your liked songs."""
 
-        if inter.guild is None or inter.guild.voice_client is None:
+        if inter.guild is None:
             raise NotConnected
+
+        if not inter.guild.voice_client:
+            await Music.join(inter)
 
         player = inter.guild.voice_client
 
@@ -302,8 +305,8 @@ class Playlists(Cog):
                 toplay = toplay[:amount]
 
             await player.play(track=track)
-
-            await playing_embed(tracks[0])
+            
+            await playing_embed(tracks[0],liked=True)
         else:
             toplay = tracks
             if len(player.queue) + len(toplay) > 500:
