@@ -212,7 +212,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await inter.send_author_embed("Paused")
 
-    @connected()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def resume(self, inter: MyInter):
         """Continue the bangers!"""
@@ -224,7 +224,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
 
         await inter.send_author_embed("Resumed")
 
-    @connected()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def stop(self, inter: MyInter):
         """Stop, wait a minute..."""
@@ -387,7 +387,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             override_inter=inter,
         )
 
-    @connected()
+    @connected_and_playing()
     @slash_command(dm_permission=False)
     async def shuffle(self, inter: MyInter):
         """Switch things up"""

@@ -205,6 +205,9 @@ class PlayButton(TimeoutView):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
 
+        if not inter.guild.voice_client.is_playing:
+            return await inter.send_embed("No song is playing", ephemeral=True)
+
         if not inter.guild.voice_client.is_paused:
             await inter.guild.voice_client.set_pause(True)
             await inter.send_author_embed("Paused")
@@ -251,6 +254,7 @@ class PlayButton(TimeoutView):
     async def shuffle(self, _: Button, inter: Interaction):
         assert inter.guild is not None
         inter = MyInter(inter, inter.client)  # type: ignore
+
 
         if not inter.guild.voice_client.queue:
             return await inter.send_author_embed("Queue is empty")
@@ -536,6 +540,7 @@ class StatsView(TimeoutView):
         await inter.response.defer()
         await self.update_stats_time(select.values[0])
 
+            
     @select(
         placeholder="Select a type.",
         options=[
