@@ -26,6 +26,7 @@ async def playing_embed(
     skipped_by: str | None = None,
     override_inter: MyInter | None = None,
     loop: bool = False,
+    liked:bool =False,
 ):
     from . import views  # circular
 
@@ -107,6 +108,9 @@ async def playing_embed(
 
     if inter.voice_client is not None:
         embed.set_footer(text=f"Volume: {inter.voice_client.volume}")
+
+    if liked:
+        embed.set_footer(text=f"Liked Song \u2764 • Volume: {inter.voice_client.volume}")
 
     if track.thumbnail:
         embed.set_thumbnail(url=track.thumbnail)
