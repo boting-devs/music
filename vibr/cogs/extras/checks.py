@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from nextcord.ext.application_checks import check
 from nextcord.utils import MISSING, utcnow
-
+from os import getenv
 from .errors import NotConnected, VoteRequired, NotPlaying
 
 if TYPE_CHECKING:
@@ -33,6 +33,7 @@ def voted():
 
         # Default to MISSING as we do not need to query every time it is missing.
         # But we do need to query if its not in the dict at all.
+
         voted = inter.client.voted.get(inter.user.id, MISSING)
 
         if voted is MISSING:
@@ -41,6 +42,9 @@ def voted():
             )
 
             inter.client.voted[inter.user.id] = voted
+        
+        if getenv("IS_BETA"):
+            return True
 
         if inter.user.id not in inter.client.owner_ids:
             if voted is None or voted < utcnow():
