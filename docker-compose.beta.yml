@@ -20,6 +20,7 @@ services:
       DB_URI: postgres://postgres:postgres@localhost:5433/bot
       IPC_BIND: 127.0.0.1
       IPC_PORT: 8766
+      IS_BETA: 1
     network_mode: host
   lavalink:
     container_name: lavalink-beta
