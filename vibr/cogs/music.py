@@ -847,6 +847,23 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
         else:
             player.queue.append(track)
             await playing_embed(track, queue=True)
+    
+    @connected()
+    @slash_command(dm_permission=False)
+    async def dnd(self,inter:MyInter):
+        """Bot wont send the embed on start of every song"""
+
+        player = inter.guild.voice_client
+        if not player.dnd:
+            player.dnd = True
+            embed = Embed(title="DND mode ON",description="Now the bot wont send embed on start of every song",color=self.bot.color,timestamp=utcnow())
+        else:
+            player.dnd = False
+            embed = Embed(title="DND mode OFF",description="Now the bot will send embed on start of every song",color=self.bot.color,timestamp=utcnow())
+        
+        embed.set_footer(icon_url=inter.author.display_avatar.url)
+        await inter.send(embed=embed)
+        
 
     @staticmethod
     def truncate(fmt: str, *, length: int) -> str:

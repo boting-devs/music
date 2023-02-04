@@ -190,7 +190,10 @@ class Events(Cog):
                 and perms.send_messages
                 and inter.guild.me.communication_disabled_until is None
             ):
-                await playing_embed(toplay)
+                if player.dnd:
+                    return
+                else:
+                    await playing_embed(toplay)
 
     @Cog.listener()
     async def on_pomice_track_end(self, player: Player, track: Track, __: str):

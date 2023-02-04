@@ -32,6 +32,7 @@ class Player(pomice.Player):
         self.looped_queue_check: bool = False
         self.loop_queue: list[pomice.Track] = []
         self.leave_timer: TimerHandle | None = None
+        self.dnd: bool = False
         """This is the object returned by call_later that lets us cancel autoleave."""
 
         self.pause_timer: TimerHandle | None = None
