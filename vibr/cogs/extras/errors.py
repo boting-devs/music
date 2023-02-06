@@ -35,3 +35,6 @@ class VoteRequired(CheckFailure):
 
 class NotPlaying(CheckFailure):
     """Raised when song isnt playing where it should supposedly do so"""
+
+class LikedLimit(CheckFailure):
+    """Raised when limit of liked play songs has been reached"""

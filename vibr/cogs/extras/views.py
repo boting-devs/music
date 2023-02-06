@@ -331,6 +331,15 @@ class PlayButton(TimeoutView):
                         inter.user.id,
                         self.track.identifier,
                     )
+                    limit = await inter.bot.db.fetchval(
+                        """SELECT count(playlist) from song_to_playlist 
+                        INNER JOIN playlists ON song_to_playlist.playlist = playlists.id 
+                        where playlists.owner= $1
+                        group by playlist""",
+                        inter.user.id,
+                        )
+                    if int(limit) >300:
+                        return await inter.send_author_embed("Maximum Liked Limit Reached",ephemeral=True)
                     if not song_playlist:
                         await con.execute(
                             """INSERT INTO song_data

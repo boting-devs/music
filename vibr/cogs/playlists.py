@@ -7,7 +7,7 @@ from nextcord import slash_command
 from nextcord.ext.commands import Cog
 from pomice import Playlist
 
-from .error import NotConnected
+from .error import NotConnected , LikedLimit
 from .extras.playing_embed import playing_embed
 from .extras.types import MyInter
 from .extras.views import (
@@ -60,6 +60,7 @@ class Playlists(Cog):
             """,
             inter.user.id,
         )
+        songs = songs[:300]
 
         if not songs:
             return await inter.send_author_embed(
@@ -138,6 +139,16 @@ class Playlists(Cog):
             """,
             inter.user.id,
         )
+        limit = await self.bot.db.fetchval(
+        """SELECT count(playlist) from song_to_playlist 
+        INNER JOIN playlists ON song_to_playlist.playlist = playlists.id 
+        where playlists.owner= $1
+        group by playlist""",
+        inter.user.id,
+        )
+
+        if int(limit) >300:
+            raise LikedLimit
 
         for song in songs:
             if song["uri"] == track.uri:
@@ -275,7 +286,7 @@ class Playlists(Cog):
 
         tracks: list[Track] = []
 
-        for song in songs:
+        for song in songs[:300]:
             if song["spotify"]:
                 result = await player.get_tracks(
                     song["uri"],
