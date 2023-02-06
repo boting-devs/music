@@ -74,6 +74,22 @@ class Config(Cog, name="config", description="Tweak around with the bot!"):
         await ctx.send_embed(
             "Linked!", f"your Discord has now been linked to {userid}", ephemeral=True
         )
+    
+    @slash_command()
+    async def unlink(self,inter:MyInter):
+        """Unlink Your spotify account"""
+        h=await self.bot.db.fetchval(
+            """SELECT spotify from users where id=$1""",inter.author.id,
+        )
+        if not h:
+            return await inter.send_author_embed("Spotify Account is not linked",ephemeral=True)
+
+        await self.bot.db.execute(
+            """UPDATE users set spotify = NULL where id=$1""",inter.author.id,
+        )
+        self.bot.spotify_users[inter.author.id] = None
+
+        await inter.send_embed("Delinked!","Your spotify account has been unlinked and deleted from the bot.",ephemeral=True)
 
     @is_owner()
     @command(hidden=True)
