@@ -32,7 +32,7 @@ services:
     volumes:
       - ./logs/lava:/opt/Lavalink/logs
   postgres:
-    image: postgres
+    image: postgres:14
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
