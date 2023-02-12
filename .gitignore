@@ -1,7 +1,0 @@
-__pycache__/
-*.env
-*.pyc
-*.out
-*.sh
-!lavalink/entrypoint.sh
-pg_data/

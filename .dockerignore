@@ -1,5 +1,0 @@
-*
-!poetry.lock
-!pyproject.toml
-!vibr/*
-!reload.sh
