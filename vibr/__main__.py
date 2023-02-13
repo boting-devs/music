@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from nextcord import (
     Activity,
     ActivityType,
+    MemberCacheFlags,
     SlashApplicationCommand,
     SlashApplicationSubcommand,
     StageChannel,
@@ -240,6 +241,7 @@ intents.voice_states = True
 bot = Vibr(
     intents=intents,
     activity=Activity(type=ActivityType.listening, name="your beats :)"),
+    member_cache_flags=MemberCacheFlags.none(),
 )
 
 
