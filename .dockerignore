@@ -1,0 +1,6 @@
+*
+!pyproject.toml
+!poetry.lock
+!vibr/
+!lavalink/
+!gateway-proxy/

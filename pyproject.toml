@@ -9,8 +9,8 @@ readme = "README.md"
 python = "^3.10"
 nextcord = {git = "https://github.com/nextcord/nextcord"}
 mafic = "^1.0.3"
-ooliver-botbase = {git = "https://github.com/ooliver1/botbase"}
 uvloop = "^0.17.0"
+ooliver-botbase = {git = "https://github.com/ooliver1/botbase"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"

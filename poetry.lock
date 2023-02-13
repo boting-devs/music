@@ -154,7 +154,7 @@ process = ["psutil (>=5.0.0,<6.0.0)"]
 type = "git"
 url = "https://github.com/ooliver1/delarva"
 reference = "HEAD"
-resolved_reference = "b469d141aba9a5906ac36ffdcd2f194900a77dbe"
+resolved_reference = "0391e396cc399fc8bcbb158dae544f3b81fac489"
 
 [[package]]
 name = "flake8"
@@ -213,7 +213,7 @@ requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "mafic"
-version = "1.0.3"
+version = "1.1.0"
 description = "A properly typehinted lavalink client for discord.py, nextcord, disnake and py-cord."
 category = "main"
 optional = false
@@ -307,7 +307,7 @@ python-dotenv = ">=0.16.0,<0.22.0"
 type = "git"
 url = "https://github.com/ooliver1/botbase"
 reference = "HEAD"
-resolved_reference = "8acca626e2acbc4e3d0106f3c190c371d355fbf3"
+resolved_reference = "f89ddd68919c41a83e4d54ea182451ce86383450"
 
 [[package]]
 name = "ormar"
@@ -912,8 +912,8 @@ isort = [
     {file = "isort-5.12.0.tar.gz", hash = "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504"},
 ]
 mafic = [
-    {file = "mafic-1.0.3-py3-none-any.whl", hash = "sha256:91fe5e117bd80ee96c6a5126ae90428ec3819e0a3e3f82a73fb836359eacdd7b"},
-    {file = "mafic-1.0.3.tar.gz", hash = "sha256:8134128ab2bc0014954f9d1755d080b2127aa0ca357d14d76f17007a21547c70"},
+    {file = "mafic-1.1.0-py3-none-any.whl", hash = "sha256:4ba3ad496087db662b82a04b5838ead884846e5dad0d434ab17e6fabb0b702f9"},
+    {file = "mafic-1.1.0.tar.gz", hash = "sha256:93709184bc83e94dfaa8983ad88bc74ff01d49810f61ed73f1849a1512c394ed"},
 ]
 mccabe = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
