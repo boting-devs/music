@@ -11,11 +11,20 @@ nextcord = {git = "https://github.com/nextcord/nextcord"}
 mafic = "^1.0.3"
 uvloop = "^0.17.0"
 ooliver-botbase = {git = "https://github.com/ooliver1/botbase"}
+alembic = "^1.9.3"
+psycopg2-binary = "^2.9.5"
+asyncpg = "^0.27.0"
+taskipy = "^1.10.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
 isort = "^5.12.0"
 flake8 = "^6.0.0"
+
+[tool.taskipy.tasks]
+start = "python -m vibr"
+lint = "flake8 vibr"
+format = "isort vibr && black vibr"
 
 [build-system]
 requires = ["poetry-core"]

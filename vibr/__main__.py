@@ -33,8 +33,6 @@ bot = Vibr(
     guild_ids=[939509053623795732, 802586580766162964],
     log_guilds=True,
     intents=Intents(guilds=True, voice_states=True),
-    blacklist_enabled=False,
-    log_commands=False,
 )
 
 

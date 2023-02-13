@@ -4,3 +4,6 @@
 !vibr/
 !lavalink/
 !gateway-proxy/
+!entrypoint.sh
+!alembic/
+!alembic.ini
