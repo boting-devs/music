@@ -15,7 +15,7 @@ services:
     volumes:
       - ./logs:/bot/logs
     environment:
-      LAVALINK_HOST: lavalink
+      LAVALINK_FILE: lavalink/alpha.nodes.yml
       DB_URI: postgresql://postgres:postgres@postgres:5432/bot
       GW_PROXY: ws://gateway-proxy:7878
       TOKEN: $TOKEN
