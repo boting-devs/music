@@ -1,8 +1,8 @@
 """init
 
-Revision ID: f02c4db0ff19
+Revision ID: fe54c46cdb5b
 Revises: 
-Create Date: 2023-02-13 22:36:36.669368
+Create Date: 2023-02-16 23:10:49.452676
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f02c4db0ff19"
+revision = "fe54c46cdb5b"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,20 +32,12 @@ def upgrade() -> None:
     )
     op.create_table(
         "commands",
-        sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("command", sa.String(length=255), nullable=False),
         sa.Column("guild", sa.BigInteger(), nullable=False),
         sa.Column("channel", sa.BigInteger(), nullable=False),
         sa.Column("member", sa.BigInteger(), nullable=False),
         sa.Column("amount", sa.BigInteger(), nullable=True),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint(
-            "command",
-            "guild",
-            "channel",
-            "member",
-            name="uc_commands_command_guild_channel_member",
-        ),
+        sa.PrimaryKeyConstraint("command", "guild", "channel", "member"),
     )
     # ### end Alembic commands ###
 
