@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from asyncio import gather
 from os import environ
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import orjson
@@ -27,13 +28,14 @@ __all__ = ("Vibr", "GUILD_IDS")
 
 REGION_CLS = [Group, Region, VoiceRegion]
 GUILD_IDS = [939509053623795732, 802586580766162964]
+COLOURS = [0xFF00E1, 0xDA00FF, 0x8000FF, 0x2500FF, 0x008FFF]
 
 
 class Vibr(BotBase):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             version="3.0.0",
-            colours=[0xFF00E1, 0xDA00FF, 0x8000FF, 0x2500FF, 0x008FFF],
+            colours=COLOURS,
             name="vibr",
             log_channel=939853360289419284,
             guild_ids=GUILD_IDS,
@@ -44,23 +46,23 @@ class Vibr(BotBase):
         self.pool = NodePool(self)
 
     async def launch_shard(
-        self, gateway: str, shard_id: int, *, initial: bool = False
+        self, _gateway: str, shard_id: int, *, initial: bool = False
     ) -> None:
         return await super().launch_shard(
             environ["GW_PROXY"], shard_id, initial=initial
         )
 
     async def before_identify_hook(
-        self, shard_id: int | None, *, initial: bool = False
+        self, _shard_id: int | None, *, initial: bool = False  # noqa: ARG002
     ) -> None:
         # gateway-proxy
         return
 
-    async def on_application_command_error(self, inter, error):
+    async def on_application_command_error(self, inter, error) -> None:  # noqa:
         __import__("traceback").print_exception(type(error), error, error.__traceback__)
 
     async def add_nodes(self) -> None:
-        with open(environ["LAVALINK_FILE"], "rb") as f:
+        with Path(environ["LAVALINK_FILE"]).open("rb") as f:
             data: list[LavalinkInfo] = orjson.loads(f.read())
 
         for node in data:
@@ -69,11 +71,12 @@ class Vibr(BotBase):
                 regions = []
                 for region_str in node["regions"]:
                     for cls in REGION_CLS:
-                        if region_str in cls.__members__.keys():
+                        if region_str in cls.__members__:
                             region = cls[region_str]
                             break
                     else:
-                        raise ValueError(f"Invalid region: {region_str}")
+                        msg = f"Invalid region: {region_str}"
+                        raise ValueError(msg)
 
                     regions.append(region)
 

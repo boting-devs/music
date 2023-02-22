@@ -7,10 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-nextcord = {git = "https://github.com/nextcord/nextcord", rev = "master", extras = ["speed"]}
+nextcord = "^2.4.0"
 mafic = "^1.0.3"
 uvloop = "^0.17.0"
-ooliver-botbase = {git = "https://github.com/ooliver1/botbase"}
+ooliver-botbase = { git = "https://github.com/ooliver1/botbase" }
 alembic = "^1.9.3"
 psycopg2-binary = "^2.9.5"
 asyncpg = "^0.27.0"
@@ -20,12 +20,50 @@ matplotlib = "^3.7.0"
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
 isort = "^5.12.0"
-flake8 = "^6.0.0"
+ruff = "^0.0.251"
 
 [tool.taskipy.tasks]
 start = "python -m vibr"
 lint = "flake8 vibr"
 format = "isort vibr && black vibr"
+
+[tool.ruff]
+select = [
+    "E",
+    "F",
+    "W",
+    "C90",
+    "I",
+    "N",
+    "UP",
+    "ANN",
+    "S",
+    "BLE",
+    "B",
+    "C4",
+    "DTZ",
+    "ISC",
+    "G",
+    "PIE",
+    "Q",
+    "RSE",
+    "RET",
+    "SIM",
+    "TCH",
+    "ARG",
+    "PTH",
+    "PGH",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "TRY",
+    "RUF",
+]
+ignore = ["S101", "ANN101", "ANN102", "F405"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
 
 [build-system]
 requires = ["poetry-core"]
