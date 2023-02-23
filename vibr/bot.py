@@ -6,9 +6,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import orjson
-from botbase import BotBase
+from botbase import BotBase, MyInter
 from mafic import Group, NodePool, Region, VoiceRegion
 from nextcord import Intents
+
+from vibr.constants import COLOURS, GUILD_IDS
+from vibr.embed import ErrorEmbed
 
 if TYPE_CHECKING:
     from typing import TypedDict
@@ -23,12 +26,10 @@ if TYPE_CHECKING:
         label: str
 
 
-__all__ = ("Vibr", "GUILD_IDS")
+__all__ = ("Vibr",)
 
 
 REGION_CLS = [Group, Region, VoiceRegion]
-GUILD_IDS = [939509053623795732, 802586580766162964]
-COLOURS = [0xFF00E1, 0xDA00FF, 0x8000FF, 0x2500FF, 0x008FFF]
 
 
 class Vibr(BotBase):
@@ -57,9 +58,6 @@ class Vibr(BotBase):
     ) -> None:
         # gateway-proxy
         return
-
-    async def on_application_command_error(self, inter, error) -> None:  # noqa:
-        __import__("traceback").print_exception(type(error), error, error.__traceback__)
 
     async def add_nodes(self) -> None:
         with Path(environ["LAVALINK_FILE"]).open("rb") as f:
@@ -90,3 +88,41 @@ class Vibr(BotBase):
 
     async def start(self, token: str, *, reconnect: bool = True) -> None:
         await gather(self.add_nodes(), super().start(token, reconnect=reconnect))
+
+    async def process_application_commands(self, inter: MyInter) -> None:
+        permissions = inter.app_permissions
+
+        if not permissions.view_channel:
+            embed = ErrorEmbed(
+                title="I Am Missing Permissions",
+                description="I am missing the `View Channel` permission "
+                "in the channel you are sending the command in.",
+            )
+            await inter.response.send_message(
+                embed=embed, view=embed.view, ephemeral=True
+            )
+            return
+
+        if not permissions.send_messages:
+            embed = ErrorEmbed(
+                title="I Am Missing Permissions",
+                description="I am missing the `Send Messages` permission "
+                "in the channel you are sending the command in.",
+            )
+            await inter.response.send_message(
+                embed=embed, view=embed.view, ephemeral=True
+            )
+            return
+
+        if not permissions.embed_links:
+            embed = ErrorEmbed(
+                title="I Am Missing Permissions",
+                description="I am missing the `Embed Links` permission "
+                "in the channel you are sending the command in.",
+            )
+            await inter.response.send_message(
+                embed=embed, view=embed.view, ephemeral=True
+            )
+            return
+
+        await super().process_application_commands(inter)
