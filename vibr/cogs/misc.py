@@ -239,7 +239,7 @@ class Misc(Cog):
         embed = Embed(title="**Support Me :)**", color=self.bot.color)
         embed.add_field(
             name="**Enjoy the bot? Help us keep it the way it is**",
-            value="**[click here](https://paypal.me/botingdevs)**",
+            value="**[click here](https://donate.stripe.com/eVa9DSdGs0Qed8s7ss)**",
         )
         embed.set_image(
             url="https://lacountylibrary.org/wp-content/uploads/2018/10/eNews-ThankYouLarge-1170x658.jpg"
