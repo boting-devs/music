@@ -1,12 +1,7 @@
 version: "3"
 
-x-restart-policy:
-  &restart-policy
-  restart: unless-stopped
-
 services:
   bot:
-    <<: *restart-policy
     depends_on:
       - lavalink
       - postgres
@@ -20,14 +15,12 @@ services:
       GW_PROXY: ws://gateway-proxy:7878
       TOKEN: $TOKEN
   lavalink:
-    <<: *restart-policy
     build:
       context: lavalink
       dockerfile: alpha.Dockerfile
     volumes:
       - ./logs/lava:/opt/Lavalink/logs
   postgres:
-    <<: *restart-policy
     image: postgres
     environment:
       POSTGRES_PASSWORD: postgres
@@ -37,7 +30,6 @@ services:
     volumes:
       - ./pg_data:/var/lib/postgresql/data
   gateway-proxy:
-    <<: *restart-policy
     image: gelbpunkt/gateway-proxy:x86-64
     volumes:
       - ./gateway-proxy/noshard.config.json:/config.json

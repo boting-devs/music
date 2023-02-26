@@ -16,7 +16,6 @@ FORMAT = """command {command} gave
 ```py
 {tb}
 ```
-invoke: {content} in 
 {channel} ({name}) in {guild} by {inter.user}
 """.strip()
 
@@ -36,11 +35,16 @@ class ErrorHandler(CogBase[Vibr]):
             await inter.send(embed=embed, view=view, ephemeral=True)
         else:
             log.error(
-                "Shit. Vibr just fookin died ༶ඬ༝ඬ༶ ᕙ(░ಥ╭͜ʖ╮ಥ░)━☆ﾟ.*･｡ﾟ ", exc_info=True
+                "Shit. Vibr just fookin died ༶ඬ༝ඬ༶ ᕙ(░ಥ╭͜ʖ╮ಥ░)━☆ﾟ.*･｡ﾟ ", exc_info=exc
             )
             if log_channel_id := self.bot.log_channel:
                 log_channel = await self.bot.getch_channel(log_channel_id)
 
+                command = (
+                    inter.application_command.qualified_name
+                    if inter.application_command
+                    else ""
+                )
                 if inter.guild is None:
                     channel = "dm"
                     name = "dm"
@@ -53,15 +57,13 @@ class ErrorHandler(CogBase[Vibr]):
                 tb = "\n".join(format_exception(exc))
                 await log_channel.send_embed(
                     desc=FORMAT.format(
-                        tb=tb, channel=channel, inter=inter, name=name, guild=guild
+                        tb=tb,
+                        channel=channel,
+                        inter=inter,
+                        name=name,
+                        guild=guild,
+                        command=command,
                     )
-                )
-                log.error(
-                    "Command %s raised %s: %s",
-                    inter.command,
-                    type(exc).__name__,
-                    exc,
-                    exc_info=True,
                 )
 
 

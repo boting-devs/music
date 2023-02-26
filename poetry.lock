@@ -446,7 +446,7 @@ python-dotenv = ">=0.16.0,<0.22.0"
 type = "git"
 url = "https://github.com/ooliver1/botbase"
 reference = "HEAD"
-resolved_reference = "507491e29985c5495e2832c97f82b16367e210ea"
+resolved_reference = "13b1cfd9896021faf7aee1fe4fa3f42476ec3e6a"
 
 [[package]]
 name = "orjson"
