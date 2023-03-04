@@ -1,67 +1,19 @@
 from __future__ import annotations
 
-from time import gmtime, strftime
+from typing import TYPE_CHECKING
 
 from botbase import CogBase, MyInter
-from mafic import Player, Playlist, SearchType, Track
+from mafic import Playlist, SearchType
 from nextcord import ApplicationCommandType, SlashOption, slash_command
 from nextcord.utils import get
 
 from vibr.bot import Vibr
-from vibr.embed import Embed
-from vibr.utils import truncate
+from vibr.track_embed import track_embed
 
 from ._errors import NoTracksFound
 
-MAX_AUTHOR_LENGTH = 3
-HTTP_FOUND = 302
-
-
-def get_authors(tracks: list[Track]) -> str:
-    """Get a string of authors.
-
-    Parameters
-    ----------
-    tracks:
-        The list of tracks to parse.
-
-    Returns
-    -------
-    str
-        The string of authors, or ``"Multiple Authors"``
-        if more than ``MAX_AUTHOR_LENGTH``.
-    """
-
-    authors = {track.author for track in tracks}
-    if len(authors) > MAX_AUTHOR_LENGTH:
-        return "Multiple Authors"
-
-    return truncate(", ".join(authors), length=256)
-
-
-async def get_url(track: Track, *, bot: Vibr) -> str | None:
-    """Get a URL to Odesli, or just the URL if not found.
-
-    Parameters
-    ----------
-    track:
-        The Mafic track to get the URI from.
-    bot:
-        The bot object to get the session from.
-    """
-
-    if not track.uri:
-        return None
-
-    async with bot.session.get(
-        f"https://odesli.co/{track.uri.replace('://', ':/')}", allow_redirects=False
-    ) as response:
-        if response.status == HTTP_FOUND:
-            loc = response.headers.get("Location", track.uri)
-            if loc != "/not-found":
-                return loc
-
-        return None
+if TYPE_CHECKING:
+    from vibr.player import Player
 
 
 class Play(CogBase[Vibr]):
@@ -105,9 +57,8 @@ class Play(CogBase[Vibr]):
 
         await inter.response.defer()
 
-        player: Player = (
-            inter.guild.voice_client
-        )  # pyright: ignore[reportGeneralTypeIssues]
+        player: Player = inter.guild.voice_client  # pyright: ignore
+        player.notification_channel = inter.channel  # pyright: ignore
 
         result = await player.fetch_tracks(
             query=query, search_type=SearchType(search_type)
@@ -117,41 +68,26 @@ class Play(CogBase[Vibr]):
             raise NoTracksFound
 
         if isinstance(result, Playlist):
-            track = result.tracks[0]
-            title = result.name
-            authors = get_authors(result.tracks)
-            length = sum(track.length for track in result.tracks)
-            strftime("%H:%M:%S", gmtime(length / 1000))
-            url = None
-            thumbnail = "http://clipground.com/images/tone-duration-clipart-16.jpg"
+            tracks = result.tracks
+            item = result
+            track = tracks[0]
         else:
-            track = result[0]
-            title = track.title
-            authors = track.author
-            length = track.length
-            strftime("%H:%M:%S", gmtime(length / 1000))
-            url = await get_url(track, bot=self.bot)
+            item = track = result[0]
+            tracks = [track]
 
-            source = track.source
+        embed = await track_embed(item, bot=self.bot, user=inter.user.id)
 
-            # Wait for lavalink v4 for missing sources tbh.
-            # Soundcloud, Spotify, Deezer and a few others just take one API req
-            # to get the thumbnail, but Lavalink does that already.
-            if source == "youtube":
-                thumbnail = (
-                    f"https://img.youtube.com/vi/{track.identifier}/mqdefault.jpg"
-                )
-            else:
-                thumbnail = "http://clipground.com/images/tone-duration-clipart-16.jpg"
+        if player.current is None:
+            queued = tracks[1:]
+            await player.play(track)
 
-        embed = Embed(title=title)
-        embed.set_author(name=authors, url=url)
-        embed.set_footer(text=f"Length: {length}")
-        embed.set_thumbnail(url=thumbnail)
+            await inter.followup.send(embed=embed)
 
-        await player.play(track)
-
-        await inter.followup.send(embed=embed)  # pyright: ignore
+            if queued:
+                player.queue += [(track, inter.user.id) for track in queued]
+        else:
+            player.queue += [(track, inter.user.id) for track in tracks]
+            await inter.followup.send(embed=embed)
 
 
 def setup(bot: Vibr) -> None:

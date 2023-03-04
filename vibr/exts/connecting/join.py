@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from botbase import CogBase, MyInter
-from mafic import Player
 from nextcord import StageChannel, VoiceChannel, slash_command
 
 from vibr.bot import Vibr
 from vibr.embed import Embed
+from vibr.player import Player
 
 from ._checks import already_connected, can_connect
 from ._errors import UserNotInVoice
