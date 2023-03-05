@@ -4,6 +4,7 @@ from datetime import timedelta
 from enum import Enum
 from io import BytesIO
 from random import sample
+from typing import TYPE_CHECKING
 
 from cycler import cycler
 from matplotlib import rc_context
@@ -13,9 +14,11 @@ from nextcord import Embed, File, Interaction, SelectOption
 from nextcord.ui import StringSelect, string_select
 from nextcord.utils import utcnow
 
-from vibr.bot import Vibr
 from vibr.db import HourlyStats, NodeStats
 from vibr.views import TimeoutView
+
+if TYPE_CHECKING:
+    from vibr.bot import Vibr
 
 
 class StatsTime(Enum):
@@ -54,13 +57,13 @@ TYPE_TO_TITLE: dict[StatsType | NodeStatsType, str] = {
 
 
 class NodeSelection(StringSelect["StatsView"]):
-    def __init__(self, bot: Vibr):
+    def __init__(self, bot: Vibr) -> None:
         super().__init__(
             options=[SelectOption(label=node.label) for node in bot.pool.nodes],
             placeholder="Select a node.",
         )
 
-    async def callback(self, inter: Interaction):
+    async def callback(self, _: Interaction) -> None:
         assert self.view is not None
 
         await self.view.update_node(self.values[0])
@@ -86,7 +89,7 @@ class StatsView(TimeoutView):
         min_values=1,
         max_values=1,
     )
-    async def timeframe_select(self, select: StringSelect, inter: Interaction):
+    async def timeframe_select(self, select: StringSelect, inter: Interaction) -> None:
         await inter.response.defer()
         await self.update_stats_time(select.values[0])
 
@@ -99,23 +102,23 @@ class StatsView(TimeoutView):
         min_values=1,
         max_values=1,
     )
-    async def type_select(self, select: StringSelect, inter: Interaction):
+    async def type_select(self, select: StringSelect, inter: Interaction) -> None:
         await inter.response.defer()
         await self.update_stats_type(select.values[0])
 
-    async def update_stats_type(self, value: str):
+    async def update_stats_type(self, value: str) -> None:
         self.type = StatsType(value)
         await self.update()
 
-    async def update_stats_time(self, value: str):
+    async def update_stats_time(self, value: str) -> None:
         self.timeframe = StatsTime(value)
         await self.update()
 
-    async def update_node(self, value: str):
+    async def update_node(self, value: str) -> None:
         self.node = value
         await self.update()
 
-    async def update(self):
+    async def update(self) -> None:
         embed, file = await self.get_graph()
         assert self.message is not None
         await self.message.edit(embed=embed, file=file)
