@@ -5,7 +5,7 @@ from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import orjson
+import yaml
 from botbase import BotBase, MyInter
 from mafic import Group, NodePool, Region, VoiceRegion
 from nextcord import Intents
@@ -61,7 +61,7 @@ class Vibr(BotBase):
 
     async def add_nodes(self) -> None:
         with Path(environ["LAVALINK_FILE"]).open("rb") as f:
-            data: list[LavalinkInfo] = orjson.loads(f.read())
+            data: list[LavalinkInfo] = yaml.safe_load(f.read())  # pyright: ignore
 
         for node in data:
             regions: list[Group | Region | VoiceRegion] | None = None
@@ -78,10 +78,14 @@ class Vibr(BotBase):
 
                     regions.append(region)
 
+            passwd = node["password"]
+
             await self.pool.create_node(
                 host=node["host"],
                 port=node["port"],
-                password=node["password"],
+                password=environ[
+                    passwd.removeprefix("$") if passwd.startswith("$") else passwd
+                ],
                 regions=regions,
                 label=node["label"],
             )
