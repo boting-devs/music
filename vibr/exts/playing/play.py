@@ -75,18 +75,19 @@ class Play(CogBase[Vibr]):
             item = track = result[0]
             tracks = [track]
 
-        embed = await track_embed(item, bot=self.bot, user=inter.user.id)
 
         if player.current is None:
             queued = tracks[1:]
             await player.play(track)
 
+            embed = await track_embed(item, bot=self.bot, user=inter.user.id)
             await inter.followup.send(embed=embed)
 
             if queued:
                 player.queue += [(track, inter.user.id) for track in queued]
         else:
             player.queue += [(track, inter.user.id) for track in tracks]
+            embed = await track_embed(item, bot=self.bot, user=inter.user.id, queued=True)
             await inter.followup.send(embed=embed)
 
 

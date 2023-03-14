@@ -68,7 +68,7 @@ async def get_url(track: Track, *, bot: Vibr) -> str | None:
         return None
 
 
-async def track_embed(item: Track | Playlist, *, bot: Vibr, user: int) -> Embed:
+async def track_embed(item: Track | Playlist, *, bot: Vibr, user: int, queued: bool = False) -> Embed:
     if isinstance(item, Playlist):
         title = item.name
         authors = get_authors(item.tracks)
@@ -95,7 +95,7 @@ async def track_embed(item: Track | Playlist, *, bot: Vibr, user: int) -> Embed:
 
     embed = Embed(title=title, description=f"Requested by <@{user}>")
     embed.set_author(name=authors, url=url)
-    embed.set_footer(text=f"Length: {length}")
+    embed.set_footer(text="Queued | " * queued + f"Length: {length}")
     embed.set_thumbnail(url=thumbnail)
 
     return embed
