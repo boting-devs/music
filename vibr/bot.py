@@ -61,7 +61,7 @@ class Vibr(BotBase):
 
     async def add_nodes(self) -> None:
         with Path(environ["LAVALINK_FILE"]).open("rb") as f:
-            data: list[LavalinkInfo] = yaml.safe_load(f.read())  # pyright: ignore
+            data: list[LavalinkInfo] = yaml.safe_load(f)  # pyright: ignore
 
         for node in data:
             regions: list[Group | Region | VoiceRegion] | None = None

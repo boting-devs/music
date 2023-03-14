@@ -16,6 +16,7 @@ psycopg2-binary = "^2.9.5"
 asyncpg = "^0.27.0"
 taskipy = "^1.10.3"
 matplotlib = "^3.7.0"
+pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
