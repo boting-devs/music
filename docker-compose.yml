@@ -1,124 +1,5 @@
 version: "3"
 
-# server: # REST and WS server
-#   port: 6969
-#   address: 0.0.0.0
-# lavalink:
-#   server:
-#     password: "haha"
-#     sources:
-#       youtube: true
-#       bandcamp: true
-#       soundcloud: true
-#       twitch: true
-#       vimeo: true
-#       http: true
-#       local: false
-#     filters: # All filters are enabled by default
-#       volume: true
-#       equalizer: true
-#       karaoke: true
-#       timescale: true
-#       tremolo: true
-#       vibrato: true
-#       distortion: true
-#       rotation: true
-#       channelMix: true
-#       lowPass: true
-#     bufferDurationMs: 400 # The duration of the NAS buffer. Higher values fare better against longer GC pauses. Duration <= 0 to disable JDA-NAS. Minimum of 40ms, lower values may introduce pauses.
-#     frameBufferDurationMs: 5000 # How many milliseconds of audio to keep buffered
-#     opusEncodingQuality: 10 # Opus encoder quality. Valid values range from 0 to 10, where 10 is best quality but is the most expensive on the CPU.
-#     resamplingQuality: LOW # Quality of resampling operations. Valid values are LOW, MEDIUM and HIGH, where HIGH uses the most CPU.
-#     trackStuckThresholdMs: 10000 # The threshold for how long a track can be stuck. A track is stuck if does not return any audio data.
-#     useSeekGhosting: true # Seek ghosting is the effect where whilst a seek is in progress, the audio buffer is read from until empty, or until seek is ready.
-#     youtubePlaylistLoadLimit: 6 # Number of pages at 100 each
-#     playerUpdateInterval: 5 # How frequently to send player updates to clients, in seconds
-#     youtubeSearchEnabled: true
-#     soundcloudSearchEnabled: true
-#     gc-warnings: true
-#     #ratelimit:
-#     #ipBlocks: ["1.0.0.0/8", "..."] # list of ip blocks
-#     #excludedIps: ["...", "..."] # ips which should be explicit excluded from usage by lavalink
-#     #strategy: "RotateOnBan" # RotateOnBan | LoadBalance | NanoSwitch | RotatingNanoSwitch
-#     #searchTriggersFail: true # Whether a search 429 should trigger marking the ip as failing
-#     #retryLimit: -1 # -1 = use default lavaplayer value | 0 = infinity | >0 = retry will happen this numbers times
-#     #youtubeConfig: # Required for avoiding all age restrictions by YouTube, some restricted videos still can be played without.
-#     #email: "" # Email of Google account
-#     #password: "" # Password of Google account
-#     #httpConfig: # Useful for blocking bad-actors from ip-grabbing your music node and attacking it, this way only the http proxy will be attacked
-#     #proxyHost: "localhost" # Hostname of the proxy, (ip or domain)
-#     #proxyPort: 3128 # Proxy port, 3128 is the default for squidProxy
-#     #proxyUser: "" # Optional user for basic authentication fields, leave blank if you don't use basic auth
-#     #proxyPassword: "" # Password for basic authentication
-#   plugins:
-#     - dependency: "com.github.TopiSenpai.LavaSrc:lavasrc-plugin:3.2.0"
-#       repository: "https://jitpack.io"
-
-# plugins:
-#   lavasrc:
-#     providers: # Custom providers for track loading. This is the default
-#       - "dzisrc:%ISRC%" # Deezer ISRC provider
-#       - "dzsearch:%QUERY%" # Deezer search provider
-#       - 'ytsearch:"%ISRC%"' # Will be ignored if track does not have an ISRC. See https://en.wikipedia.org/wiki/International_Standard_Recording_Code
-#       - "ytsearch:%QUERY%" # Will be used if track has no ISRC or no track could be found for the ISRC
-#       #  you can add multiple other fallback sources here
-#     sources:
-#       spotify: true # Enable Spotify source
-#       applemusic: true # Enable Apple Music source
-#       deezer: true # Enable Deezer source
-#       yandexmusic: true # Enable Yandex Music source
-#     spotify:
-#       clientId: "9a69c34073e54cbb8adc22ccabcc14c8"
-#       clientSecret: "89fbb4527e634bc9a67d9d6058a971a8"
-#       countryCode: "US" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-#       playlistLoadLimit: 5 # The number of pages at 100 tracks each
-#       albumLoadLimit: 10 # The number of pages at 50 tracks each
-#     applemusic:
-#       countryCode: "US" # the country code you want to use for filtering the artists top tracks and language. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-#       # mediaAPIToken: "..." # Can be used to bypass the auto token fetching which is likely to break again in the future
-#       playlistLoadLimit: 2 # The number of pages at 300 tracks each
-#       albumLoadLimit: 2 # The number of pages at 300 tracks each
-#     deezer:
-#       # may change?
-#       masterDecryptionKey: "g4el58wc0zvf9na1" # the master key used for decrypting the deezer tracks. (yes this is not here you need to get it from somewhere else)
-#     yandexmusic:
-#       # expires in 1 year since 25/02/2023
-#       accessToken: "y0_AgAAAABo5x91AAG8XgAAAADdKU4VugxRq6VQSna41ZadicqQmzVDiuc" # the token used for accessing the yandex music api. See https://github.com/TopiSenpai/LavaSrc#yandex-music
-
-# metrics:
-#   prometheus:
-#     enabled: false
-#     endpoint: /metrics
-
-# sentry:
-#   dsn: ""
-#   environment: ""
-# #  tags:
-# #    some_key: some_value
-# #    another_key: another_value
-
-# logging:
-#   file:
-#     path: ./logs/
-
-#   level:
-#     root: INFO
-#     lavalink: INFO
-
-#   request:
-#     enabled: true
-#     includeClientInfo: true
-#     includeHeaders: false
-#     includeQueryString: true
-#     includePayload: true
-#     maxPayloadLength: 10000
-
-#   logback:
-#     rollingpolicy:
-#       max-file-size: 100MB
-#       max-history: 30
-
-
 services:
   bot:
     depends_on:
@@ -133,6 +14,7 @@ services:
       DB_URI: postgresql://postgres:postgres@postgres:5432/bot
       GW_PROXY: ws://gateway-proxy:7878
       TOKEN: $TOKEN
+      PASSWORD: $PASSWORD
   lavalink:
     image: ghcr.io/freyacodes/lavalink:3.7.5
     volumes:
@@ -143,7 +25,7 @@ services:
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: $PASSWORD
       LAVALINK_SERVER_FRAMEBUFFERDURATION: 5000
-      LAVALINK_SERVER_RESAMPLINGQUALITY: L
+      LAVALINK_SERVER_RESAMPLINGQUALITY: LOW
       LAVALINK_SERVER_YOUTUBEPLAYLISTLOADLIMIT: 5
       LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.TopiSenpai.LavaSrc:lavasrc-plugin:3.2.0"
       LAVALINK_PLUGINS_0_REPOSITORY: "https://jitpack.io"
@@ -152,6 +34,7 @@ services:
       PLUGINS_LAVASRC_PROVIDERS_2: 'ytsearch:"%ISRC%"'
       PLUGINS_LAVASRC_PROVIDERS_3: "ytsearch:%QUERY%"
       PLUGINS_LAVASRC_SOURCES_SPOTIFY: true
+
       PLUGINS_LAVASRC_SOURCES_APPLEMUSIC: true
       PLUGINS_LAVASRC_SOURCES_DEEZER: true
       PLUGINS_LAVASRC_SOURCES_YANDEXMUSIC: true
