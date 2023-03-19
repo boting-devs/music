@@ -39,6 +39,16 @@ class Queue:
     def take(self) -> tuple[Track, int]:
         return self._stack.popleft()
 
+    def skip(self, amount: int) -> tuple[Track, int]:
+        track = None
+
+        for _ in range(amount):
+            track = self.take()
+
+        assert track is not None
+
+        return track
+
 
 class Player(MaficPlayer):
     def __init__(

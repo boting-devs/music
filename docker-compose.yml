@@ -55,7 +55,7 @@ services:
       LOGGING_LOGBACK_ROLLINGPOLICY_MAXFILESIZE: 100MB
       LOGGING_LOGBACK_ROLLINGPOLICY_MAXHISTORY: 30
   postgres:
-    image: postgres
+    image: postgres:15
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres

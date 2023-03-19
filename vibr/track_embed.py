@@ -68,7 +68,14 @@ async def get_url(track: Track, *, bot: Vibr) -> str | None:
         return None
 
 
-async def track_embed(item: Track | Playlist, *, bot: Vibr, user: int, queued: bool = False) -> Embed:
+async def track_embed(
+    item: Track | Playlist,
+    *,
+    bot: Vibr,
+    user: int,
+    skipped: int | None = None,
+    queued: bool = False,
+) -> Embed:
     if isinstance(item, Playlist):
         title = item.name
         authors = get_authors(item.tracks)
@@ -93,7 +100,12 @@ async def track_embed(item: Track | Playlist, *, bot: Vibr, user: int, queued: b
         else:
             thumbnail = "http://clipground.com/images/tone-duration-clipart-16.jpg"
 
-    embed = Embed(title=title, description=f"Requested by <@{user}>")
+    if skipped:
+        embed = Embed(title=title)
+        embed.add_field(name="Requested By", value=f"<@{user}>")
+        embed.add_field(name="Skipped By", value=f"<@{skipped}>")
+    else:
+        embed = Embed(title=title, description=f"Requested by <@{user}>")
     embed.set_author(name=authors, url=url)
     embed.set_footer(text="Queued | " * queued + f"Length: {length}")
     embed.set_thumbnail(url=thumbnail)

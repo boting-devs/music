@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import yaml
 from botbase import BotBase, MyInter
 from mafic import Group, NodePool, Region, VoiceRegion
-from nextcord import Intents
+from nextcord import ApplicationCommandType, Intents, SlashApplicationCommand
 
 from vibr.constants import COLOURS, GUILD_IDS
 from vibr.embed import ErrorEmbed
@@ -130,3 +130,11 @@ class Vibr(BotBase):
             return
 
         await super().process_application_commands(inter)
+
+    def get_command_mention(self, name: str) -> str:
+        command = self.get_application_command_from_signature(
+            name=name, cmd_type=ApplicationCommandType.chat_input.value, guild_id=None
+        )
+        assert isinstance(command, SlashApplicationCommand)
+
+        return command.get_mention(guild=None) if command else f"/{name}"

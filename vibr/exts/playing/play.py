@@ -32,10 +32,7 @@ class Play(CogBase[Vibr]):
 
     @slash_command(dm_permission=False)
     async def play(
-        self,
-        inter: MyInter,
-        query: str,
-        search_type: str = SEARCH_TYPE,
+        self, inter: MyInter, query: str, search_type: str = SEARCH_TYPE
     ) -> None:
         """Play a link, query or past song.
 
@@ -75,7 +72,6 @@ class Play(CogBase[Vibr]):
             item = track = result[0]
             tracks = [track]
 
-
         if player.current is None:
             queued = tracks[1:]
             await player.play(track)
@@ -87,7 +83,9 @@ class Play(CogBase[Vibr]):
                 player.queue += [(track, inter.user.id) for track in queued]
         else:
             player.queue += [(track, inter.user.id) for track in tracks]
-            embed = await track_embed(item, bot=self.bot, user=inter.user.id, queued=True)
+            embed = await track_embed(
+                item, bot=self.bot, user=inter.user.id, queued=True
+            )
             await inter.followup.send(embed=embed)
 
 
