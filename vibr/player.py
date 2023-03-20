@@ -49,6 +49,13 @@ class Queue:
 
         return track
 
+    @property
+    def tracks(self) -> list[Track]:
+        return [track for track, _ in self._stack]
+
+    def __getitem__(self, index: int) -> Track:
+        return self._stack[index][0]
+
 
 class Player(MaficPlayer):
     def __init__(

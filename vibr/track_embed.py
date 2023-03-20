@@ -57,15 +57,22 @@ async def get_url(track: Track, *, bot: Vibr) -> str | None:
     if not track.uri:
         return None
 
-    async with bot.session.get(
-        f"https://odesli.co/{track.uri.replace('://', ':/')}", allow_redirects=False
-    ) as response:
-        if response.status == HTTP_FOUND:
-            loc = response.headers.get("Location", track.uri)
-            if loc != "/not-found":
-                return loc
+    del bot
 
-        return None
+    return track.uri
+
+    # FIXME: not sure about the speed of this,
+    # maybe we can use our own url and have this fetching happen there?
+
+    # async with bot.session.get(
+    #     f"https://odesli.co/{track.uri.replace('://', ':/')}", allow_redirects=False
+    # ) as response:
+    #     if response.status == HTTP_FOUND:
+    #         loc = response.headers.get("Location", track.uri)
+    #         if loc != "/not-found":
+    #             return loc
+
+    #     return None
 
 
 async def track_embed(
