@@ -87,14 +87,14 @@ async def track_embed(
         title = item.name
         authors = get_authors(item.tracks)
         length = sum(track.length for track in item.tracks)
-        strftime("%H:%M:%S", gmtime(length / 1000))
+        track_time=strftime("%H:%M:%S", gmtime(length / 1000))
         url = None
         thumbnail = "http://clipground.com/images/tone-duration-clipart-16.jpg"
     else:
         title = item.title
         authors = item.author
         length = item.length
-        strftime("%H:%M:%S", gmtime(length / 1000))
+        track_time=strftime("%H:%M:%S", gmtime(length / 1000))
         url = await get_url(item, bot=bot)
 
         source = item.source
@@ -114,7 +114,7 @@ async def track_embed(
     else:
         embed = Embed(title=title, description=f"Requested by <@{user}>")
     embed.set_author(name=authors, url=url)
-    embed.set_footer(text="Queued | " * queued + f"Length: {length}")
+    embed.set_footer(text="Queued | " * queued + f"Length: {track_time}")
     embed.set_thumbnail(url=thumbnail)
 
     return embed
