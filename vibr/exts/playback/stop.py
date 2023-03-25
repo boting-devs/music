@@ -10,28 +10,27 @@ from vibr.checks import is_connected_and_playing
 
 from vibr.embed import Embed
 
-from ._errors import AlreadyResumed
+import mafic
 
 if TYPE_CHECKING:
 
     from vibr.player import Player
 
-class Resume(CogBase[Vibr]):
+class Stop(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
-    async def resume(self,inter:MyInter):
-        """Resume your beats"""
+    async def stop(self,inter:MyInter):
+        """Stop the player"""
 
         assert inter.guild is not None and inter.guild.voice_client is not None
-
+        
         player: Player = inter.guild.voice_client  # pyright: ignore
 
-        if player._paused ==True:
-            await player.resume()
-            embed = Embed(title="Resumed",description=f"{inter.user.mention} resumed.",timestamp=utcnow())
-            await inter.send(embed=embed)
-        else:
-            raise AlreadyResumed
+        player.queue = []
+        await player.stop()
 
-def setup(bot: Vibr) -> None:
-    bot.add_cog(Resume(bot))
+        embed = Embed(title="Stopped",description=f"{inter.user.mention} stopped the player")
+        await inter.send(embed=embed)
+
+def setup(bot:Vibr) ->None:
+    bot.add_cog(Stop(bot))
