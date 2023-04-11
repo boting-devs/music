@@ -82,6 +82,7 @@ async def track_embed(
     user: int,
     skipped: int | None = None,
     queued: bool = False,
+    loop: bool =False,
 ) -> Embed:
     if isinstance(item, Playlist):
         title = item.name
@@ -106,13 +107,16 @@ async def track_embed(
             thumbnail = f"https://img.youtube.com/vi/{item.identifier}/mqdefault.jpg"
         else:
             thumbnail = "http://clipground.com/images/tone-duration-clipart-16.jpg"
-
     if skipped:
         embed = Embed(title=title)
         embed.add_field(name="Requested By", value=f"<@{user}>")
         embed.add_field(name="Skipped By", value=f"<@{skipped}>")
     else:
         embed = Embed(title=title, description=f"Requested by <@{user}>")
+
+    if loop: #need to fix this shit ( i have no idea where this embed comes whenever it plays the next song from the queue)
+        embed = Embed(title=title)
+        embed.set_footer(text="Looped")
     embed.set_author(name=authors, url=url)
     embed.set_footer(text="Queued | " * queued + f"Length: {track_time}")
     embed.set_thumbnail(url=thumbnail)

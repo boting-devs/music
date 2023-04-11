@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from mafic import Node, Track
     from mafic.type_variables import ClientT
     from nextcord.abc import Connectable, Messageable
+    from mafic import Track 
 
 __all__ = ("Player", "Queue")
 MAX_QUEUE_LENGTH = 500
@@ -69,3 +70,6 @@ class Player(MaficPlayer):
 
         self.queue: Queue = Queue(maxlen=MAX_QUEUE_LENGTH)
         self.notification_channel: Messageable | None = None
+
+        self.loop_track : Track | None = None
+        self.looped_user : int

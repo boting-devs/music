@@ -18,6 +18,11 @@ class Queue(CogBase[Vibr]):
         player = event.player
 
         if event.reason in (EndReason.FINISHED, EndReason.LOAD_FAILED):
+            if player.loop_track:
+                await player.play(player.loop_track)
+                embed = await track_embed(player.loop_track,bot = self.bot,loop=True,user=player.looped_user)
+                if channel := player.notification_channel:
+                    await channel.send(embed=embed)
             try:
                 play_next, member = player.queue.take()
             except IndexError:
