@@ -114,11 +114,11 @@ async def track_embed(
     else:
         embed = Embed(title=title, description=f"Requested by <@{user}>")
 
-    if loop: #need to fix this shit ( i have no idea where this embed comes whenever it plays the next song from the queue)
-        embed = Embed(title=title)
-        embed.set_footer(text="Looped")
     embed.set_author(name=authors, url=url)
-    embed.set_footer(text="Queued | " * queued + f"Length: {track_time}")
+    if loop:
+        embed.set_footer(text=f"Looping | Length: {track_time}")
+    else:
+        embed.set_footer(text="Queued | " * queued + f"Length: {track_time}")
     embed.set_thumbnail(url=thumbnail)
 
     return embed

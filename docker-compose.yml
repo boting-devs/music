@@ -63,6 +63,13 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./pg_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
   gateway-proxy:
     image: gelbpunkt/gateway-proxy:x86-64
     volumes:

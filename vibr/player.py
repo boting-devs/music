@@ -73,3 +73,5 @@ class Player(MaficPlayer):
 
         self.loop_track : Track | None = None
         self.looped_user : int
+        self.loop_queue: list[Track] = []
+        self.loop_queue_check: bool = False
