@@ -11,7 +11,7 @@
     "emojis": false,
     "current_member": true,
     "members": false,
-    "roles": true,
+    "roles": false,
     "stage_instances": false,
     "stickers": false,
     "users": false,

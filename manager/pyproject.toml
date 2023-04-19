@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "manager"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+redis = "^4.5.4"
+websockets = "^11.0.1"
+orjson = "^3.8.10"
+uvloop = "^0.17.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+ruff = "^0.0.261"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

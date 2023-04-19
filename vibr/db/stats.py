@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from typing import TYPE_CHECKING
 
 from botbase import BaseMeta
 from ormar import DateTime, ForeignKey, Integer, Model, SmallInteger, String
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
 class HourlyStats(Model):

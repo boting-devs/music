@@ -32,7 +32,7 @@ Memory %: `{memory_percentage:.0f}%`
 class PrivateStats(CogBase[Vibr]):
     @slash_command(name="node-stats", default_member_permissions=8, guild_ids=GUILD_IDS)
     @is_owner()
-    async def node_stats(self, inter: MyInter):
+    async def node_stats(self, inter: MyInter) -> None:
         """Get stats about all nodes."""
 
         embed = Embed(colour=self.bot.colour)
@@ -84,7 +84,7 @@ class PrivateStats(CogBase[Vibr]):
         name="stats-graph", default_member_permissions=8, guild_ids=GUILD_IDS
     )
     @is_owner()
-    async def stats_graph(self, inter: MyInter):
+    async def stats_graph(self, inter: MyInter) -> None:
         """Get a fancy graph of stats."""
 
         v = StatsView(self.bot)

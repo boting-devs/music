@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "music"
+version = "0.1.0"
+description = "A music bot you can vibe with :)"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+nextcord = { version = "^2.4.0", extras = ["speed"] }
+mafic = "^1.0.3"
+uvloop = "^0.17.0"
+ooliver-botbase = { git = "https://github.com/ooliver1/botbase" }
+alembic = "^1.9.3"
+psycopg2-binary = "^2.9.5"
+asyncpg = "^0.27.0"
+taskipy = "^1.10.3"
+matplotlib = "^3.7.0"
+pyyaml = "^6.0"
+docker-py = "^1.10.6"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+isort = "^5.12.0"
+ruff = "^0.0.261"
+
+[tool.taskipy.tasks]
+start = "python -m vibr"
+format = "black vibr"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

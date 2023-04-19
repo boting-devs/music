@@ -8,10 +8,16 @@ from typing import TYPE_CHECKING
 import yaml
 from botbase import BotBase, MyInter
 from mafic import Group, NodePool, Region, VoiceRegion
-from nextcord import ApplicationCommandType, Intents, SlashApplicationCommand
+from nextcord import (
+    ApplicationCommandType,
+    Intents,
+    MemberCacheFlags,
+    SlashApplicationCommand,
+)
 
 from vibr.constants import COLOURS, GUILD_IDS
 from vibr.embed import ErrorEmbed
+from vibr.sharding import TOTAL_SHARDS, shard_ids
 
 if TYPE_CHECKING:
     from typing import TypedDict
@@ -42,6 +48,9 @@ class Vibr(BotBase):
             guild_ids=GUILD_IDS,
             log_guilds=True,
             intents=Intents(guilds=True, voice_states=True),
+            member_cache_flags=MemberCacheFlags.none(),
+            shard_count=TOTAL_SHARDS,
+            shard_ids=shard_ids,
         )
 
         self.pool = NodePool(self)

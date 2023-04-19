@@ -29,7 +29,7 @@ class StatsCollection(CogBase[Vibr]):
         self.hourly_stats.start()
 
     @loop(minutes=1)
-    async def minute_stats(self):
+    async def minute_stats(self) -> None:
         for node in self.bot.pool.nodes:
             stats = node.stats
 
@@ -64,7 +64,7 @@ class StatsCollection(CogBase[Vibr]):
         self.listeners.add(69)
 
     @loop(hours=1)
-    async def hourly_stats(self):
+    async def hourly_stats(self) -> None:
         if not self.active_player_count:
             return
 
@@ -110,7 +110,7 @@ class StatsCollection(CogBase[Vibr]):
             )
 
     @hourly_stats.before_loop
-    async def wait_until_next_hour(self):
+    async def wait_until_next_hour(self) -> None:
         await self.bot.wait_until_ready()
         now = utcnow()
         # Round up to the next hour from now, then wait for that many seconds.

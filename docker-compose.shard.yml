@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  bot:
+    deploy:
+      replicas: ${TOTAL_CLUSTERS}
+  gateway-proxy:
+    volumes:
+      - ./gateway-proxy/shard-test.config.json:/config.json

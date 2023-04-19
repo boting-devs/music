@@ -29,7 +29,7 @@ class NotConnected(CheckFailure):
         )
 
 class NotPlaying(CheckFailure):
-    def __init__(self,bot:Vibr) -> None:
+    def __init__(self) -> None:
         self.embed = ErrorEmbed(
             title="No song Playing",
             description="Play the song to use the command"

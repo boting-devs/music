@@ -6,8 +6,8 @@ __all__ = (
     "AmountNotInt",
     "IndexNotInQueue",
     "QueueEmpty",
-    "SongNotProvided"
-    "LyricsNotFound"
+    "SongNotProvided",
+    "LyricsNotFound",
 )
 
 
@@ -43,14 +43,15 @@ class QueueEmpty(CheckFailure):
         description="The queue is empty. There is nothing to skip.",
     )
 
+
 class SongNotProvided(CheckFailure):
     embed = ErrorEmbed(
-        title="No Song Provided",
-        description="Please provide a song for lyrics!"      
+        title="No Song Provided", description="Please provide a song for lyrics!"
     )
 
+
 class LyricsNotFound(CheckFailure):
-    embed=ErrorEmbed(
+    embed = ErrorEmbed(
         title="No Lyrics Found",
         description="Sorry, could not find lyrics for that track :(",
     )

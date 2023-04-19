@@ -1,7 +1,6 @@
 *
-!pyproject.toml
-!poetry.lock
 !vibr/
+!manager/
 !lavalink/
 !gateway-proxy/
 !entrypoint.sh

@@ -37,15 +37,15 @@ async def is_connected_and_playing_predicate(inter:MyInter) -> bool:
 
     if not inter.guild.voice_client:
         raise NotConnected(inter.client)
-    
+
     channel = inter.guild.voice_client.channel
     if not inter.user.voice or inter.user.voice.channel != channel:
         assert isinstance(channel, VoiceChannel | StageChannel)
 
         raise NotInSameVoice(channel)
-    
+
     if player.current is None:
-        raise NotPlaying(inter.client)
+        raise NotPlaying
 
 
     return True

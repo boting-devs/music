@@ -1,33 +1,31 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-from os import getenv
 from asyncio import sleep
+from os import getenv
 
 from botbase import CogBase, MyInter
-from nextcord import slash_command,Message
-from nextcord.utils import utcnow
-from nextcord.ext.commands import Cog
+from nextcord import slash_command
 from nextcord.ext.tasks import loop
-from vibr.bot import Vibr
+from nextcord.utils import utcnow
 
+from vibr.bot import Vibr
 from vibr.embed import Embed
 
 
 class Misc(CogBase[Vibr]):
-    def __init__(self,bot:Vibr):
+    def __init__(self, bot: Vibr) -> None:
         self.bot = bot
         self.topgg.start()
 
-    def cog_unload(self):
+    def cog_unload(self) -> None:
         self.topgg.stop()
-    
+
     @loop(minutes=30)
-    async def topgg(self):
-        if getenv("topgg_token") is None:              #add top.gg token
+    async def topgg(self) -> None:
+        if getenv("TOPGG_TOKEN") is None:  # add top.gg token
             return
 
-        headers = {"Authorization": getenv("topgg_token")}
+        headers = {"Authorization": getenv("TOPGG_TOKEN")}
         data = {
             "server_count": len(self.bot.guilds),
             "shard_count": self.bot.shard_count or 1,
@@ -40,18 +38,18 @@ class Misc(CogBase[Vibr]):
         )
 
     @topgg.before_loop
-    async def topgg_before_loop(self):
+    async def topgg_before_loop(self) -> None:
         await self.bot.wait_until_ready()
         await sleep(20)
 
     @slash_command(dm_permission=False)
-    async def ping(self,inter:MyInter):
+    async def ping(self, inter: MyInter) -> None:
         """Pong!"""
 
         await inter.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")
-    
+
     @slash_command()
-    async def invite(self, inter: MyInter):
+    async def invite(self, inter: MyInter) -> None:
         """Invite me!"""
 
         servers = self.bot.guilds
@@ -67,9 +65,8 @@ class Misc(CogBase[Vibr]):
         )
         await inter.send(embed=embed)
 
-
     @slash_command()
-    async def support(self, inter: MyInter):
+    async def support(self, inter: MyInter) -> None:
         """My support server's link."""
 
         embed = Embed(title="**Support Link**")
@@ -81,10 +78,10 @@ class Misc(CogBase[Vibr]):
         await inter.send(embed=embed)
 
     @slash_command()
-    async def vote(self, inter: MyInter):
+    async def vote(self, inter: MyInter) -> None:
         """Vote for me!"""
 
-        embed = Embed(title="**Vote for Vibr**",timestamp=utcnow())
+        embed = Embed(title="**Vote for Vibr**", timestamp=utcnow())
         embed.add_field(
             name="Like our bot? Vote for us",
             value="[click here](https://top.gg/bot/882491278581977179)",
@@ -95,7 +92,7 @@ class Misc(CogBase[Vibr]):
         await inter.send(embed=embed)
 
     @slash_command()
-    async def donate(self, inter: MyInter):
+    async def donate(self, inter: MyInter) -> None:
         """Donate to vibr"""
         embed = Embed(title="**Support Me :)**")
         embed.add_field(
@@ -107,5 +104,6 @@ class Misc(CogBase[Vibr]):
         )
         await inter.send(embed=embed)
 
-def setup(bot:Vibr) ->None:
+
+def setup(bot: Vibr) -> None:
     bot.add_cog(Misc(bot))
