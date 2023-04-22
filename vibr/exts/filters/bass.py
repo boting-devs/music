@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from botbase import CogBase, MyInter
-from mafic.filter import Equalizer
+from mafic.filter import Filter
 from nextcord import slash_command
 
 from vibr.bot import Vibr
@@ -12,6 +12,29 @@ from vibr.embed import Embed
 
 if TYPE_CHECKING:
     from vibr.player import Player
+
+
+class BassBoost(Filter):
+    def __init__(self) -> None:
+        super().__init__(
+            equalizer=[
+                -0.075,
+                0.175,
+                0.175,
+                0.15,
+                0.05,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.15,
+                0.175,
+                0.05,
+            ]
+        )
 
 
 class Bass(CogBase[Vibr]):
@@ -24,8 +47,13 @@ class Bass(CogBase[Vibr]):
 
         player: Player = inter.guild.voice_client  # pyright: ignore
 
-        await player.add_filter(Equalizer, label="bassboost", fast_apply=True)
-        embed = Embed(title="Bass-Boost Filter activated")
+        if await player.has_filter("bassboost"):
+            await player.remove_filter("bassboost", fast_apply=True)
+            embed = Embed(title="Bass-Boost Filter Deactivated")
+        else:
+            await player.add_filter(BassBoost(), label="bassboost", fast_apply=True)
+            embed = Embed(title="Bass-Boost Filter Activated")
+
         await inter.send(embed=embed)
 
 
