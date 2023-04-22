@@ -41,7 +41,7 @@ class Bass(CogBase[Vibr]):
     @slash_command(name="bass-boost", dm_permission=False)
     @is_connected_and_playing
     async def bass(self, inter: MyInter) -> None:
-        """Increase bass of song."""
+        """Toggle the bass-boost filter."""
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 
