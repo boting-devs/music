@@ -17,3 +17,9 @@ class AlreadyResumed(CheckFailure):
         title="Song is playing",
         description="Song is already playing in your voice-channel"
     )
+
+class NotInRange(CheckFailure):
+    embed = ErrorEmbed(
+        title="Not in Range",
+        description="Amount cannot be more than song's length"
+    )
