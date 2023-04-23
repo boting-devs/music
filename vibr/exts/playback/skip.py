@@ -11,7 +11,7 @@ from vibr.checks import is_connected
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
 
-from ._errors import AmountNotInt, IndexNotInQueue, QueueEmpty
+from ..playing._errors import AmountNotInt, IndexNotInQueue, QueueEmpty
 
 if TYPE_CHECKING:
     from mafic import Track

@@ -10,7 +10,7 @@ from nextcord.utils import utcnow
 from vibr.bot import Vibr
 from vibr.embed import Embed
 
-from ._errors import LyricsNotFound, SongNotProvided
+from .playing._errors import LyricsNotFound, SongNotProvided
 
 if TYPE_CHECKING:
     from vibr.player import Player
