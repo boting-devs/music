@@ -53,6 +53,9 @@ class Queue:
     def tracks(self) -> list[Track]:
         return [track for track, _ in self._stack]
 
+    def clear(self) -> None:
+        self._stack.clear()
+
     def __getitem__(self, index: int) -> Track:
         return self._stack[index][0]
 

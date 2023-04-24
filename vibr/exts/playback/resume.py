@@ -26,7 +26,7 @@ class Resume(CogBase[Vibr]):
 
         player: Player = inter.guild.voice_client  # pyright: ignore
 
-        if player._paused is True:
+        if player.paused is True:
             await player.resume()
             embed = Embed(
                 title="Resumed",

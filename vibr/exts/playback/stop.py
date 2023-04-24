@@ -23,7 +23,7 @@ class Stop(CogBase[Vibr]):
 
         player: Player = inter.guild.voice_client  # pyright: ignore
 
-        player.queue = []
+        player.queue.clear()
         await player.stop()
 
         embed = Embed(

@@ -28,6 +28,8 @@ class Forward(CogBase[Vibr]):
 
         player: Player = inter.guild.voice_client  # pyright: ignore
 
+        assert player.current is not None
+
         c = player.position
         time_left = player.current.length - c
         # s -> ms

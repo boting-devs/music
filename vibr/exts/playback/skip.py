@@ -66,8 +66,6 @@ class Skip(CogBase[Vibr]):
 
         player: Player = inter.guild.voice_client  # pyright: ignore
 
-        __import__("logging").info(amount)
-
         if not player.queue:
             return {}
 
