@@ -7,7 +7,7 @@ from nextcord import slash_command
 from nextcord.utils import utcnow
 
 from vibr.bot import Vibr
-from vibr.checks import is_connected_and_playing
+from vibr.checks import is_connected
 from vibr.embed import Embed
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 class Volume(CogBase[Vibr]):
     @slash_command(dm_permission=False)
-    @is_connected_and_playing
+    @is_connected
     async def volume(self, inter: MyInter, number: int) -> None:
         """Change Player's Volume
 

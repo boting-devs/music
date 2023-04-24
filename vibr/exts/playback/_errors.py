@@ -3,7 +3,9 @@ from vibr.errors import CheckFailure
 
 __all__ = (
     "AlreadyPaused",
-    "AlreadyResumed"
+    "AlreadyResumed",
+    "NotInRange",
+    "InvalidFormat"
 )
 
 class AlreadyPaused(CheckFailure):
@@ -22,4 +24,10 @@ class NotInRange(CheckFailure):
     embed = ErrorEmbed(
         title="Not in Range",
         description="Amount cannot be more than song's length"
+    )
+
+class InvalidFormat(CheckFailure):
+    embed = ErrorEmbed(
+        title="Invalid Format",
+        description="Please use HH:MM:SS or MM:SS format"
     )
