@@ -20,10 +20,11 @@ class Rewind(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
     async def rewind(self, inter: MyInter, seconds: int) -> None:
-        """Seeks rewind in the current song by an amount
+        """Rewind in the current song by an amount.
 
         seconds:
-            The amount to seek rewind by in seconds."""
+            The amount to rewind by in seconds.
+        """
 
         player: Player = inter.guild.voice_client  # pyright: ignore
 

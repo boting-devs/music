@@ -17,7 +17,7 @@ class Stop(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
     async def stop(self, inter: MyInter) -> None:
-        """Stop the player"""
+        """Stop the player."""
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 

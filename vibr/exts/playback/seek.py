@@ -21,7 +21,11 @@ class Seek(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
     async def seek(self, inter: MyInter, timestamp: str) -> None:
-        """Seek song to a particular timestamp"""
+        """Seek song to a particular timestamp.
+
+        timestamp:
+            The time to seek to, in SS, MM:SS or HH:MM:SS format.
+        """
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 

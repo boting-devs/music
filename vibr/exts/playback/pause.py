@@ -20,7 +20,7 @@ class Pause(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
     async def pause(self, inter: MyInter) -> None:
-        """Pause your beats"""
+        """Pause your beats."""
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 

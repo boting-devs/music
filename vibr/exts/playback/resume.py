@@ -20,7 +20,7 @@ class Resume(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
     async def resume(self, inter: MyInter) -> None:
-        """Resume your beats"""
+        """Resume your beats."""
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 

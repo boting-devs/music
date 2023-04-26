@@ -18,7 +18,7 @@ class Nightcore(CogBase[Vibr]):
     @slash_command(name="nightcore", dm_permission=False)
     @is_connected_and_playing
     async def nightcore(self, inter: MyInter) -> None:
-        """A funny filter. Just Try it out!"""
+        """A funny filter. Just try it out!"""
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 

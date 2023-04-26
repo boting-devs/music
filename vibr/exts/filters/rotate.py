@@ -25,7 +25,7 @@ class Rotate(CogBase[Vibr]):
 
         frequency:
             The frequency in Hz (times/second) to pan audio.
-            The best values are below 1, >5 is trippy."
+            The best values are below 1, >5 is trippy.
         """
 
         passed_custom = frequency is not None

@@ -20,7 +20,7 @@ class Forward(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
     async def forward(self, inter: MyInter, seconds: int) -> None:
-        """Seeks forward in the current song by an amount
+        """Seek forward in the current song by an amount.
 
         seconds:
             The amount to seek forward by in seconds.
