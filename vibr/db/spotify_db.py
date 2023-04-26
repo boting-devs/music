@@ -15,5 +15,5 @@ class Spotifydb(Model):
         tablename = "users"
 
     id:int = Integer(primary_key = True)
-    spotify:str = String()
+    spotify:str = String(max_length=50)
     
