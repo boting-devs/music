@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from botbase import CogBase, MyInter
 from nextcord import slash_command
+from nextcord.abc import Snowflake
 from nextcord.utils import utcnow
+from ormar import NoMatch
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected
+from vibr.db.player import PlayerConfig
 from vibr.embed import Embed
 
 if TYPE_CHECKING:
@@ -18,10 +21,10 @@ class Volume(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected
     async def volume(self, inter: MyInter, number: int) -> None:
-        """Change Player's Volume
+        """Change volume of the current player.
 
         number:
-        The volume to set, between 1 and 500, measured in % of normal.
+            The volume to set, between 1 and 500, measured in % of normal.
         """
 
         assert inter.guild is not None and inter.guild.voice_client is not None
@@ -36,9 +39,16 @@ class Volume(CogBase[Vibr]):
         )
         await inter.send(embed=embed)
 
+        channel_id = cast(Snowflake, player.channel).id
+        try:
+            model = await PlayerConfig.objects.get(channel_id=channel_id)
+        except NoMatch:
+            await PlayerConfig.objects.create(channel_id=channel_id, volume=number)
+        else:
+            await model.update(volume=number)
+
 
 # volume cap left
-# volume save per vc also left(need to connect to db)
 
 
 def setup(bot: Vibr) -> None:

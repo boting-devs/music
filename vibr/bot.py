@@ -14,8 +14,10 @@ from nextcord import (
     MemberCacheFlags,
     SlashApplicationCommand,
 )
+from ormar import NoMatch
 
 from vibr.constants import COLOURS, GUILD_IDS
+from vibr.db.player import PlayerConfig
 from vibr.embed import ErrorEmbed
 from vibr.sharding import TOTAL_SHARDS, shard_ids
 
@@ -23,6 +25,8 @@ if TYPE_CHECKING:
     from typing import TypedDict
 
     from typing_extensions import NotRequired
+
+    from .player import Player
 
     class LavalinkInfo(TypedDict):
         host: str
@@ -147,3 +151,11 @@ class Vibr(BotBase):
         assert isinstance(command, SlashApplicationCommand)
 
         return command.get_mention(guild=None) if command else f"/{name}"
+
+    async def set_player_settings(self, player: Player, channel_id: int) -> None:
+        try:
+            config = await PlayerConfig.objects.get(channel_id=channel_id)
+        except NoMatch:
+            return
+
+        await player.set_volume(config.volume)
