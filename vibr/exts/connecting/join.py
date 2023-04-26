@@ -31,7 +31,9 @@ class Join(CogBase[Vibr]):
         if not await can_connect(channel, inter=inter):
             return
 
-        await channel.connect(cls=Player)
+        player = await channel.connect(cls=Player)
+
+        await self.bot.set_player_settings(player, channel.id)
 
         embed = Embed(
             title="Connected!", description=f"Connected to {channel.mention}."

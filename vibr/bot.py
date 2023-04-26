@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from asyncio import gather
+from asyncio import gather, sleep
 from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -40,6 +40,7 @@ __all__ = ("Vibr",)
 
 
 REGION_CLS = [Group, Region, VoiceRegion]
+DEFAULT_VOLUME = 100
 
 
 class Vibr(BotBase):
@@ -157,5 +158,15 @@ class Vibr(BotBase):
             config = await PlayerConfig.objects.get(channel_id=channel_id)
         except NoMatch:
             return
+
+        if config.volume == DEFAULT_VOLUME:
+            return
+
+        # TODO: Add actual public interface to mafic.
+        for _ in range(3):
+            if player.connected and player._node is not None:
+                break
+
+            await sleep(1)
 
         await player.set_volume(config.volume)

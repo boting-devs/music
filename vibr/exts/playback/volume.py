@@ -34,7 +34,6 @@ class Volume(CogBase[Vibr]):
         await player.set_volume(number)
         embed = Embed(
             title=f"Volume set to {number}",
-            description=inter.user.mention,
             timestamp=utcnow(),
         )
         await inter.send(embed=embed)
