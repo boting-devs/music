@@ -30,7 +30,6 @@ class Pause(CogBase[Vibr]):
             await player.pause(pause=True)
             embed = Embed(
                 title="Paused",
-                description=f"{inter.user.mention} paused.",
                 timestamp=utcnow(),
             )
             await inter.send(embed=embed)

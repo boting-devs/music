@@ -27,7 +27,7 @@ class Stop(CogBase[Vibr]):
         await player.stop()
 
         embed = Embed(
-            title="Stopped", description=f"{inter.user.mention} stopped the player"
+            title="Stopped",
         )
         await inter.send(embed=embed)
 

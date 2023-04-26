@@ -30,7 +30,6 @@ class Resume(CogBase[Vibr]):
             await player.resume()
             embed = Embed(
                 title="Resumed",
-                description=f"{inter.user.mention} resumed.",
                 timestamp=utcnow(),
             )
             await inter.send(embed=embed)
