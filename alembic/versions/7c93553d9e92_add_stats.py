@@ -5,6 +5,7 @@ Revises: fe54c46cdb5b
 Create Date: 2023-02-16 23:11:15.396212
 
 """
+# pyright: reportPrivateImportUsage=false
 import sqlalchemy as sa
 
 from alembic import op
