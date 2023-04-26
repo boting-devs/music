@@ -30,8 +30,8 @@ class Queue(CogBase[Vibr]):
                     await channel.send(embed=embed)
 
             if player.loop_queue_check:
-                h = (player.loop_queue, player.looped_user)
-                player.queue.extend(h)
+                user = player.looped_user
+                player.queue += [(t, user) for t in player.loop_queue]
                 log.info("player %s", player.loop_queue)
 
             log.info("Queue : %s", player.queue)
@@ -49,7 +49,7 @@ class Queue(CogBase[Vibr]):
     async def on_track_start(self, event: TrackStartEvent[Player]) -> None:
         player = event.player
 
-        if player.loop_queue_check:
+        if player.loop_queue_check and player.current is not None:
             player.loop_queue = [player.current]
 
 

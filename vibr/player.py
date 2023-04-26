@@ -29,6 +29,9 @@ class Queue:
 
         self._stack.extend(items)
 
+    def add(self, track: Track, user: int) -> None:
+        self._stack.append((track, user))
+
     def __iadd__(self, other: Sequence[tuple[Track, int]]) -> Queue:
         self.extend(other)
         return self
