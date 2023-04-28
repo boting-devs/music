@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from mafic import Playlist, SearchType
 from nextcord import ApplicationCommandType, SlashOption, slash_command
 from nextcord.utils import get
 
 from vibr.bot import Vibr
+from vibr.inter import Inter
 from vibr.track_embed import track_embed
 
 from ._errors import NoTracksFound
-
-if TYPE_CHECKING:
-    from vibr.player import Player
 
 
 class Play(CogBase[Vibr]):
@@ -32,7 +28,7 @@ class Play(CogBase[Vibr]):
 
     @slash_command(dm_permission=False)
     async def play(
-        self, inter: MyInter, query: str, search_type: str = SEARCH_TYPE
+        self, inter: Inter, query: str, search_type: str = SEARCH_TYPE
     ) -> None:
         """Play a link, query or past song.
 
@@ -41,8 +37,6 @@ class Play(CogBase[Vibr]):
         search_type:
             The platform to search if this is a query.
         """
-
-        assert inter.guild is not None
 
         if not inter.guild.voice_client:
             commands = self.bot.get_all_application_commands()
@@ -54,7 +48,7 @@ class Play(CogBase[Vibr]):
 
         await inter.response.defer()
 
-        player: Player = inter.guild.voice_client  # pyright: ignore
+        player = inter.guild.voice_client
         player.notification_channel = inter.channel  # pyright: ignore
 
         result = await player.fetch_tracks(

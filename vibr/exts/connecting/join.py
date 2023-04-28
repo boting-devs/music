@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from nextcord import StageChannel, VoiceChannel, slash_command
 
 from vibr.bot import Vibr
 from vibr.embed import Embed
+from vibr.inter import Inter
 from vibr.player import Player
 
 from ._checks import already_connected, can_connect
@@ -15,7 +16,7 @@ class Join(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @already_connected
     async def join(
-        self, inter: MyInter, channel: VoiceChannel | StageChannel | None = None
+        self, inter: Inter, channel: VoiceChannel | StageChannel | None = None
     ) -> None:
         """Connect to your voice channel.
 

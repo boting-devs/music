@@ -2,34 +2,29 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from time import gmtime, strftime
-from typing import TYPE_CHECKING
 
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from nextcord import slash_command
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
 from vibr.embed import Embed
+from vibr.inter import Inter
 
 from ._errors import InvalidFormat, NotInRange
-
-if TYPE_CHECKING:
-    from vibr.player import Player
 
 
 class Seek(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
-    async def seek(self, inter: MyInter, timestamp: str) -> None:
+    async def seek(self, inter: Inter, timestamp: str) -> None:
         """Seek song to a particular timestamp.
 
         timestamp:
             The time to seek to, in SS, MM:SS or HH:MM:SS format.
         """
 
-        assert inter.guild is not None and inter.guild.voice_client is not None
-
-        player: Player = inter.guild.voice_client  # pyright: ignore
+        player = inter.guild.voice_client
 
         assert player.current is not None
 

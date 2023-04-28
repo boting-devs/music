@@ -1,32 +1,29 @@
 from __future__ import annotations
 
 from time import gmtime, strftime
-from typing import TYPE_CHECKING
 
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from nextcord import slash_command
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
 from vibr.embed import Embed
+from vibr.inter import Inter
 
 from ._errors import NotInRange
-
-if TYPE_CHECKING:
-    from vibr.player import Player
 
 
 class Rewind(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
-    async def rewind(self, inter: MyInter, seconds: int) -> None:
+    async def rewind(self, inter: Inter, seconds: int) -> None:
         """Rewind in the current song by an amount.
 
         seconds:
             The amount to rewind by in seconds.
         """
 
-        player: Player = inter.guild.voice_client  # pyright: ignore
+        player = inter.guild.voice_client
 
         assert player.current is not None
 

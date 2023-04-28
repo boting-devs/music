@@ -3,13 +3,14 @@ from __future__ import annotations
 from asyncio import sleep
 from os import getenv
 
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from nextcord import slash_command
 from nextcord.ext.tasks import loop
 from nextcord.utils import utcnow
 
 from vibr.bot import Vibr
 from vibr.embed import Embed
+from vibr.inter import Inter
 
 
 class Misc(CogBase[Vibr]):
@@ -43,13 +44,13 @@ class Misc(CogBase[Vibr]):
         await sleep(20)
 
     @slash_command(dm_permission=False)
-    async def ping(self, inter: MyInter) -> None:
+    async def ping(self, inter: Inter) -> None:
         """Pong!"""
 
         await inter.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")
 
     @slash_command()
-    async def invite(self, inter: MyInter) -> None:
+    async def invite(self, inter: Inter) -> None:
         """Invite me!"""
 
         servers = self.bot.guilds
@@ -66,7 +67,7 @@ class Misc(CogBase[Vibr]):
         await inter.send(embed=embed)
 
     @slash_command()
-    async def support(self, inter: MyInter) -> None:
+    async def support(self, inter: Inter) -> None:
         """My support server's link."""
 
         embed = Embed(title="**Support Link**")
@@ -78,7 +79,7 @@ class Misc(CogBase[Vibr]):
         await inter.send(embed=embed)
 
     @slash_command()
-    async def vote(self, inter: MyInter) -> None:
+    async def vote(self, inter: Inter) -> None:
         """Vote for me!"""
 
         embed = Embed(title="**Vote for Vibr**", timestamp=utcnow())
@@ -92,7 +93,7 @@ class Misc(CogBase[Vibr]):
         await inter.send(embed=embed)
 
     @slash_command()
-    async def donate(self, inter: MyInter) -> None:
+    async def donate(self, inter: Inter) -> None:
         """Donate to vibr"""
         embed = Embed(title="**Support Me :)**")
         embed.add_field(

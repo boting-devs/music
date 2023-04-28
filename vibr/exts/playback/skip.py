@@ -3,7 +3,7 @@ from __future__ import annotations
 from difflib import get_close_matches
 from typing import TYPE_CHECKING
 
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from nextcord import slash_command
 
 from vibr.bot import Vibr
@@ -16,7 +16,7 @@ from ..playing._errors import AmountNotInt, IndexNotInQueue, QueueEmpty
 if TYPE_CHECKING:
     from mafic import Track
 
-    from vibr.player import Player
+    from vibr.inter import Inter
 
 
 AUTOCOMPLETE_MAX = 25
@@ -29,7 +29,7 @@ def get_str(track: Track) -> str:
 class Skip(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected
-    async def skip(self, inter: MyInter, amount: str | None = None) -> None:
+    async def skip(self, inter: Inter, amount: str | None = None) -> None:
         """Skip the currently playing song, and optionally extra songs.
 
         amount:
@@ -37,9 +37,7 @@ class Skip(CogBase[Vibr]):
             Leave blank to only skip the current song.
         """
 
-        assert inter.guild is not None and inter.guild.voice_client is not None
-
-        player: Player = inter.guild.voice_client  # pyright: ignore
+        player = inter.guild.voice_client
 
         if amount:
             if not amount.isdigit():
@@ -61,10 +59,8 @@ class Skip(CogBase[Vibr]):
         await inter.response.send_message(embed=embed)
 
     @skip.on_autocomplete("amount")
-    async def skip_autocomplete(self, inter: MyInter, amount: str) -> dict[str, str]:
-        assert inter.guild is not None and inter.guild.voice_client is not None
-
-        player: Player = inter.guild.voice_client  # pyright: ignore
+    async def skip_autocomplete(self, inter: Inter, amount: str) -> dict[str, str]:
+        player = inter.guild.voice_client
 
         if not player.queue:
             return {}

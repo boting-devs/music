@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from nextcord import slash_command
 from nextcord.abc import Snowflake
 from nextcord.utils import utcnow
@@ -12,24 +12,20 @@ from vibr.bot import Vibr
 from vibr.checks import is_connected
 from vibr.db.player import PlayerConfig
 from vibr.embed import Embed
-
-if TYPE_CHECKING:
-    from vibr.player import Player
+from vibr.inter import Inter
 
 
 class Volume(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected
-    async def volume(self, inter: MyInter, number: int) -> None:
+    async def volume(self, inter: Inter, number: int) -> None:
         """Change volume of the current player.
 
         number:
             The volume to set, between 1 and 500, measured in % of normal.
         """
 
-        assert inter.guild is not None and inter.guild.voice_client is not None
-
-        player: Player = inter.guild.voice_client  # pyright: ignore
+        player = inter.guild.voice_client
 
         await player.set_volume(number)
         embed = Embed(

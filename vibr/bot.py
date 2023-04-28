@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
-from botbase import BotBase, MyInter
+from botbase import BotBase
 from mafic import Group, NodePool, Region, VoiceRegion
 from nextcord import (
     ApplicationCommandType,
@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import NotRequired
 
+    from .inter import Inter
     from .player import Player
 
     class LavalinkInfo(TypedDict):
@@ -107,7 +108,7 @@ class Vibr(BotBase):
     async def start(self, token: str, *, reconnect: bool = True) -> None:
         await gather(self.add_nodes(), super().start(token, reconnect=reconnect))
 
-    async def process_application_commands(self, inter: MyInter) -> None:
+    async def process_application_commands(self, inter: Inter) -> None:
         permissions = inter.app_permissions
 
         if not permissions.view_channel:

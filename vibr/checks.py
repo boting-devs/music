@@ -8,17 +8,12 @@ from nextcord.ext.application_checks import check
 from vibr.errors import NotConnected, NotInSameVoice, NotPlaying
 
 if TYPE_CHECKING:
-    from botbase import MyInter
+    from vibr.inter import Inter
 
-    from vibr.player import Player
-
-
-__all__ = ("is_connected","is_connected_and_playing")
+__all__ = ("is_connected", "is_connected_and_playing")
 
 
-async def is_connected_predicate(inter: MyInter) -> bool:
-    assert inter.guild is not None
-
+async def is_connected_predicate(inter: Inter) -> bool:
     if not inter.guild.voice_client:
         raise NotConnected(inter.client)
 
@@ -31,9 +26,8 @@ async def is_connected_predicate(inter: MyInter) -> bool:
     return True
 
 
-async def is_connected_and_playing_predicate(inter:MyInter) -> bool:
-    assert inter.guild is not None
-    player: Player = inter.guild.voice_client  # pyright: ignore
+async def is_connected_and_playing_predicate(inter: Inter) -> bool:
+    player = inter.guild.voice_client
 
     if not inter.guild.voice_client:
         raise NotConnected(inter.client)
@@ -45,11 +39,10 @@ async def is_connected_and_playing_predicate(inter:MyInter) -> bool:
         raise NotInSameVoice(channel)
 
     if player.current is None:
-        raise NotPlaying
-
+        raise NotPlaying(inter.client)
 
     return True
 
 
 is_connected = check(is_connected_predicate)  # pyright: ignore
-is_connected_and_playing = check(is_connected_and_playing_predicate) #pyright: ignore
+is_connected_and_playing = check(is_connected_and_playing_predicate)  # pyright: ignore

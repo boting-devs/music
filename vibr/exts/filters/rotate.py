@@ -1,24 +1,20 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from mafic import Filter, Rotation
 from nextcord import Range, slash_command
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
 from vibr.embed import Embed
-
-if TYPE_CHECKING:
-    from vibr.player import Player
+from vibr.inter import Inter
 
 
 class Rotate(CogBase[Vibr]):
     @slash_command(name="rotate", dm_permission=False)
     @is_connected_and_playing
     async def rotate(
-        self, inter: MyInter, frequency: Range[0.1, 10] | None  # pyright: ignore
+        self, inter: Inter, frequency: Range[0.1, 10] | None  # pyright: ignore
     ) -> None:
         """A cool filter to pan audio around your head,
         best with headphones or other stereo audio systems!
@@ -32,9 +28,7 @@ class Rotate(CogBase[Vibr]):
 
         frequency = frequency or 0.2  # pyright: ignore
 
-        assert inter.guild is not None and inter.guild.voice_client is not None
-
-        player: Player = inter.guild.voice_client  # pyright: ignore
+        player = inter.guild.voice_client
 
         if await player.has_filter("rotate") and passed_custom:
             await player.remove_filter("rotate")

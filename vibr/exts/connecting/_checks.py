@@ -1,19 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 from nextcord import Member, StageChannel, VoiceChannel
 from nextcord.ext.application_checks import check
 
 from vibr.embed import ErrorEmbed
+from vibr.inter import Inter
 
 from ._errors import AlreadyConnected
 
-if TYPE_CHECKING:
-    from botbase import MyInter
 
-
-def already_connected_predicate(inter: MyInter) -> bool:
+def already_connected_predicate(inter: Inter) -> bool:
     if inter.guild and inter.guild.voice_client:
         raise AlreadyConnected(
             cast(StageChannel | VoiceChannel, inter.guild.voice_client.channel)
@@ -25,7 +23,7 @@ def already_connected_predicate(inter: MyInter) -> bool:
 already_connected = check(already_connected_predicate)  # pyright: ignore
 
 
-async def can_connect(channel: VoiceChannel | StageChannel, *, inter: MyInter) -> bool:
+async def can_connect(channel: VoiceChannel | StageChannel, *, inter: Inter) -> bool:
     assert isinstance(inter.me, Member)
 
     if not channel.permissions_for(inter.me).connect:

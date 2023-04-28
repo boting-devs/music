@@ -10,6 +10,8 @@ from nextcord.utils import utcnow
 from vibr.bot import Vibr
 from vibr.db import HourlyStats, NodeStats
 
+HOURS_IN_DAY = 24
+
 
 class StatsCollection(CogBase[Vibr]):
     def __init__(self, bot: Vibr) -> None:
@@ -116,7 +118,7 @@ class StatsCollection(CogBase[Vibr]):
         # Round up to the next hour from now, then wait for that many seconds.
 
         hour = now.hour + 1
-        if hour == 24:
+        if hour == HOURS_IN_DAY:
             hour = 0
 
         time = now.replace(second=0, microsecond=0, minute=0, hour=hour)

@@ -3,11 +3,12 @@ from __future__ import annotations
 from logging import getLogger
 from traceback import format_exception
 
-from botbase import CogBase, MyInter
+from botbase import CogBase
 from nextcord import ApplicationInvokeError
 
 from vibr.bot import Vibr
 from vibr.errors import CheckFailure
+from vibr.inter import Inter
 
 log = getLogger(__name__)
 
@@ -22,9 +23,7 @@ FORMAT = """command {command} gave
 
 class ErrorHandler(CogBase[Vibr]):
     @CogBase.listener()
-    async def on_application_command_error(
-        self, inter: MyInter, exc: Exception
-    ) -> None:
+    async def on_application_command_error(self, inter: Inter, exc: Exception) -> None:
         if isinstance(exc, ApplicationInvokeError):
             exc = exc.original
 

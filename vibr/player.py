@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from collections import deque
 from typing import TYPE_CHECKING
 
@@ -61,6 +62,9 @@ class Queue:
 
     def __getitem__(self, index: int) -> Track:
         return self._stack[index][0]
+
+    def shuffle(self) -> None:
+        random.shuffle(self._stack)
 
 
 class Player(MaficPlayer):

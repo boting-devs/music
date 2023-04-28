@@ -4,7 +4,7 @@ from nextcord import ApplicationCheckFailure, StageChannel, VoiceChannel
 
 from vibr.bot import ErrorEmbed, Vibr
 
-__all__ = ("CheckFailure", "NotInSameVoice", "NotConnected","NotPlaying")
+__all__ = ("CheckFailure", "NotInSameVoice", "NotConnected", "NotPlaying")
 
 
 class CheckFailure(ApplicationCheckFailure, ABC):
@@ -28,9 +28,10 @@ class NotConnected(CheckFailure):
             f"Run {bot.get_command_mention('join')} to connect me!",
         )
 
+
 class NotPlaying(CheckFailure):
-    def __init__(self) -> None:
+    def __init__(self, bot: Vibr) -> None:
         self.embed = ErrorEmbed(
             title="No song Playing",
-            description="Play the song to use the command"
+            description=f"{bot.get_command_mention('play')} a song to use the command",
         )

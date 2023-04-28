@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from botbase import CogBase, CommandLog, MyInter
+from botbase import CogBase, CommandLog
 from nextcord import Embed, slash_command
 from nextcord.ext.application_checks import is_owner
 
 from vibr.bot import GUILD_IDS, Vibr
+from vibr.inter import Inter
 
 from ._view import StatsView
 
@@ -32,7 +33,7 @@ Memory %: `{memory_percentage:.0f}%`
 class PrivateStats(CogBase[Vibr]):
     @slash_command(name="node-stats", default_member_permissions=8, guild_ids=GUILD_IDS)
     @is_owner()
-    async def node_stats(self, inter: MyInter) -> None:
+    async def node_stats(self, inter: Inter) -> None:
         """Get stats about all nodes."""
 
         embed = Embed(colour=self.bot.colour)
@@ -84,7 +85,7 @@ class PrivateStats(CogBase[Vibr]):
         name="stats-graph", default_member_permissions=8, guild_ids=GUILD_IDS
     )
     @is_owner()
-    async def stats_graph(self, inter: MyInter) -> None:
+    async def stats_graph(self, inter: Inter) -> None:
         """Get a fancy graph of stats."""
 
         v = StatsView(self.bot)

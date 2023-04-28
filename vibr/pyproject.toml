@@ -18,6 +18,7 @@ taskipy = "^1.10.3"
 matplotlib = "^3.7.0"
 pyyaml = "^6.0"
 docker-py = "^1.10.6"
+nextcord-ext-menus = "^1.5.6"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
