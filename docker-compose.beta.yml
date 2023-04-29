@@ -1,9 +1,22 @@
 version: "3"
 
 services:
+  bot:
+    environment:
+      LAVALINK_FILE: lavalink/beta.nodes.yml
   gateway-proxy:
     volumes:
       - ./gateway-proxy/config.json:/config.json
   postgres:
     volumes:
       - vibr-beta-db:/var/lib/postgresql/data
+  lavalink:
+    network_mode: host
+    environment:
+      SERVER_PORT: 6783
+      LAVALINK_SERVER_RATELIMIT_IP_BLOCKS_0: ${IP_BLOCK:?No IPv6 block provided}
+      LAVALINK_SERVER_STRATEGY: LoadBalance
+      LAVALINK_SERVER_SEARCH_TRIGGERS_FAIL: true
+
+volumes:
+  vibr-beta-db:

@@ -96,7 +96,7 @@ class Vibr(BotBase):
             passwd = node["password"]
 
             await self.pool.create_node(
-                host=node["host"],
+                host=node["host"].replace("host", environ["HOST_IP"]),
                 port=node["port"],
                 password=environ[
                     passwd.removeprefix("$") if passwd.startswith("$") else passwd

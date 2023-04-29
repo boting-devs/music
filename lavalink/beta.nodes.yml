@@ -1,0 +1,4 @@
+- host: host
+  port: 6783
+  label: LOCAL
+  password: $PASSWORD
