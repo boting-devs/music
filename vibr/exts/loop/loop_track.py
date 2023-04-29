@@ -11,8 +11,6 @@ from vibr.inter import Inter
 
 
 class Looptrack(CogBase[Vibr]):
-    @slash_command(dm_permission=False)
-    @is_connected_and_playing
     async def looptrack(self, inter: Inter) -> None:
         """Loop the current track again, and again, and again."""
 
