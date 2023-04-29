@@ -14,6 +14,7 @@ services:
     volumes:
       - ./logs:/bot/logs
       - /var/run/docker.sock:/var/run/docker.sock
+    pull_policy: build
     environment:
       TOKEN: $TOKEN
       TOTAL_CLUSTERS: ${TOTAL_CLUSTERS:-1}
@@ -44,6 +45,7 @@ services:
       - ./logs:/manager/logs
     depends_on:
       - keydb
+    pull_policy: build
     environment:
       REDIS_URL: redis://keydb:6379
   lavalink:
