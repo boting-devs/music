@@ -7,3 +7,6 @@ services:
   gateway-proxy:
     volumes:
       - ./gateway-proxy/shard-test.config.json:/config.json
+  postgres:
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data

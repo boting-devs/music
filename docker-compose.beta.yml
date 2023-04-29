@@ -6,4 +6,4 @@ services:
       - ./gateway-proxy/config.json:/config.json
   postgres:
     volumes:
-      - ./pg_data:/var/lib/postgresql/data
+      - vibr-beta-db:/var/lib/postgresql/data
