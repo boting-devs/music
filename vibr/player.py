@@ -66,6 +66,9 @@ class Queue:
     def shuffle(self) -> None:
         random.shuffle(self._stack)
 
+    def pop(self,index:int) -> None:
+        del self._stack[index]
+
 
 class Player(MaficPlayer):
     def __init__(
