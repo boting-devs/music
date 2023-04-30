@@ -36,6 +36,9 @@ class Lyrics(CogBase[Vibr]):
         else:
             q = query
 
+        a = await inter.send("`Searching....`")
+
+
         url_search = f"https://api.flowery.pw/v1/lyrics/search?query={q}"
 
         async with self.bot.session.get(url_search) as resp:
@@ -51,7 +54,6 @@ class Lyrics(CogBase[Vibr]):
         async with self.bot.session.get(url_lyrics) as res:
             lyrics = await res.json()
 
-        a = await inter.send("`Searching....`")
 
         try:
             lyrics_text = lyrics["lyrics"]["text"]
