@@ -51,6 +51,8 @@ class Lyrics(CogBase[Vibr]):
         async with self.bot.session.get(url_lyrics) as res:
             lyrics = await res.json()
 
+        a = await inter.send("`Searching....`")
+
         try:
             lyrics_text = lyrics["lyrics"]["text"]
             title = lyrics["track"]["title"]
@@ -62,7 +64,7 @@ class Lyrics(CogBase[Vibr]):
         embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
-        await inter.send(embed=embed)
+        await a.edit(embed=embed)
 
 
 def setup(bot: Vibr) -> None:
