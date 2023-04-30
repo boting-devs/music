@@ -8,7 +8,7 @@ from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
 from vibr.embed import Embed
 from vibr.inter import Inter
-from ._error import InvalidSpeed
+from ._error import InvalidSpeed , SpeedNotActive
 
 class Speed(CogBase[Vibr]):
     @slash_command(name="speed",dm_permission=False)
@@ -19,6 +19,9 @@ class Speed(CogBase[Vibr]):
             Accepted Range : 0 - 2. Use 1 for normal speed or leave it blank."""
 
         player = inter.guild.voice_client
+
+        if speed is None and not await player.has_filter("speed"):
+            raise SpeedNotActive
 
         if speed is not None:
             if speed >2 or speed< 0:

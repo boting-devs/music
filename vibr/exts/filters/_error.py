@@ -2,7 +2,8 @@ from vibr.embed import ErrorEmbed
 from vibr.errors import CheckFailure
 
 __all__ = ("NoFilterActive",
-           "InvalidSpeed",)
+           "InvalidSpeed",
+           "SpeedNotActive",)
 
 
 class NoFilterActive(CheckFailure):
@@ -15,4 +16,10 @@ class InvalidSpeed(CheckFailure):
     embed=ErrorEmbed(
         title="Invalid Speed",
         description="Please use the speed betweeen 0 and 2"
+    )
+
+class SpeedNotActive(CheckFailure):
+    embed = ErrorEmbed(
+        title="Speed Not Active",
+        description="Please input the speed as specified in the query box"
     )
