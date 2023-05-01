@@ -24,7 +24,7 @@ class Speed(CogBase[Vibr]):
             raise SpeedNotActive
 
         if speed is not None:
-            if speed >2 or speed< 0:
+            if speed >2 or speed<=0:
                 raise InvalidSpeed
         
         if await player.has_filter("speed") and speed is not None and speed!=1:
