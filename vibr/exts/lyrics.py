@@ -47,7 +47,8 @@ class Lyrics(CogBase[Vibr]):
             isrc = result["tracks"][0]["external"]["isrc"]
             spotify_id = result["tracks"][0]["external"]["spotify_id"]
         except KeyError:
-            raise LyricsNotFound from None
+            await a.delete()
+            raise LyricsNotFound
 
         url_lyrics = f"https://api.flowery.pw/v1/lyrics?isrc={isrc}&spotify_id={spotify_id}&query={q}"
 
@@ -61,7 +62,8 @@ class Lyrics(CogBase[Vibr]):
             artist = lyrics["track"]["artist"]
             thumbnail = lyrics["track"]["media"]["artwork"]
         except KeyError:
-            raise LyricsNotFound from None
+            await a.delete()
+            raise LyricsNotFound
 
         embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
         embed.set_author(name=artist)
