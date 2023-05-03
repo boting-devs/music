@@ -82,31 +82,27 @@ async def track_embed(
     user: int,
     skipped: int | None = None,
     queued: bool = False,
-    loop: bool =False,
+    loop: bool = False,
 ) -> Embed:
     if isinstance(item, Playlist):
         title = item.name
         authors = get_authors(item.tracks)
         length = sum(track.length for track in item.tracks)
-        track_time=strftime("%H:%M:%S", gmtime(length / 1000))
+        track_time = strftime("%H:%M:%S", gmtime(length / 1000))
         url = None
-        thumbnail = "http://clipground.com/images/tone-duration-clipart-16.jpg"
+        thumbnail = item.plugin_info.get(
+            "artworkUrl", "http://clipground.com/images/tone-duration-clipart-16.jpg"
+        )
     else:
         title = item.title
         authors = item.author
         length = item.length
-        track_time=strftime("%H:%M:%S", gmtime(length / 1000))
+        track_time = strftime("%H:%M:%S", gmtime(length / 1000))
         url = await get_url(item, bot=bot)
-
-        source = item.source
-
-        # Wait for lavalink v4 for missing sources tbh.
-        # Soundcloud, Spotify, Deezer and a few others just take one API req
-        # to get the thumbnail, but Lavalink does that already.
-        if source == "youtube":
-            thumbnail = f"https://img.youtube.com/vi/{item.identifier}/mqdefault.jpg"
-        else:
-            thumbnail = "http://clipground.com/images/tone-duration-clipart-16.jpg"
+        thumbnail = (
+            item.artwork_url
+            or "http://clipground.com/images/tone-duration-clipart-16.jpg"
+        )
     if skipped:
         embed = Embed(title=title)
         embed.add_field(name="Requested By", value=f"<@{user}>")

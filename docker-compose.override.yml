@@ -49,7 +49,7 @@ services:
     environment:
       REDIS_URL: redis://keydb:6379
   lavalink:
-    image: ghcr.io/freyacodes/lavalink:3.7.5
+    image: ghcr.io/freyacodes/lavalink:v4
     volumes:
       - ./logs/lava:/opt/Lavalink/logs
     environment:
@@ -60,7 +60,7 @@ services:
       LAVALINK_SERVER_FRAMEBUFFERDURATION: 5000
       LAVALINK_SERVER_RESAMPLINGQUALITY: LOW
       LAVALINK_SERVER_YOUTUBEPLAYLISTLOADLIMIT: 5
-      LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.TopiSenpai.LavaSrc:lavasrc-plugin:3.2.0"
+      LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.TopiSenpai.LavaSrc:lavasrc-plugin:85b39d130692e0fb96c61f5ed518ad3c1e4eecd6"
       LAVALINK_PLUGINS_0_REPOSITORY: "https://jitpack.io"
       PLUGINS_LAVASRC_PROVIDERS_0: "dzisrc:%ISRC%"
       PLUGINS_LAVASRC_PROVIDERS_1: "dzsearch:%QUERY%"
