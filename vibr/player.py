@@ -69,6 +69,9 @@ class Queue:
     def pop(self,index:int) -> None:
         del self._stack[index]
 
+    def insert(self,index:int,track:Track,user:int)-> None:
+        self._stack.insert(index,(track,user))
+
 
 class Player(MaficPlayer):
     def __init__(

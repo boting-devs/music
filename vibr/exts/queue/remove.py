@@ -19,7 +19,6 @@ from vibr.utils import truncate
 
 from ..playing._errors import QueueEmpty
 
-from ._errors import NotInRange
 
 if TYPE_CHECKING:
     from vibr.player import Player
@@ -34,7 +33,7 @@ def get_str(track: Track) -> str:
 class Remove(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
-    async def remove(self,inter:MyInter,position:str | None=None) -> None:
+    async def remove(self,inter:MyInter,position:str) -> None:
         """Remove a selected song from the queue.
 
         position:
@@ -48,8 +47,6 @@ class Remove(CogBase[Vibr]):
         if not player.queue:
             raise QueueEmpty
         
-        q = deque(player.queue)
-
         position_index = int(position)
         
         try:
