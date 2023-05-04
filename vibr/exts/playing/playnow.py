@@ -15,6 +15,7 @@ from ._errors import NoTracksFound
 
 
 class Playnow(CogBase[Vibr]):
+    @slash_command(dm_permission=False)
     async def playnow(self,inter:Inter,song:str) ->None:
         """Play the song immediately.
         song:The song to search, can be a link, a query, or a playlist.
