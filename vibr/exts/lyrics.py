@@ -32,7 +32,10 @@ class Lyrics(CogBase[Vibr]):
                 raise SongNotProvided
 
             assert player.current.title is not None
-            q = player.current.title,player.current.author
+            if "-" in player.current.title:
+                q = player.current.title,player
+            else:
+                q = player.current.title,player.current.author
         else:
             q = query
 
