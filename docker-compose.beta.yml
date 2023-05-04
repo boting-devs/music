@@ -7,6 +7,8 @@ services:
   gateway-proxy:
     volumes:
       - ./gateway-proxy/config.json:/config.json
+    ports:
+      - 127.0.0.1:6784:7878
   postgres:
     volumes:
       - vibr-beta-db:/var/lib/postgresql/data
