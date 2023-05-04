@@ -33,7 +33,7 @@ class Lyrics(CogBase[Vibr]):
 
             assert player.current.title is not None
             if "-" in player.current.title:
-                q = player.current.title,player
+                q = player.current.title
             else:
                 q = player.current.title,player.current.author
         else:
