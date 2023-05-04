@@ -66,7 +66,7 @@ class PlayNext(CogBase[Vibr]):
                 for i in tracks[::-1]:
                     player.queue.insert(0,i,inter.user.id)
                 embed = await track_embed(
-                    item, bot=self.bot, user=inter.user.id, queued=True
+                    item, bot=self.bot, user=inter.user.id, playnext=True
                 )
                 await inter.send(embed=embed)
 
