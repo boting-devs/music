@@ -49,7 +49,7 @@ services:
     environment:
       REDIS_URL: redis://keydb:6379
   lavalink:
-    image: ghcr.io/freyacodes/lavalink:v4
+    image: ghcr.io/drschlaubi/lavalink:feature-kotlinx-serialization
     volumes:
       - ./logs/lava:/opt/Lavalink/logs
     environment:
