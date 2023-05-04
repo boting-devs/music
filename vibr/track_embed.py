@@ -116,9 +116,9 @@ async def track_embed(
     if loop:
         embed.set_footer(text=f"Looping | Length: {track_time}")
     elif playnext:
-        embed.set_footer(text="Playing Up Next | Length: {track_time}")
+        embed.set_footer(text=f"Playing Up Next | Length: {track_time}")
     elif playnow:
-        embed.set_footer(text="Playing Now | Length: {track_time}")
+        embed.set_footer(text=f"Playing Now | Length: {track_time}")
     else:
         embed.set_footer(text="Queued | " * queued + f"Length: {track_time}")
     embed.set_thumbnail(url=thumbnail)
