@@ -63,12 +63,12 @@ class Playnow(CogBase[Vibr]):
         else:
             for i in tracks[::-1]:
                 player.queue.insert(0,i,inter.user.id)
-                track , user = player.queue.skip(1)
-                embed = await track_embed(
-                    item, bot=self.bot, user=user,playnow=True
-                )
-                await inter.send(embed=embed)
-                await player.play(track)
+            track , user = player.queue.skip(1)
+            embed = await track_embed(
+                item, bot=self.bot, user=user,playnow=True
+            )
+            await inter.send(embed=embed)
+            await player.play(track)
 
 def setup(bot: Vibr) -> None:
     bot.add_cog(Playnow(bot))
