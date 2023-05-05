@@ -35,12 +35,11 @@ class Lyrics(CogBase[Vibr]):
             if "-" in player.current.title:
                 q = player.current.title
             else:
-                q = player.current.title,player.current.author
+                q = player.current.title, player.current.author
         else:
             q = query
 
         a = await inter.send("`Searching....`")
-
 
         url_search = f"https://api.flowery.pw/v1/lyrics/search?query={q}"
 
@@ -57,7 +56,6 @@ class Lyrics(CogBase[Vibr]):
 
         async with self.bot.session.get(url_lyrics) as res:
             lyrics = await res.json()
-
 
         try:
             lyrics_text = lyrics["lyrics"]["text"]

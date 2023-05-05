@@ -1,5 +1,6 @@
 __all__ = ("truncate",)
 
+
 def truncate(text: str, *, length: int) -> str:
     """Truncate a string to a certain length.
 

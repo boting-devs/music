@@ -66,11 +66,11 @@ class Queue:
     def shuffle(self) -> None:
         random.shuffle(self._stack)
 
-    def pop(self,index:int) -> None:
+    def pop(self, index: int) -> None:
         del self._stack[index]
 
-    def insert(self,index:int,track:Track,user:int)-> None:
-        self._stack.insert(index,(track,user))
+    def insert(self, index: int, track: Track, user: int) -> None:
+        self._stack.insert(index, (track, user))
 
 
 class Player(MaficPlayer):

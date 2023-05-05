@@ -4,6 +4,7 @@ from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
 from mafic import Playlist
+from nextcord.utils import escape_markdown
 
 from vibr.embed import Embed
 from vibr.utils import truncate
@@ -83,8 +84,8 @@ async def track_embed(
     skipped: int | None = None,
     queued: bool = False,
     loop: bool = False,
-    playnext:bool = False,
-    playnow:bool = False,
+    playnext: bool = False,
+    playnow: bool = False,
 ) -> Embed:
     if isinstance(item, Playlist):
         title = item.name
@@ -105,6 +106,9 @@ async def track_embed(
             item.artwork_url
             or "http://clipground.com/images/tone-duration-clipart-16.jpg"
         )
+
+    title = escape_markdown(title)
+
     if skipped:
         embed = Embed(title=title)
         embed.add_field(name="Requested By", value=f"<@{user}>")

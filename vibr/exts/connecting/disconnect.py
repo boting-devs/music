@@ -10,10 +10,11 @@ from vibr.inter import Inter
 from ...checks import is_connected
 from ._errors import UserNotInVoice
 
+
 class Disconnect(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected
-    async def disconnect(self,inter:Inter) -> None:
+    async def disconnect(self, inter: Inter) -> None:
         """Bye bye :("""
 
         player = inter.guild.voice_client
@@ -22,6 +23,6 @@ class Disconnect(CogBase[Vibr]):
         embed = Embed(title="Bye :(")
         await inter.send(embed=embed)
 
+
 def setup(bot: Vibr) -> None:
     bot.add_cog(Disconnect(bot))
-

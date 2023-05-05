@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from time import gmtime, strftime
-from typing import TYPE_CHECKING , cast
+from typing import TYPE_CHECKING, cast
 
 from difflib import get_close_matches
 
 from botbase import CogBase, MyInter
-from nextcord import slash_command , Range
+from nextcord import slash_command, Range
 
 from collections import deque
 
@@ -27,13 +27,15 @@ if TYPE_CHECKING:
 
 AUTOCOMPLETE_MAX = 25
 
+
 def get_str(track: Track) -> str:
     return truncate(f"{track.title} by {track.author}", length=90)
+
 
 class Remove(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected_and_playing
-    async def remove(self,inter:MyInter,position:str) -> None:
+    async def remove(self, inter: MyInter, position: str) -> None:
         """Remove a selected song from the queue.
 
         position:
@@ -46,12 +48,12 @@ class Remove(CogBase[Vibr]):
 
         if not player.queue:
             raise QueueEmpty
-        
+
         position_index = int(position)
-        
+
         try:
             song_n = player.queue[position_index - 1]
-            player.queue.pop(position_index-1)
+            player.queue.pop(position_index - 1)
         except IndexError:
             return await inter.send(
                 "Please input a number which is within your queue!", ephemeral=True
@@ -60,7 +62,7 @@ class Remove(CogBase[Vibr]):
         await inter.send_author_embed(f"{song_n} removed from queue")
 
     @remove.on_autocomplete("position")
-    async def remove_autocomplete(self, inter:Inter, amount: str) -> dict[str, str]:
+    async def remove_autocomplete(self, inter: Inter, amount: str) -> dict[str, str]:
         player = inter.guild.voice_client
 
         if not player.queue:

@@ -17,7 +17,7 @@ Users Listening: `{listeners:,}`
 
 
 class PublicStats(CogBase[Vibr]):
-    @slash_command(name="bot-stats",dm_permission=False)
+    @slash_command(name="bot-stats", dm_permission=False)
     async def node_stats(self, inter: Inter) -> None:
         """Get stats about all nodes."""
 
@@ -40,7 +40,6 @@ class PublicStats(CogBase[Vibr]):
 
             active_players += stats.playing_player_count
             total_players += stats.player_count
-
 
         embed.description = MAIN_STATS.format(
             guilds=guilds,
