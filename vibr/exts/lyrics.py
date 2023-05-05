@@ -39,7 +39,7 @@ class Lyrics(CogBase[Vibr]):
         else:
             q = query
 
-        a = await inter.send("`Searching....`")
+        await inter.defer()
 
         url_search = f"https://api.flowery.pw/v1/lyrics/search?query={q}"
 
@@ -48,9 +48,8 @@ class Lyrics(CogBase[Vibr]):
         try:
             isrc = result["tracks"][0]["external"]["isrc"]
             spotify_id = result["tracks"][0]["external"]["spotify_id"]
-        except KeyError:
-            await a.delete()
-            raise LyricsNotFound
+        except KeyError as e:
+            raise LyricsNotFound from e
 
         url_lyrics = f"https://api.flowery.pw/v1/lyrics?isrc={isrc}&spotify_id={spotify_id}&query={q}"
 
@@ -62,14 +61,13 @@ class Lyrics(CogBase[Vibr]):
             title = lyrics["track"]["title"]
             artist = lyrics["track"]["artist"]
             thumbnail = lyrics["track"]["media"]["artwork"]
-        except KeyError:
-            await a.delete()
-            raise LyricsNotFound
+        except KeyError as e:
+            raise LyricsNotFound from e
 
         embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
-        await a.edit(embed=embed)
+        await inter.send(embed=embed)
 
 
 def setup(bot: Vibr) -> None:

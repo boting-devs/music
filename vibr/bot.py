@@ -50,7 +50,9 @@ class Vibr(BotBase):
             version="3.0.0",
             colours=COLOURS,
             name="vibr",
-            log_channel=1101963855141281912,  # i have no idea how do i diffrentiate btw beta and normal , so doing this for now
+            # i have no idea how do i diffrentiate btw beta and normal,
+            # so doing this for now
+            log_channel=1101963855141281912,
             guild_ids=GUILD_IDS,
             log_guilds=True,
             intents=Intents(guilds=True, voice_states=True),

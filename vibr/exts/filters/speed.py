@@ -8,7 +8,10 @@ from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
 from vibr.embed import Embed
 from vibr.inter import Inter
+
 from ._error import InvalidSpeed, SpeedNotActive
+
+MAX_SPEED = 2
 
 
 class Speed(CogBase[Vibr]):
@@ -24,9 +27,8 @@ class Speed(CogBase[Vibr]):
         if speed is None and not await player.has_filter("speed"):
             raise SpeedNotActive
 
-        if speed is not None:
-            if speed > 2 or speed <= 0:
-                raise InvalidSpeed
+        if speed is not None and (speed > MAX_SPEED or speed <= 0):
+            raise InvalidSpeed
 
         if await player.has_filter("speed") and speed is not None and speed != 1:
             await player.remove_filter("speed", fast_apply=True)

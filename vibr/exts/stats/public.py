@@ -3,7 +3,7 @@ from __future__ import annotations
 from botbase import CogBase, CommandLog
 from nextcord import Embed, slash_command
 
-from vibr.bot import GUILD_IDS, Vibr
+from vibr.bot import Vibr
 from vibr.inter import Inter
 
 MAIN_STATS = """

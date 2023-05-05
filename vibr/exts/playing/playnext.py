@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+from logging import getLogger
+from typing import TYPE_CHECKING
+
 from botbase import CogBase
 from mafic import Playlist, SearchType
 from nextcord import slash_command
-from typing import TYPE_CHECKING
-from logging import getLogger
 
-
-from mafic import SearchType
-from vibr.checks import is_connected
 from vibr.bot import Vibr
+from vibr.checks import is_connected
 from vibr.inter import Inter
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
@@ -39,7 +38,9 @@ class PlayNext(CogBase[Vibr]):
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 
-        result = await player.fetch_tracks(query=song, search_type=SearchType.YOUTUBE.value)  # type: ignore
+        result = await player.fetch_tracks(
+            query=song, search_type=SearchType.YOUTUBE.value
+        )
         if not result:
             raise NoTracksFound
 

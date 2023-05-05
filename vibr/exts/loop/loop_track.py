@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 from botbase import CogBase
-from nextcord import slash_command
 from nextcord.utils import utcnow
 
 from vibr.bot import Vibr
-from vibr.checks import is_connected_and_playing
 from vibr.embed import Embed
 from vibr.inter import Inter
 

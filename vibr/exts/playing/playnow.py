@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-
 from botbase import CogBase
-from nextcord import slash_command, ApplicationCommandType
+from mafic import Playlist, SearchType
+from nextcord import ApplicationCommandType, slash_command
 from nextcord.utils import get
 
 from vibr.bot import Vibr
 from vibr.inter import Inter
 from vibr.track_embed import track_embed
-
-from mafic import SearchType, Playlist
 
 from ._errors import NoTracksFound
 
@@ -36,7 +34,7 @@ class Playnow(CogBase[Vibr]):
 
         result = await player.fetch_tracks(
             query=song, search_type=SearchType.YOUTUBE.value
-        )  # type: ignore
+        )
 
         if not result:
             raise NoTracksFound

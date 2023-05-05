@@ -1,28 +1,22 @@
 from __future__ import annotations
 
-from time import gmtime, strftime
-from typing import TYPE_CHECKING, cast
-
 from difflib import get_close_matches
+from typing import TYPE_CHECKING
 
 from botbase import CogBase, MyInter
-from nextcord import slash_command, Range
-
-from collections import deque
+from nextcord import slash_command
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
-from vibr.embed import Embed
 from vibr.inter import Inter
 from vibr.utils import truncate
 
-
 from ..playing._errors import QueueEmpty
 
-
 if TYPE_CHECKING:
-    from vibr.player import Player
     from mafic import Track
+
+    from vibr.player import Player
 
 
 AUTOCOMPLETE_MAX = 25
@@ -60,6 +54,7 @@ class Remove(CogBase[Vibr]):
             )
 
         await inter.send_author_embed(f"{song_n} removed from queue")
+        return None
 
     @remove.on_autocomplete("position")
     async def remove_autocomplete(self, inter: Inter, amount: str) -> dict[str, str]:

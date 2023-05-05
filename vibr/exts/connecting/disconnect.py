@@ -8,7 +8,6 @@ from vibr.embed import Embed
 from vibr.inter import Inter
 
 from ...checks import is_connected
-from ._errors import UserNotInVoice
 
 
 class Disconnect(CogBase[Vibr]):

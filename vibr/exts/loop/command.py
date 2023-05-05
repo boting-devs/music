@@ -5,10 +5,10 @@ from nextcord import slash_command
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
-from vibr.embed import Embed
 from vibr.inter import Inter
-from .loop_track import Looptrack
+
 from .loop_queue import LoopQueue
+from .loop_track import Looptrack
 
 
 class LoopCommand(CogBase[Vibr]):
