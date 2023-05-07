@@ -63,8 +63,8 @@ class Move(CogBase[Vibr]):
             return await inter.send(
                 "Please input a number which is within your queue!", ephemeral=True
             )
-        dest_index = player.queue.index(track_n)
         player.queue.insert(destination-1,track_n,user=inter.user.id)
+        dest_index = player.queue.index(track_n)
         embed = Embed(title=f"\"{track_n.title}\" position set to {dest_index}")
         await inter.send(embed=embed)
 
