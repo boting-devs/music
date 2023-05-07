@@ -19,6 +19,7 @@ matplotlib = "^3.7.0"
 pyyaml = "^6.0"
 docker-py = "^1.10.6"
 nextcord-ext-menus = "^1.5.6"
+delarva = {git = "https://github.com/ooliver1/delarva"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"

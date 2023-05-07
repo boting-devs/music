@@ -698,6 +698,28 @@ postgresql = ["asyncpg"]
 sqlite = ["aiosqlite"]
 
 [[package]]
+name = "delarva"
+version = "0.1.0"
+description = "A slash-based debug cog for nextcord."
+category = "main"
+optional = false
+python-versions = "^3.8"
+files = []
+develop = false
+
+[package.dependencies]
+nextcord = "^2.0.0"
+
+[package.extras]
+process = ["psutil (>=5.0.0,<6.0.0)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/ooliver1/delarva"
+reference = "HEAD"
+resolved_reference = "0391e396cc399fc8bcbb158dae544f3b81fac489"
+
+[[package]]
 name = "docker-py"
 version = "1.10.6"
 description = "Python client for Docker."
@@ -2281,4 +2303,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "65367e1d563058ee87d99a1728f67aaeaaaa9640eebd5e6448eee415d21ff0ad"
+content-hash = "4247b3ce2c9283ffc28c08d1b514ee80ba7889d3ffe2b6ad662db26975680b3b"
