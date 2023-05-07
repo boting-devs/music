@@ -81,7 +81,8 @@ class QueueMenu(ButtonMenuPages):
             return
 
         player.queue.shuffle()
-        await inter.send_author_embed("Shuffled the queue")
+        embed =Embed(title="Shuffled the queue")
+        await inter.send(embed=embed)
         await self.change_source(QueueSource(player.current, player.queue))
 
 

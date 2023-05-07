@@ -39,7 +39,7 @@ class Lyrics(CogBase[Vibr]):
         else:
             q = query
 
-        await inter.defer()
+        await inter.response.defer()
 
         url_search = f"https://api.flowery.pw/v1/lyrics/search?query={q}"
 
@@ -64,10 +64,21 @@ class Lyrics(CogBase[Vibr]):
         except KeyError as e:
             raise LyricsNotFound from e
 
+        lyrics_text = self.truncate(lyrics_text,length=4096)
+        
         embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
         await inter.send(embed=embed)
+
+    @staticmethod
+    def truncate(fmt: str, *, length: int) -> str:
+        """Return the string with `...` if necessary."""
+
+        if len(fmt) > length:
+            return fmt[: length - 3] + "..."
+
+        return fmt
 
 
 def setup(bot: Vibr) -> None:
