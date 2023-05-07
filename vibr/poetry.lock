@@ -698,28 +698,6 @@ postgresql = ["asyncpg"]
 sqlite = ["aiosqlite"]
 
 [[package]]
-name = "delarva"
-version = "0.1.0"
-description = "A slash-based debug cog for nextcord."
-category = "main"
-optional = false
-python-versions = "^3.8"
-files = []
-develop = false
-
-[package.dependencies]
-nextcord = "^2.0.0"
-
-[package.extras]
-process = ["psutil (>=5.0.0,<6.0.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/ooliver1/delarva"
-reference = "HEAD"
-resolved_reference = "0391e396cc399fc8bcbb158dae544f3b81fac489"
-
-[[package]]
 name = "docker-py"
 version = "1.10.6"
 description = "Python client for Docker."
@@ -1392,28 +1370,26 @@ files = [
 
 [[package]]
 name = "ooliver-botbase"
-version = "1.22.3"
+version = "2.0.2"
 description = "A personal nextcord bot base package for bots."
 category = "main"
 optional = false
-python-versions = "^3.8"
-files = []
-develop = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "ooliver_botbase-2.0.2-py3-none-any.whl", hash = "sha256:0317ca4fd8b54320ce4ad90f1dbb1e70fbb69cfbf1235fc4ffc61d65604ead22"},
+    {file = "ooliver_botbase-2.0.2.tar.gz", hash = "sha256:df0f9092eafe283bc798828ad322a8d50e0048caadf15f9136ef0834f5e67e0f"},
+]
 
 [package.dependencies]
-asyncpg = ">=0.25,<0.28"
-delarva = {git = "https://github.com/ooliver1/delarva"}
-nextcord = "^2.0.0"
-nextcord-ext-menus = "^1.5.2"
-ormar = ">=0.11.0,<0.13.0"
-psutil = "^5.9.0"
-python-dotenv = ">=0.16.0,<0.22.0"
+asyncpg = {version = ">=0.25,<0.28", optional = true, markers = "extra == \"db\""}
+nextcord = ">=2.0.0,<3.0.0"
+nextcord-ext-menus = ">=1.5.2,<2.0.0"
+ormar = {version = ">=0.11.0,<0.13.0", extras = ["postgres"], optional = true, markers = "extra == \"db\""}
+psutil = ">=5.9.0,<6.0.0"
+python-dotenv = ">=0.16.0,<1.1.0"
 
-[package.source]
-type = "git"
-url = "https://github.com/ooliver1/botbase"
-reference = "HEAD"
-resolved_reference = "eb8799f4e4a4ea7138183049d6d0dfc64ca9dc55"
+[package.extras]
+db = ["asyncpg (>=0.25,<0.28)", "ormar[postgres] (>=0.11.0,<0.13.0)"]
 
 [[package]]
 name = "orjson"
@@ -1494,7 +1470,9 @@ files = [
 ]
 
 [package.dependencies]
+asyncpg = {version = ">=0.24,<0.28", optional = true, markers = "extra == \"postgresql\" or extra == \"postgres\" or extra == \"all\""}
 databases = ">=0.3.2,<0.5.0 || >0.5.0,<0.5.1 || >0.5.1,<0.5.2 || >0.5.2,<0.5.3 || >0.5.3,<0.6.3"
+psycopg2-binary = {version = ">=2.9.1,<3.0.0", optional = true, markers = "extra == \"postgresql\" or extra == \"postgres\" or extra == \"aiopg\" or extra == \"all\""}
 pydantic = ">=1.6.1,<1.7 || >1.7,<1.7.1 || >1.7.1,<1.7.2 || >1.7.2,<1.7.3 || >1.7.3,<1.8 || >1.8,<1.8.1 || >1.8.1,<1.10.5"
 SQLAlchemy = ">=1.3.18,<1.4.42"
 
@@ -2303,4 +2281,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "d8fee9f2e1c70d5f8ed140ed5f79097c8d1403792331956f83550fc815a7c040"
+content-hash = "65367e1d563058ee87d99a1728f67aaeaaaa9640eebd5e6448eee415d21ff0ad"
