@@ -10,6 +10,7 @@ from nextcord.utils import utcnow
 from vibr.bot import Vibr
 from vibr.embed import Embed
 from vibr.inter import Inter
+from vibr.utils import truncate
 
 from .playing._errors import LyricsNotFound, SongNotProvided
 
@@ -64,21 +65,12 @@ class Lyrics(CogBase[Vibr]):
         except KeyError as e:
             raise LyricsNotFound from e
 
-        lyrics_text = self.truncate(lyrics_text,length=4096)
+        lyrics_text = truncate(lyrics_text,length=4096)
         
         embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
         await inter.send(embed=embed)
-
-    @staticmethod
-    def truncate(fmt: str, *, length: int) -> str:
-        """Return the string with `...` if necessary."""
-
-        if len(fmt) > length:
-            return fmt[: length - 3] + "..."
-
-        return fmt
 
 
 def setup(bot: Vibr) -> None:
