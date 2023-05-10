@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
+from async_spotify import SpotifyApiClient
+from async_spotify.authentification.authorization_flows import AuthorizationCodeFlow
 from botbase import BotBase
 from mafic import Group, NodePool, Region, VoiceRegion
 from nextcord import (
@@ -63,6 +65,13 @@ class Vibr(BotBase):
 
         self.pool = NodePool(self)
 
+        auth = AuthorizationCodeFlow(
+            application_id=environ["SPOTIFY_CLIENT_ID"],
+            application_secret=environ["SPOTIFY_CLIENT_SECRET"],
+            redirect_url=f"{environ['SPOTIFY_REDIRECT_URL']}/spotify/callback",
+        )
+        self.spotify = SpotifyApiClient(auth)
+
     async def launch_shard(
         self, _gateway: str, shard_id: int, *, initial: bool = False
     ) -> None:
@@ -108,6 +117,8 @@ class Vibr(BotBase):
             )
 
     async def start(self, token: str, *, reconnect: bool = True) -> None:
+        await self.spotify.create_new_client()
+
         await gather(self.add_nodes(), super().start(token, reconnect=reconnect))
 
     async def process_application_commands(self, inter: Inter) -> None:

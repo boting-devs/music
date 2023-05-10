@@ -14,7 +14,10 @@ DEV = bool(getenv("DEV"))
 async def lifespan(_: FastAPI):
     await database.connect()
     await spotify.init()
+
     yield
+
+    await spotify.deinit()
 
 
 app = FastAPI(debug=DEBUG, lifespan=lifespan)

@@ -24,6 +24,9 @@ services:
       PROXY_HTTP: http://gateway-proxy:7878
       PASSWORD: $PASSWORD
       REDIS_URL: redis://keydb:6379
+      SPOTIFY_CLIENT_ID: $SPOTIFY_CLIENT_ID
+      SPOTIFY_CLIENT_SECRET: $SPOTIFY_CLIENT_SECRET
+      OAUTH_SECRET_KEY: $OAUTH_SECRET_KEY
   gateway-proxy:
     image: ghcr.io/ooliver1/gateway-proxy:x86-64
     environment:

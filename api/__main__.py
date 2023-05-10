@@ -1,7 +1,7 @@
 import uvicorn
 import uvloop
 
-uvloop = uvloop.install()
+uvloop.install()
 uvicorn.run(
     "api.app:app",
     host="0.0.0.0",  # noqa: S104

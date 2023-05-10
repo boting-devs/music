@@ -162,6 +162,21 @@ typing-extensions = ">=4"
 tz = ["python-dateutil"]
 
 [[package]]
+name = "async-spotify"
+version = "0.4.4"
+description = "An async spotify api client"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "async-spotify-0.4.4.tar.gz", hash = "sha256:6ed9848a4e2d70c87ac07c0e386b52d84f1b845dfe932bc1b4451f239ec18731"},
+]
+
+[package.dependencies]
+aiodns = ">=2.0.0"
+aiohttp = ">=3.6.2"
+
+[[package]]
 name = "async-timeout"
 version = "4.0.2"
 description = "Timeout context manager for asyncio programs"
@@ -965,6 +980,18 @@ colors = ["colorama (>=0.4.3)"]
 pipfile-deprecated-finder = ["pip-shims (>=0.5.2)", "pipreqs", "requirementslib"]
 plugins = ["setuptools"]
 requirements-deprecated-finder = ["pip-api", "pipreqs"]
+
+[[package]]
+name = "itsdangerous"
+version = "2.1.2"
+description = "Safely pass data to untrusted environments and back."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "itsdangerous-2.1.2-py3-none-any.whl", hash = "sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44"},
+    {file = "itsdangerous-2.1.2.tar.gz", hash = "sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a"},
+]
 
 [[package]]
 name = "kiwisolver"
@@ -2303,4 +2330,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "046b1f672b25f75f9fa3a6a19faea7f61707466890bc654b062723931c0525b5"
+content-hash = "96f6bfaacd37d0ef26e061107dc6d46f07a6ace15ca47dba78b434b168f3104a"

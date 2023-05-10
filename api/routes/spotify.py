@@ -28,8 +28,12 @@ api_client = SpotifyApiClient(auth_flow)
 
 
 async def init() -> None:
-    await api_client.create_new_client(request_limit=1500)
+    await api_client.create_new_client()
     __import__("logging").critical(SERIALIZER.dumps(305017820775710720))
+
+
+async def deinit() -> None:
+    await api_client.close_client()
 
 
 @router.get("/authorize")
