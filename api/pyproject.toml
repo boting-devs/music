@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+uvloop = "^0.17.0"
+fastapi = "^0.95.1"
+uvicorn = "^0.22.0"
+itsdangerous = "^2.1.2"
+async-spotify = "^0.4.4"
+ooliver-botbase = { extras = ["db"], version = "^2.0.2" }
+alembic = "^1.10.4"
+taskipy = "^1.10.4"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+ruff = "^0.0.261"
+
+[tool.taskipy.tasks]
+start = "python -m api"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

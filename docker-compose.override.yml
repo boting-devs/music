@@ -86,3 +86,15 @@ services:
       LOGGING_REQUEST_INCLUDEHEADERS: false
       LOGGING_LOGBACK_ROLLINGPOLICY_MAXFILESIZE: 100MB
       LOGGING_LOGBACK_ROLLINGPOLICY_MAXHISTORY: 30
+  api:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    pull_policy: build
+    environment:
+      SPOTIFY_CLIENT_ID: $SPOTIFY_CLIENT_ID
+      SPOTIFY_CLIENT_SECRET: $SPOTIFY_CLIENT_SECRET
+      OAUTH_SECRET_KEY: $OAUTH_SECRET_KEY
+      DB_URI: postgresql://postgres:postgres@postgres:5432/bot

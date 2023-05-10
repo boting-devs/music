@@ -8,6 +8,5 @@ from .bot import Vibr
 
 bot = Vibr()
 
-if __name__ == "__main__":
-    uvloop.install()
-    bot.run(environ["TOKEN"])
+uvloop.install()
+bot.run(environ["TOKEN"])
