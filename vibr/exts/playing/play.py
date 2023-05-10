@@ -45,8 +45,8 @@ class Play(CogBase[Vibr]):
                 raise RuntimeError
 
             await join(inter)
-
-        await inter.response.defer()
+        else:
+            await inter.response.defer()
 
         player = inter.guild.voice_client
         player.notification_channel = inter.channel  # pyright: ignore

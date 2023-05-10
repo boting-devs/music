@@ -31,7 +31,18 @@ async def can_connect(channel: VoiceChannel | StageChannel, *, inter: Inter) -> 
             title="I Cannot Connect",
             description=f"I do not have permission to connect to {channel.mention}.",
         )
-        await inter.response.send_message(embed=embed, view=embed.view)
+        await inter.send(embed=embed, view=embed.view, ephemeral=True)
         return False
+
+    if channel.user_limit and len(channel.voice_states) >= channel.user_limit:
+        permissions = channel.permissions_for(channel.guild.me)
+        if not (permissions.move_members or permissions.administrator):
+            embed = ErrorEmbed(
+                title="I Cannot Connect",
+                description=f"{channel.mention} is full, "
+                "and I do not have permission to move members.",
+            )
+            await inter.send(embed=embed, view=embed.view, ephemeral=True)
+            return False
 
     return True

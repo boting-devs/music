@@ -23,6 +23,7 @@ class Join(CogBase[Vibr]):
         channel:
             The channel to connect to. Leave blank to connect to your current channel.
         """
+        await inter.response.defer(ephemeral=True)
         if channel is None:
             channel = inter.user.voice and inter.user.voice.channel
 
@@ -32,7 +33,7 @@ class Join(CogBase[Vibr]):
         if not await can_connect(channel, inter=inter):
             return
 
-        player = await channel.connect(cls=Player)
+        player = await channel.connect(cls=Player, timeout=5)
 
         await self.bot.set_player_settings(player, channel.id)
 
@@ -40,14 +41,7 @@ class Join(CogBase[Vibr]):
             title="Connected!", description=f"Connected to {channel.mention}."
         )
 
-        # `play` can invoke this too, this should probably be in a separate function.
-        if (
-            inter.application_command
-            and inter.application_command.qualified_name == "join"
-        ):
-            await inter.response.send_message(embed=embed)
-        else:
-            await inter.channel.send(embed=embed)  # pyright: ignore
+        await inter.send(embed=embed)  # pyright: ignore
 
 
 def setup(bot: Vibr) -> None:
