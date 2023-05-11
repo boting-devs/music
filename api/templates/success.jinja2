@@ -2,81 +2,75 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vibr - Spotify Connection</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibr - Spotify Connection</title>
 </head>
 
 <body>
-    <style>
-        body {
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+  <style>
+    body {
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-        .central-text {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            flex-direction: column;
-        }
+    .central-text {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      flex-direction: column;
+    }
 
-        .info {
-            color: #ccc;
-        }
+    .info {
+      color: #bbb;
+      font-weight: 500;
+    }
 
-        .sub-info {
-            color: #aaa;
-            padding-top: 1rem;
-        }
+    .sub-info {
+      color: #999;
+      padding-top: 1rem;
+      font-weight: 300;
+    }
 
-        .logos {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 6rem;
-        }
+    .logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
 
-        .logo-spotify {
-            background-image: url({{ url_for("static", path="/spotify.svg") }});
-            width: 80px;
-            height: 80px;
-        }
+    .logo-divisor {
+      animation: rotate 2s cubic-bezier(0.98, -0.75, 0.275, 1.55);
+      margin: 0 1rem;
+    }
 
-        .logo-vibr {
-            background-image: url({{ url_for("static", path="/vibr.svg") }});
-            width: 70px;
-            height: 80px;
-        }
+    @keyframes rotate {
+      to {
+        transform: rotate(359deg);
+      }
+    }
 
-        .logo-divisor {
-            background-image: url({{ url_for("static", path="/cross.svg") }});
-            width: 40px;
-            height: 40px;
-            margin: 0 1rem;
-        }
+    .monospace {
+      font-size: 1rem;
+    }
 
-        .monospace {
-            font-size: 1rem;
-        }
-
-    </style>
-    <div class="central-text">
-        <div class="logos">
-            <div class="logo-vibr"></div>
-            <span class="logo-divisor"></span>
-            <div class="logo-spotify"></div>
-        </div>
-        <span class="info">Connected your <strong>Spotify</strong> account to
-            <strong>Vibr</strong>!</span>
-        <span class="sub-info">Continue playing music, now with the ability to
-            <code class="monospace">/spotify playlists</code></span>
+  </style>
+  <div class="central-text">
+    <div class="logos">
+      <img src="{{ url_for('static', path='/vibr.svg') }}" width="70px" height="80px" alt="Vibr logo" />
+      <img src="{{ url_for('static', path='/cross.svg') }}" width="40px" height="40px" class="logo-divisor" alt="Cross symbol for separation" />
+      <img src="{{ url_for('static', path='/spotify.svg') }}" width="80px" height="80px" alt="Spotify logo" />
     </div>
+    <span class="info">Connected your <strong>Spotify</strong> account to
+      <strong>Vibr</strong>!</span>
+    <span class="sub-info">Continue playing music, now with the ability to
+      <code class="monospace">/spotify playlists</code></span>
+  </div>
 </body>
 
 </html>
