@@ -3,6 +3,7 @@ from os import getenv
 
 from botbase import database
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from .routes import spotify
 
@@ -22,3 +23,4 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(debug=DEBUG, lifespan=lifespan)
 app.include_router(spotify.router)
+app.mount("/static", StaticFiles(directory="api/static"), name="static")

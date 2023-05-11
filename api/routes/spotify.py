@@ -7,6 +7,7 @@ from async_spotify.authentification.authorization_flows import AuthorizationCode
 from fastapi import Request
 from fastapi.responses import RedirectResponse
 from fastapi.routing import APIRouter
+from fastapi.templating import Jinja2Templates
 from itsdangerous import BadSignature, URLSafeSerializer
 from ormar import NoMatch
 
@@ -25,6 +26,7 @@ auth_flow = AuthorizationCodeFlow(
 )
 
 api_client = SpotifyApiClient(auth_flow)
+templates = Jinja2Templates(directory="api/templates")
 
 
 async def init() -> None:
@@ -45,7 +47,6 @@ async def authorize(request: Request):
     state = SERIALIZER.dumps((random_state, user_id))
     state_signed = SERIALIZER.dumps(state)
 
-    print(random_state, state, state_signed)
     assert isinstance(state, str)
     assert isinstance(state_signed, str)
 
@@ -99,4 +100,15 @@ async def callback(request: Request):
         user.spotify_token_expires = expiry_time
         await user.update()
 
-    return {"code": code, "state": state}
+    return templates.TemplateResponse(
+        "success.html",
+        {"request": request},
+    )
+
+
+@router.get("/tmp")
+async def tmp(request: Request):
+    return templates.TemplateResponse(
+        "success.jinja2",
+        {"request": request},
+    )
