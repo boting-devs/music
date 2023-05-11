@@ -8,6 +8,8 @@ from nextcord.utils import escape_markdown
 
 from vibr.embed import Embed
 from vibr.utils import truncate
+from vibr.inter import Inter
+from nextcord.utils import utcnow
 
 if TYPE_CHECKING:
     from mafic import Track
@@ -75,17 +77,19 @@ async def get_url(track: Track, *, bot: Vibr) -> str | None:
 
     #     return None
 
-
 async def track_embed(
     item: Track | Playlist,
     *,
     bot: Vibr,
     user: int,
+    inter:Inter|None =None,
     skipped: int | None = None,
     queued: bool = False,
     loop: bool = False,
     playnext: bool = False,
     playnow: bool = False,
+    length_embed:bool =False,
+    index:int | None=None,
 ) -> Embed:
     if isinstance(item, Playlist):
         title = item.name
@@ -116,15 +120,40 @@ async def track_embed(
     else:
         embed = Embed(title=title, description=f"Requested by <@{user}>")
 
+    if length_embed:
+        if isinstance(item, Playlist):
+            tr = item.tracks[0]
+        else:
+            tr = item
+            
+        c = inter.guild.voice_client.position
+
+        assert tr.length is not None
+        t = tr.length
+        current = strftime("%H:%M:%S", gmtime(c // 1000))
+        total = strftime("%H:%M:%S", gmtime(t // 1000))
+        pos = round(c / t * 12)
+        line = (
+            ("\U00002501" * (pos - 1 if pos > 0 else 0))
+            + "\U000025cf"
+            + ("\U00002501" * (12 - pos))
+        )
+        # if 2/12, then get 1 before, then dot then 12 - 2 to pad to 12
+        timing = f"{current} {line} {total}"
+        embed.description = timing
+
     embed.set_author(name=authors, url=url)
+
     if loop:
         embed.set_footer(text=f"Looping | Length: {track_time}")
     elif playnext:
         embed.set_footer(text=f"Playing Up Next | Length: {track_time}")
     elif playnow:
         embed.set_footer(text=f"Playing Now | Length: {track_time}")
+    elif length_embed:
+        embed.timestamp=utcnow()
     else:
-        embed.set_footer(text="Queued | " * queued + f"Length: {track_time}")
+        embed.set_footer(text=f"Queued - {index} | " * queued + f"Length: {track_time}")
     embed.set_thumbnail(url=thumbnail)
 
     return embed

@@ -72,9 +72,6 @@ class Queue:
     def insert(self, index: int, track: Track, user: int) -> None:
         self._stack.insert(index, (track, user))
 
-    def index(self,track:Track)->None:
-        return self._stack.index(track)
-
 class Player(MaficPlayer):
     def __init__(
         self,

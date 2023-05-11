@@ -15,7 +15,7 @@ from vibr.checks import is_connected_and_playing
 from vibr.embed import Embed
 from vibr.inter import Inter
 from vibr.utils import truncate
-
+from ._errors import NotInrRangeIndex
 from logging import getLogger
 
 
@@ -53,6 +53,10 @@ class Move(CogBase[Vibr]):
         if not player.queue:
             raise QueueEmpty
         
+        l = len(player.queue)
+        if destination <1 or destination > l:
+            raise NotInrRangeIndex
+        
         track_index = int(track)
 
         try:
@@ -64,8 +68,7 @@ class Move(CogBase[Vibr]):
                 "Please input a number which is within your queue!", ephemeral=True
             )
         player.queue.insert(destination-1,track_n,user=inter.user.id)
-        dest_index = player.queue.index(track_n)
-        embed = Embed(title=f"\"{track_n.title}\" position set to {dest_index}")
+        embed = Embed(title=f"\"{track_n.title}\" position set to {destination}")
         await inter.send(embed=embed)
 
     @move.on_autocomplete("track")
