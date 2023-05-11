@@ -8,7 +8,7 @@ from mafic import EndReason, TrackEndEvent, TrackStartEvent
 
 from vibr.bot import Vibr
 from vibr.track_embed import track_embed
-
+from vibr.embed import Embed
 if TYPE_CHECKING:
     from vibr.player import Player
 
@@ -38,7 +38,9 @@ class Queue(CogBase[Vibr]):
             try:
                 play_next, member = player.queue.take()
             except IndexError:
-                pass
+                if channel := player.notification_channel:
+                    embed = Embed(title="End of Queue")
+                    await channel.send(embed=embed)
             else:
                 await player.play(play_next)
                 embed = await track_embed(play_next, bot=self.bot, user=member)
