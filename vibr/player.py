@@ -89,3 +89,4 @@ class Player(MaficPlayer):
         self.looped_user: int
         self.loop_queue: list[Track] = []
         self.loop_queue_check: bool = False
+        self.dnd: bool = False

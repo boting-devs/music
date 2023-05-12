@@ -10,8 +10,6 @@ from vibr.inter import Inter
 
 
 class LoopQueue(CogBase[Vibr]):
-    @slash_command(dm_permission=False)
-    @is_connected_and_playing
     async def loopqueue(self, inter: Inter) -> None:
         """Loop the whole queue, going around in circles."""
 
