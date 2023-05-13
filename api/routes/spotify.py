@@ -131,7 +131,7 @@ async def callback(request: Request):
     )
 
 
-@router.get("/tmp")
+@router.get("/test")
 async def tmp(request: Request):
     return templates.TemplateResponse(
         "linked.jinja2",
