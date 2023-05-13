@@ -28,7 +28,8 @@ class Play(CogBase[Vibr]):
 
     @slash_command(dm_permission=False)
     async def play(
-        self, inter: Inter, query: str, search_type: str = SEARCH_TYPE
+        self, inter: Inter, query: str, search_type: str = SEARCH_TYPE,
+        type: int = SlashOption(name="type",choices={"next":69 , "now":420},default=None)
     ) -> None:
         """Play a link, query or past song.
 
@@ -74,14 +75,37 @@ class Play(CogBase[Vibr]):
             await inter.followup.send(embed=embed)
 
             if queued:
-                player.queue += [(track, inter.user.id) for track in queued]
+                if type == 69:
+                    for i in tracks[::-1]:
+                        player.queue.insert(0, i, inter.user.id)
+
+                else:
+                    player.queue += [(track, inter.user.id) for track in queued]
         else:
-            player.queue += [(track, inter.user.id) for track in tracks]
-            l=len(player.queue)
-            embed = await track_embed(
-                item, bot=self.bot, user=inter.user.id, queued=True,index=l
-            )
-            await inter.followup.send(embed=embed)
+            if type ==69:
+                for i in tracks[::-1]:
+                    player.queue.insert(0, i, inter.user.id)
+                embed = await track_embed(
+                    item, bot=self.bot, user=inter.user.id, playnext=True
+                )
+                await inter.send(embed=embed)
+
+            elif type == 420:
+                for i in tracks[::-1]:
+                    player.queue.insert(0, i, inter.user.id)
+                track, user = player.queue.skip(1)
+                embed = await track_embed(item, bot=self.bot, user=user, playnow=True)
+                await inter.send(embed=embed)
+                await player.play(track)
+
+
+            elif type ==None:
+                player.queue += [(track, inter.user.id) for track in tracks]
+                l=len(player.queue)
+                embed = await track_embed(
+                    item, bot=self.bot, user=inter.user.id, queued=True,index=l
+                )
+                await inter.followup.send(embed=embed)
 
 
 def setup(bot: Vibr) -> None:

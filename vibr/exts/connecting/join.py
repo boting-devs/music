@@ -23,7 +23,7 @@ class Join(CogBase[Vibr]):
         channel:
             The channel to connect to. Leave blank to connect to your current channel.
         """
-        await inter.response.defer(ephemeral=True)
+        await inter.response.defer()
         if channel is None:
             channel = inter.user.voice and inter.user.voice.channel
 
