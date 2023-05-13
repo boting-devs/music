@@ -63,20 +63,45 @@ async def authorize(request: Request):
 async def callback(request: Request):
     cookies = request.cookies
     if "spotify_auth_state" not in cookies:
-        return "No state cookie found", 400
+        return templates.TemplateResponse(
+            "linked.jinja2",
+            {"request": request, "error": "No cookie found."},
+            status_code=400,
+        )
 
     signed_state = cookies["spotify_auth_state"]
     try:
         state: str = SERIALIZER.loads(signed_state)
     except BadSignature:
-        return "Invalid state", 400
+        return templates.TemplateResponse(
+            "linked.jinja2",
+            {"request": request, "error": "Cookie signature invalid."},
+            status_code=400,
+        )
 
-    if state != request.query_params["state"]:
-        return "Invalid state", 400
+    try:
+        state_param = request.query_params["state"]
+    except KeyError:
+        return templates.TemplateResponse(
+            "linked.jinja2",
+            {"request": request, "error": "No state parameter."},
+            status_code=400,
+        )
+
+    if state != state_param:
+        return templates.TemplateResponse(
+            "linked.jinja2",
+            {"request": request, "error": "State parameter invalid."},
+            status_code=400,
+        )
 
     code = request.query_params.get("code")
     if not code:
-        return "No code", 400
+        return templates.TemplateResponse(
+            "linked.jinja2",
+            {"request": request, "error": "No code parameter."},
+            status_code=400,
+        )
 
     auth_token = await api_client.get_auth_token_with_code(code)
     _, user_id = SERIALIZER.loads(state)
@@ -101,7 +126,7 @@ async def callback(request: Request):
         await user.update()
 
     return templates.TemplateResponse(
-        "success.html",
+        "linked.jinja2",
         {"request": request},
     )
 
@@ -109,6 +134,6 @@ async def callback(request: Request):
 @router.get("/tmp")
 async def tmp(request: Request):
     return templates.TemplateResponse(
-        "success.jinja2",
+        "linked.jinja2",
         {"request": request},
     )
