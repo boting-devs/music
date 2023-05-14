@@ -121,6 +121,7 @@ async def track_embed(
     if length_embed:
         tr = item.tracks[0] if isinstance(item, Playlist) else item
 
+        assert inter is not None
         c = inter.guild.voice_client.position
 
         assert tr.length is not None

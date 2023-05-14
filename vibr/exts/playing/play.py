@@ -8,6 +8,7 @@ from nextcord import ApplicationCommandType, SlashOption, slash_command
 from nextcord.utils import get
 
 from vibr.bot import Vibr
+from vibr.embed import Embed
 from vibr.inter import Inter
 from vibr.track_embed import track_embed
 
@@ -82,11 +83,11 @@ class Play(CogBase[Vibr]):
                 else:
                     player.queue += [(track, inter.user.id) for track in queued]
         elif type == "Next":
-            await self.handle_play_next(
+            embed = await self.handle_play_next(
                 player=player, inter=inter, item=item, tracks=tracks
             )
         elif type == "Now":
-            await self.handle_play_now(
+            embed = await self.handle_play_now(
                 player=player, inter=inter, item=item, tracks=tracks
             )
         else:
@@ -105,12 +106,14 @@ class Play(CogBase[Vibr]):
         inter: Inter,
         item: Track | Playlist,
         tracks: list[Track],
-    ) -> None:
+    ) -> Embed:
         for i in tracks[::-1]:
             player.queue.insert(0, i, inter.user.id)
         track, user = player.queue.skip(1)
-        await track_embed(item, bot=self.bot, user=user)
+        embed = await track_embed(item, bot=self.bot, user=user)
         await player.play(track)
+
+        return embed
 
     async def handle_play_next(
         self,
@@ -119,10 +122,10 @@ class Play(CogBase[Vibr]):
         inter: Inter,
         item: Track | Playlist,
         tracks: list[Track],
-    ) -> None:
+    ) -> Embed:
         for i in tracks[::-1]:
             player.queue.insert(0, i, inter.user.id)
-        await track_embed(item, bot=self.bot, user=inter.user.id, queued=1)
+        return await track_embed(item, bot=self.bot, user=inter.user.id, queued=1)
 
     async def assert_player(self, *, inter: Inter) -> None:
         if not inter.guild.voice_client:
