@@ -54,7 +54,12 @@ class Spotify(CogBase[Vibr]):
         """Link your spotify account."""
 
         signed_user_id = self.serializer.dumps(inter.user.id)
-        await inter.send(f"{self.AUTHORIZE_URL}/?user={signed_user_id}")
+        url = f"{self.AUTHORIZE_URL}/?user={signed_user_id}"
+
+        embed = Embed(
+            title="Link Your Spotify Account", description=f"[Click here]({url})"
+        )
+        await inter.send(embed=embed, ephemeral=True)
 
     @spotify.subcommand(name="unlink")
     async def spotify_unlink(self, inter: Inter) -> None:
@@ -153,8 +158,7 @@ class Spotify(CogBase[Vibr]):
         player.notification_channel = inter.channel  # pyright: ignore
         if player.current is None:
             queued = tracks[1:]
-            assert track.uri is not None
-            await player.play(track.uri)
+            await player.play(track)
 
             embed = await track_embed(playlist, bot=self.bot, user=inter.user.id)
             await inter.channel.send(embed=embed)  # pyright: ignore

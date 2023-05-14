@@ -5,6 +5,7 @@ from collections import deque
 from typing import TYPE_CHECKING
 
 from mafic import Player as MaficPlayer
+from mafic.track import Track
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -72,6 +73,10 @@ class Queue:
     def insert(self, index: int, track: Track, user: int) -> None:
         self._stack.insert(index, (track, user))
 
+    def index(self, track: Track) -> None:
+        return self._stack.index(track)
+
+
 class Player(MaficPlayer):
     def __init__(
         self,
@@ -90,3 +95,28 @@ class Player(MaficPlayer):
         self.loop_queue: list[Track] = []
         self.loop_queue_check: bool = False
         self.dnd: bool = False
+
+    async def play(
+        self,
+        track: Track | str,
+        /,
+        *,
+        start_time: int | None = None,
+        end_time: int | None = None,
+        volume: int | None = None,
+        replace: bool = True,
+        pause: bool | None = None,
+    ) -> None:
+        # Handle `/spotify playlists`` not having a lavalink ID.
+        if isinstance(track, Track) and not track.id:
+            assert track.uri is not None
+            track = track.uri
+
+        return await super().play(
+            track,
+            start_time=start_time,
+            end_time=end_time,
+            volume=volume,
+            replace=replace,
+            pause=pause,
+        )

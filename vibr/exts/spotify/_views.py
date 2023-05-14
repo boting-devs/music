@@ -105,10 +105,10 @@ class PlaylistSelect(Select["PlaylistMenu"]):
             description=description,
         )
 
-    async def callback(self, inter: Inter) -> None:
+    async def callback(self, _inter: Inter) -> None:
         assert self.view is not None
-        assert inter.message is not None
+        assert self.view.message is not None
 
         self.view.playlist_id = self.values[0]
-        await inter.message.delete()
+        await self.view.message.delete()
         self.view.stop()
