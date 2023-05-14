@@ -8,13 +8,13 @@ from nextcord import ApplicationCommandType, SlashOption, slash_command
 from nextcord.utils import get
 
 from vibr.bot import Vibr
-from vibr.embed import Embed
 from vibr.inter import Inter
 from vibr.track_embed import track_embed
 
 from ._errors import NoTracksFound
 
 if TYPE_CHECKING:
+    from vibr.embed import Embed
     from vibr.player import Player
 
 
@@ -98,6 +98,9 @@ class Play(CogBase[Vibr]):
             )
 
         await inter.channel.send(embed=embed)  # pyright: ignore
+
+        # Delete defer message once it's not needed anymore.
+        await inter.delete_original_message()
 
     async def handle_play_now(
         self,

@@ -24,6 +24,8 @@ class Join(CogBase[Vibr]):
             The channel to connect to. Leave blank to connect to your current channel.
         """
         if not inter.response.is_done():
+            # Defer in case we want to send an error message.
+            # No need to clutter the channel with a public error message.
             await inter.response.defer(ephemeral=True)
 
         if channel is None:

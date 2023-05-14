@@ -172,6 +172,9 @@ class Spotify(CogBase[Vibr]):
             )
             await inter.channel.send(embed=embed)  # pyright: ignore
 
+        # Delete deferring once it is not needed anymore.
+        await inter.delete_original_message()
+
     @staticmethod
     def get_authors(authors: list[str]) -> str:
         if len(authors) == 1:
