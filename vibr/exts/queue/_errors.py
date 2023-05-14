@@ -10,8 +10,9 @@ class EmptyQueue(CheckFailure):
         description="The command cannot be used as the queue is empty",
     )
 
-class NotInrRangeIndex(CheckFailure):
-    embed=ErrorEmbed(
+
+class IndexNotInRange(CheckFailure):
+    embed = ErrorEmbed(
         title="Not in Range",
-        description="Please use the destination index within your queue range."
+        description="Please use the destination index within your queue range.",
     )

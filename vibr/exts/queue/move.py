@@ -14,7 +14,7 @@ from vibr.inter import Inter
 from vibr.utils import truncate
 
 from ..playing._errors import QueueEmpty
-from ._errors import NotInrRangeIndex
+from ._errors import IndexNotInRange
 
 if TYPE_CHECKING:
     from mafic import Track
@@ -41,36 +41,31 @@ class Move(CogBase[Vibr]):
         track:
             The number of the song to move, found via the queue.
         destination:
-            The position to move the song to."""
+            The position to move the song to.
+        """
 
-        player: Player = inter.guild.voice_client  # pyright: ignore
+        player: Player = inter.guild.voice_client
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 
         if not player.queue:
             raise QueueEmpty
 
-        l = len(player.queue)
-        if destination < 1 or destination > l:
-            raise NotInrRangeIndex
+        length = len(player.queue)
+        if destination < 1 or destination > length:
+            raise IndexNotInRange
 
         track_index = int(track)
 
-        try:
-            track_n = player.queue[track_index - 1]
-            player.queue.pop(track_index - 1)
-
-        except IndexError:
-            return await inter.send(
-                "Please input a number which is within your queue!", ephemeral=True
-            )
+        track_n = player.queue[track_index - 1]
+        player.queue.pop(track_index - 1)
         player.queue.insert(destination - 1, track_n, user=inter.user.id)
+
         embed = Embed(title=f'"{track_n.title}" position set to {destination}')
         await inter.send(embed=embed)
-        return None
 
     @move.on_autocomplete("track")
-    async def remove_autocomplete(self, inter: Inter, amount: str) -> dict[str, str]:
+    async def move_autocomplete(self, inter: Inter, amount: str) -> dict[str, str]:
         player = inter.guild.voice_client
 
         if not player.queue:
