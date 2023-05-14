@@ -17,6 +17,7 @@ class Nowplaying(CogBase[Vibr]):
         """Show current beats"""
 
         player = inter.guild.voice_client
+        assert player.current is not None
 
         embed = await track_embed(
             player.current,
