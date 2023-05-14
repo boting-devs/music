@@ -150,6 +150,7 @@ class Spotify(CogBase[Vibr]):
         player = inter.guild.voice_client
         track = tracks[0]
 
+        player.notification_channel = inter.channel  # pyright: ignore
         if player.current is None:
             queued = tracks[1:]
             assert track.uri is not None
