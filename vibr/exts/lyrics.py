@@ -65,8 +65,8 @@ class Lyrics(CogBase[Vibr]):
         except KeyError as e:
             raise LyricsNotFound from e
 
-        lyrics_text = truncate(lyrics_text,length=4096)
-        
+        lyrics_text = truncate(lyrics_text, length=4096)
+
         embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)

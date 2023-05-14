@@ -3,7 +3,6 @@ from os import getenv
 
 from botbase import database
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 
 from .routes import spotify
 
