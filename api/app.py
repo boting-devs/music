@@ -23,4 +23,3 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(debug=DEBUG, lifespan=lifespan)
 app.include_router(spotify.router)
-app.mount("/static", StaticFiles(directory="api/static"), name="static")

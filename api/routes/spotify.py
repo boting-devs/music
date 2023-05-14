@@ -31,7 +31,6 @@ templates = Jinja2Templates(directory="api/templates")
 
 async def init() -> None:
     await api_client.create_new_client()
-    __import__("logging").critical(SERIALIZER.dumps(305017820775710720))
 
 
 async def deinit() -> None:
@@ -108,7 +107,7 @@ async def callback(request: Request):
 
     access_token = auth_token.access_token
     refresh_token = auth_token.refresh_token
-    expiry_time = datetime.fromtimestamp(auth_token.activation_time + 3400, tz=UTC)
+    activation_time = datetime.fromtimestamp(auth_token.activation_time, tz=UTC)
 
     try:
         user = await User.objects.get(id=user_id)
@@ -117,12 +116,12 @@ async def callback(request: Request):
             id=user_id,
             spotify_access_token=access_token,
             spotify_refresh_token=refresh_token,
-            spotify_token_expires=expiry_time,
+            spotify_activation_time=activation_time,
         )
     else:
         user.spotify_access_token = access_token
         user.spotify_refresh_token = refresh_token
-        user.spotify_token_expires = expiry_time
+        user.spotify_activation_time = activation_time
         await user.update()
 
     return templates.TemplateResponse(

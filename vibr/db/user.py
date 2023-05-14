@@ -19,19 +19,19 @@ class User(Model):
     id: int = BigInteger(primary_key=True, autoincrement=False)
     spotify_access_token: str | None = String(max_length=255, nullable=True)
     spotify_refresh_token: str | None = String(max_length=255, nullable=True)
-    spotify_token_expires: datetime | None = DateTime(timezone=True, nullable=True)
+    spotify_activation_time: datetime | None = DateTime(timezone=True, nullable=True)
 
     @property
     def spotify(self) -> SpotifyAuthorisationToken | None:
         if (
             self.spotify_access_token is None
             or self.spotify_refresh_token is None
-            or self.spotify_token_expires is None
+            or self.spotify_activation_time is None
         ):
             return None
 
         return SpotifyAuthorisationToken(
             access_token=self.spotify_access_token,
             refresh_token=self.spotify_refresh_token,
-            activation_time=self.spotify_token_expires.timestamp(),
+            activation_time=self.spotify_activation_time.timestamp(),
         )
