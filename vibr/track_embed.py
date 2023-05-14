@@ -84,12 +84,10 @@ async def track_embed(
     user: int,
     inter: Inter | None = None,
     skipped: int | None = None,
-    queued: bool = False,
+    queued: int | None = None,
     looping: bool = False,
-    playnext: bool = False,
-    playnow: bool = False,
+    next: bool = False,
     length_embed: bool = False,
-    index: int | None = None,
 ) -> Embed:
     if isinstance(item, Playlist):
         title = item.name
@@ -143,14 +141,14 @@ async def track_embed(
 
     if looping:
         embed.set_footer(text=f"Looping | Length: {track_time}")
-    elif playnext:
+    elif next:
         embed.set_footer(text=f"Playing Up Next | Length: {track_time}")
-    elif playnow:
-        embed.set_footer(text=f"Playing Now | Length: {track_time}")
     elif length_embed:
         embed.timestamp = utcnow()
     else:
-        embed.set_footer(text=f"Queued - {index} | " * queued + f"Length: {track_time}")
+        embed.set_footer(
+            text=f"Queued - {queued} | " * bool(queued) + f"Length: {track_time}"
+        )
     embed.set_thumbnail(url=thumbnail)
 
     return embed
