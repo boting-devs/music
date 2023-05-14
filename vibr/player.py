@@ -2,20 +2,26 @@ from __future__ import annotations
 
 import random
 from collections import deque
+from enum import Enum, auto
 from typing import TYPE_CHECKING
 
-from mafic import Player as MaficPlayer
-from mafic.track import Track
+import mafic
+from mafic import Track
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from mafic import Node, Track
+    from mafic import Node
     from mafic.type_variables import ClientT
     from nextcord.abc import Connectable, Messageable
 
 __all__ = ("Player", "Queue")
 MAX_QUEUE_LENGTH = 500
+
+
+class LoopType(Enum):
+    QUEUE = auto()
+    TRACK = auto()
 
 
 class Queue:
@@ -24,6 +30,22 @@ class Queue:
         # when appending.
         self._stack: deque[tuple[Track, int]] = deque()
         self._maxlen = maxlen
+        self._loop_type: LoopType | None = None
+
+    @property
+    def loop_type(self) -> LoopType | None:
+        return self._loop_type
+
+    def loop_track(self, track: Track, *, user: int) -> None:
+        self._loop_type = LoopType.TRACK
+        self._stack.appendleft((track, user))
+
+    def loop_queue(self, *, current: Track, user: int) -> None:
+        self._loop_type = LoopType.QUEUE
+        self._stack.append((current, user))
+
+    def disable_loop(self) -> None:
+        self._loop_type = None
 
     def extend(self, items: Sequence[tuple[Track, int]]) -> None:
         if (len(self._stack) + len(items)) == self._maxlen:
@@ -42,6 +64,14 @@ class Queue:
         return len(self._stack)
 
     def take(self) -> tuple[Track, int]:
+        if self._loop_type == LoopType.QUEUE:
+            item = self._stack.popleft()
+            self._stack.append(item)
+            return item
+
+        if self._loop_type == LoopType.TRACK:
+            return self._stack[0]
+
         return self._stack.popleft()
 
     def skip(self, amount: int) -> tuple[Track, int]:
@@ -73,11 +103,8 @@ class Queue:
     def insert(self, index: int, track: Track, user: int) -> None:
         self._stack.insert(index, (track, user))
 
-    def index(self, track: Track) -> None:
-        return self._stack.index(track)
 
-
-class Player(MaficPlayer):
+class Player(mafic.Player):
     def __init__(
         self,
         client: ClientT,

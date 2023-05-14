@@ -53,7 +53,8 @@ class Remove(CogBase[Vibr]):
                 "Please input a number which is within your queue!", ephemeral=True
             )
 
-        await inter.send_author_embed(f"\"{song_n.title}\" removed from queue")
+        await inter.send_author_embed(f'"{song_n.title}" removed from queue')
+        return None
 
     @remove.on_autocomplete("position")
     async def remove_autocomplete(self, inter: Inter, amount: str) -> dict[str, str]:

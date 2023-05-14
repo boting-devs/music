@@ -4,12 +4,11 @@ from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
 from mafic import Playlist
-from nextcord.utils import escape_markdown
+from nextcord.utils import escape_markdown, utcnow
 
 from vibr.embed import Embed
-from vibr.utils import truncate
 from vibr.inter import Inter
-from nextcord.utils import utcnow
+from vibr.utils import truncate
 
 if TYPE_CHECKING:
     from mafic import Track
@@ -77,19 +76,20 @@ async def get_url(track: Track, *, bot: Vibr) -> str | None:
 
     #     return None
 
+
 async def track_embed(
     item: Track | Playlist,
     *,
     bot: Vibr,
     user: int,
-    inter:Inter|None =None,
+    inter: Inter | None = None,
     skipped: int | None = None,
     queued: bool = False,
-    loop: bool = False,
+    looping: bool = False,
     playnext: bool = False,
     playnow: bool = False,
-    length_embed:bool =False,
-    index:int | None=None,
+    length_embed: bool = False,
+    index: int | None = None,
 ) -> Embed:
     if isinstance(item, Playlist):
         title = item.name
@@ -121,11 +121,8 @@ async def track_embed(
         embed = Embed(title=title, description=f"Requested by <@{user}>")
 
     if length_embed:
-        if isinstance(item, Playlist):
-            tr = item.tracks[0]
-        else:
-            tr = item
-            
+        tr = item.tracks[0] if isinstance(item, Playlist) else item
+
         c = inter.guild.voice_client.position
 
         assert tr.length is not None
@@ -144,14 +141,14 @@ async def track_embed(
 
     embed.set_author(name=authors, url=url)
 
-    if loop:
+    if looping:
         embed.set_footer(text=f"Looping | Length: {track_time}")
     elif playnext:
         embed.set_footer(text=f"Playing Up Next | Length: {track_time}")
     elif playnow:
         embed.set_footer(text=f"Playing Now | Length: {track_time}")
     elif length_embed:
-        embed.timestamp=utcnow()
+        embed.timestamp = utcnow()
     else:
         embed.set_footer(text=f"Queued - {index} | " * queued + f"Length: {track_time}")
     embed.set_thumbnail(url=thumbnail)

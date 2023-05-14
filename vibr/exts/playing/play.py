@@ -28,8 +28,13 @@ class Play(CogBase[Vibr]):
 
     @slash_command(dm_permission=False)
     async def play(
-        self, inter: Inter, query: str, search_type: str = SEARCH_TYPE,
-        type: int = SlashOption(name="type",choices={"next":69 , "now":420},default=None)
+        self,
+        inter: Inter,
+        query: str,
+        search_type: str = SEARCH_TYPE,
+        type: int = SlashOption(
+            name="type", choices={"next": 69, "now": 420}, default=None
+        ),
     ) -> None:
         """Play a link, query or past song.
 
@@ -71,7 +76,7 @@ class Play(CogBase[Vibr]):
             queued = tracks[1:]
             await player.play(track)
 
-            embed = await track_embed(item,bot=self.bot,user=inter.user.id)
+            embed = await track_embed(item, bot=self.bot, user=inter.user.id)
             await inter.followup.send(embed=embed)
 
             if queued:
@@ -82,7 +87,7 @@ class Play(CogBase[Vibr]):
                 else:
                     player.queue += [(track, inter.user.id) for track in queued]
         else:
-            if type ==69:
+            if type == 69:
                 for i in tracks[::-1]:
                     player.queue.insert(0, i, inter.user.id)
                 embed = await track_embed(
@@ -98,12 +103,11 @@ class Play(CogBase[Vibr]):
                 await inter.send(embed=embed)
                 await player.play(track)
 
-
-            elif type ==None:
+            elif type is None:
                 player.queue += [(track, inter.user.id) for track in tracks]
-                l=len(player.queue)
+                l = len(player.queue)
                 embed = await track_embed(
-                    item, bot=self.bot, user=inter.user.id, queued=True,index=l
+                    item, bot=self.bot, user=inter.user.id, queued=True, index=l
                 )
                 await inter.followup.send(embed=embed)
 
