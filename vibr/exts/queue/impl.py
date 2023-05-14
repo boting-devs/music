@@ -7,8 +7,9 @@ from botbase import CogBase
 from mafic import EndReason, TrackEndEvent, TrackStartEvent
 
 from vibr.bot import Vibr
-from vibr.track_embed import track_embed
 from vibr.embed import Embed
+from vibr.track_embed import track_embed
+
 if TYPE_CHECKING:
     from vibr.player import Player
 
@@ -45,10 +46,10 @@ class Queue(CogBase[Vibr]):
                 await player.play(play_next)
                 if player.dnd:
                     return
-                else:
-                    embed = await track_embed(play_next, bot=self.bot, user=member)
-                    if channel := player.notification_channel:
-                        await channel.send(embed=embed)
+
+                embed = await track_embed(play_next, bot=self.bot, user=member)
+                if channel := player.notification_channel:
+                    await channel.send(embed=embed)
 
     @CogBase.listener()
     async def on_track_start(self, event: TrackStartEvent[Player]) -> None:

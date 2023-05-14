@@ -76,7 +76,7 @@ class PlaylistSource(PageSource):
 
 
 class PlaylistMenu(ButtonMenuPages):
-    ...
+    playlist_id: str
 
 
 class PlaylistSelect(Select["PlaylistMenu"]):
@@ -101,7 +101,7 @@ class PlaylistSelect(Select["PlaylistMenu"]):
         )
         return SelectOption(
             label=playlist["name"],
-            value=playlist["external_urls"]["spotify"],
+            value=playlist["id"],
             description=description,
         )
 
@@ -109,6 +109,6 @@ class PlaylistSelect(Select["PlaylistMenu"]):
         assert self.view is not None
         assert inter.message is not None
 
-        self.view.uri = self.values[0]
+        self.view.playlist_id = self.values[0]
         await inter.message.delete()
         self.view.stop()
