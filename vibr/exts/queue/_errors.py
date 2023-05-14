@@ -1,7 +1,7 @@
 from vibr.embed import ErrorEmbed
 from vibr.errors import CheckFailure
 
-__all__ = ("EmptyQueue",)
+__all__ = ("EmptyQueue", "IndexNotInRange", "InvalidIndex")
 
 
 class EmptyQueue(CheckFailure):
@@ -15,4 +15,11 @@ class IndexNotInRange(CheckFailure):
     embed = ErrorEmbed(
         title="Not in Range",
         description="Please use an index within your queue range.",
+    )
+
+
+class InvalidIndex(CheckFailure):
+    embed = ErrorEmbed(
+        title="Invalid Position",
+        description="Please use a number index.",
     )

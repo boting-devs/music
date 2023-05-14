@@ -14,7 +14,7 @@ from vibr.inter import Inter
 from vibr.utils import truncate
 
 from ..playing._errors import QueueEmpty
-from ._errors import IndexNotInRange
+from ._errors import IndexNotInRange, InvalidIndex
 
 if TYPE_CHECKING:
     from mafic import Track
@@ -54,6 +54,9 @@ class Move(CogBase[Vibr]):
         length = len(player.queue)
         if destination < 1 or destination > length:
             raise IndexNotInRange
+
+        if not track.isdigit():
+            raise InvalidIndex
 
         track_index = int(track)
 

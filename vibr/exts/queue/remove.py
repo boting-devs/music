@@ -12,7 +12,7 @@ from vibr.inter import Inter
 from vibr.utils import truncate
 
 from ..playing._errors import QueueEmpty
-from ._errors import IndexNotInRange
+from ._errors import IndexNotInRange, InvalidIndex
 
 if TYPE_CHECKING:
     from mafic import Track
@@ -43,6 +43,9 @@ class Remove(CogBase[Vibr]):
 
         if not player.queue:
             raise QueueEmpty
+
+        if not position.isdigit():
+            raise InvalidIndex
 
         position_index = int(position)
         length = len(player.queue)
