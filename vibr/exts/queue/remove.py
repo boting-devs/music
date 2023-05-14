@@ -12,6 +12,7 @@ from vibr.inter import Inter
 from vibr.utils import truncate
 
 from ..playing._errors import QueueEmpty
+from ._errors import IndexNotInRange
 
 if TYPE_CHECKING:
     from mafic import Track
@@ -44,17 +45,20 @@ class Remove(CogBase[Vibr]):
             raise QueueEmpty
 
         position_index = int(position)
+        length = len(player.queue)
+        if position_index < 1 or position_index > length:
+            raise IndexNotInRange
 
         try:
             song_n = player.queue[position_index - 1]
             player.queue.pop(position_index - 1)
         except IndexError:
-            return await inter.send(
+            await inter.send(
                 "Please input a number which is within your queue!", ephemeral=True
             )
+            return
 
         await inter.send_author_embed(f'"{song_n.title}" removed from queue')
-        return None
 
     @remove.on_autocomplete("position")
     async def remove_autocomplete(self, inter: Inter, amount: str) -> dict[str, str]:

@@ -14,5 +14,5 @@ class EmptyQueue(CheckFailure):
 class IndexNotInRange(CheckFailure):
     embed = ErrorEmbed(
         title="Not in Range",
-        description="Please use the destination index within your queue range.",
+        description="Please use an index within your queue range.",
     )

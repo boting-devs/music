@@ -5,7 +5,6 @@ from nextcord import slash_command
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
-from vibr.embed import Embed
 from vibr.inter import Inter
 from vibr.track_embed import track_embed
 
