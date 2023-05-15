@@ -28,6 +28,7 @@ class Queue(CogBase[Vibr]):
                 if channel := player.notification_channel:
                     embed = Embed(title="End of Queue")
                     await channel.send(embed=embed)
+                    player.start_disconnect_timer()
             else:
                 await player.play(play_next)
                 if player.dnd:

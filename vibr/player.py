@@ -205,7 +205,7 @@ class Player(mafic.Player):
             await channel.send(embed=embed)
 
     def start_pause_timer(self) -> None:
-        if self.paused:
+        if self.paused or not self.current:
             return
 
         self._pause_timer = self.client.loop.call_later(
