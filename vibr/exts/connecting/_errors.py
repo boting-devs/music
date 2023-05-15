@@ -23,6 +23,6 @@ class AlreadyConnected(CheckFailure):
 class UserNotInVoice(CheckFailure):
     embed = ErrorEmbed(
         title="You Are Not in a Voice Channel",
-        description="You are not in a voice channel. Please connect to one or"
+        description="You are not in a voice channel. Please connect to one or "
         "specify the channel with the `channel` option.",
     )

@@ -1073,14 +1073,14 @@ files = [
 
 [[package]]
 name = "mafic"
-version = "2.4.0"
+version = "2.4.1"
 description = "A properly typehinted lavalink client for discord.py, nextcord, disnake and py-cord."
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "mafic-2.4.0-py3-none-any.whl", hash = "sha256:8b899c4cbd60fc861a2a3c97b9da54f52e72bec4f5e2c89e6f0b39c00e338f93"},
-    {file = "mafic-2.4.0.tar.gz", hash = "sha256:5130529095093e13739001369eed2278afe2b22694ea408506d213f4edb69c08"},
+    {file = "mafic-2.4.1-py3-none-any.whl", hash = "sha256:d783e48d5e61c72d3475d9e485583ada0ca76b825e583ecb9e38c1addcb6270c"},
+    {file = "mafic-2.4.1.tar.gz", hash = "sha256:a43284975254c9e020b1ca6543e760ce0c2d2e6da16ebedfadc05ec7787b9c40"},
 ]
 
 [package.dependencies]
@@ -1419,14 +1419,13 @@ files = [
 
 [[package]]
 name = "ooliver-botbase"
-version = "2.0.2"
+version = "2.0.3"
 description = "A personal nextcord bot base package for bots."
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "ooliver_botbase-2.0.2-py3-none-any.whl", hash = "sha256:0317ca4fd8b54320ce4ad90f1dbb1e70fbb69cfbf1235fc4ffc61d65604ead22"},
-    {file = "ooliver_botbase-2.0.2.tar.gz", hash = "sha256:df0f9092eafe283bc798828ad322a8d50e0048caadf15f9136ef0834f5e67e0f"},
+    {file = "ooliver_botbase-2.0.3-py3-none-any.whl", hash = "sha256:d1b7f72487d716839e18a5ffa80dc28a444eb26d51626527bd932fca4856786b"},
 ]
 
 [package.dependencies]
@@ -2330,4 +2329,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ef0e4098be8f0309f145100a747dccb64630e98be848cb21a42d1252a5c101dc"
+content-hash = "81441a4ff77502c51e26ef036a1013811fc11b06235700a257400fcb87f76e48"

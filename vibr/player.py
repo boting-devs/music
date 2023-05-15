@@ -7,11 +7,15 @@ from typing import TYPE_CHECKING
 
 import mafic
 from mafic import Track
+from nextcord.utils import MISSING
+
+from vibr.embed import Embed
 
 if TYPE_CHECKING:
+    from asyncio import TimerHandle
     from collections.abc import Sequence
 
-    from mafic import Node
+    from mafic import Filter, Node
     from mafic.type_variables import ClientT
     from nextcord.abc import Connectable, Messageable
 
@@ -105,6 +109,11 @@ class Queue:
 
 
 class Player(mafic.Player):
+    # PAUSE_TIMEOUT = 30
+    # DISCONNECT_TIMEOUT = 60 * 10
+    PAUSE_TIMEOUT = 10
+    DISCONNECT_TIMEOUT = 15
+
     def __init__(
         self,
         client: ClientT,
@@ -123,6 +132,9 @@ class Player(mafic.Player):
         self.loop_queue_check: bool = False
         self.dnd: bool = False
 
+        self._pause_timer: TimerHandle | None = None
+        self._disconnect_timer: TimerHandle | None = None
+
     async def play(
         self,
         track: Track | str,
@@ -139,6 +151,9 @@ class Player(mafic.Player):
             assert track.uri is not None
             track = track.uri
 
+        if track is not None:
+            self.cancel_pause_timer()
+
         return await super().play(
             track,
             start_time=start_time,
@@ -146,4 +161,62 @@ class Player(mafic.Player):
             volume=volume,
             replace=replace,
             pause=pause,
+        )
+
+    async def pause(self, pause: bool = True) -> None:
+        if pause:
+            self.start_disconnect_timer()
+
+        return await super().pause(pause)
+
+    def cancel_pause_timer(self) -> None:
+        if self._pause_timer:
+            self._pause_timer.cancel()
+            self._pause_timer = None
+
+    def cancel_disconnect_timer(self) -> None:
+        if self._disconnect_timer:
+            self._disconnect_timer.cancel()
+            self._disconnect_timer = None
+
+    async def _pause_task(self) -> None:
+        await self.pause()
+        self._pause_timer = None
+
+        if channel := self.notification_channel:
+            embed = Embed(
+                title="Pausing Due to No Listeners",
+                description=(
+                    "To prevent unnecessary resource usage, "
+                    "I have paused the player."
+                ),
+            )
+            await channel.send(embed=embed)
+
+    async def _disconnect_task(self) -> None:
+        await self.destroy()
+        self._disconnect_timer = None
+
+        if channel := self.notification_channel:
+            embed = Embed(
+                title="Disconnecting Due to No Activity",
+                description=(
+                    "To prevent unnecessary resource usage, "
+                    "I have disconnected the player."
+                ),
+            )
+            await channel.send(embed=embed)
+
+    def start_pause_timer(self) -> None:
+        if self.paused:
+            return
+
+        self._pause_timer = self.client.loop.call_later(
+            self.PAUSE_TIMEOUT, lambda: self.client.loop.create_task(self._pause_task())
+        )
+
+    def start_disconnect_timer(self) -> None:
+        self._disconnect_timer = self.client.loop.call_later(
+            self.DISCONNECT_TIMEOUT,
+            lambda: self.client.loop.create_task(self._disconnect_task()),
         )
