@@ -109,10 +109,8 @@ class Queue:
 
 
 class Player(mafic.Player):
-    # PAUSE_TIMEOUT = 30
-    # DISCONNECT_TIMEOUT = 60 * 10
-    PAUSE_TIMEOUT = 10
-    DISCONNECT_TIMEOUT = 15
+    PAUSE_TIMEOUT = 30
+    DISCONNECT_TIMEOUT = 60 * 10
 
     def __init__(
         self,
