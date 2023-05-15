@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 
 import mafic
 from mafic import Track
-from nextcord.utils import MISSING
 
 from vibr.embed import Embed
 
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
     from asyncio import TimerHandle
     from collections.abc import Sequence
 
-    from mafic import Filter, Node
+    from mafic import Node
     from mafic.type_variables import ClientT
     from nextcord.abc import Connectable, Messageable
 

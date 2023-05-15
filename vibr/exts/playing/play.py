@@ -27,7 +27,7 @@ class Play(CogBase[Vibr]):
             "Spotify": SearchType.SPOTIFY_SEARCH.value,
             "Apple Music": SearchType.APPLE_MUSIC.value,
             "Deezer": SearchType.DEEZER_SEARCH.value,
-            "Yandex Music": SearchType.YANDEX_MUSIC.value,
+            # "Yandex Music": SearchType.YANDEX_MUSIC.value,
         },
         default=SearchType.YOUTUBE.value,
     )
