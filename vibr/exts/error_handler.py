@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from contextlib import suppress
 from logging import getLogger
 from traceback import format_exception
 
 from botbase import CogBase
-from nextcord import ApplicationInvokeError
+from nextcord import ApplicationInvokeError, Colour, NotFound
 
 from vibr.bot import Vibr
+from vibr.embed import ErrorEmbed
 from vibr.errors import CheckFailure
 from vibr.inter import Inter
 
@@ -34,8 +36,24 @@ class ErrorHandler(CogBase[Vibr]):
             await inter.send(embed=embed, view=view, ephemeral=True)
         else:
             log.error(
-                "Shit. Vibr just fookin died ༶ඬ༝ඬ༶ ᕙ(░ಥ╭͜ʖ╮ಥ░)━☆ﾟ.*･｡ﾟ ", exc_info=exc
+                "Unexpected error in command %s",
+                inter.application_command.qualified_name
+                if inter.application_command
+                else None,
+                exc_info=exc,
             )
+            embed = ErrorEmbed(
+                title="Unexpected Error.",
+                description=(
+                    f"```py\n{type(exc).__name__}: {exc}```\n"
+                    "Developers have been notified.\n"
+                    "**This is not a user error, retrying likely will not work.**"
+                ),
+                color=Colour.red(),
+            )
+            with suppress(NotFound):
+                await inter.send(embed=embed, view=embed.view, ephemeral=True)
+
             if log_channel_id := self.bot.log_channel:
                 log_channel = await self.bot.getch_channel(log_channel_id)
 
