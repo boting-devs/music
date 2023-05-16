@@ -139,7 +139,7 @@ class Play(CogBase[Vibr]):
 
             await join(inter)
         else:
-            await inter.response.defer()
+            await inter.response.defer(ephemeral=True)
 
 
 def setup(bot: Vibr) -> None:
