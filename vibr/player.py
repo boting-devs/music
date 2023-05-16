@@ -66,13 +66,13 @@ class Queue:
     def __len__(self) -> int:
         return len(self._stack)
 
-    def take(self) -> tuple[Track, int]:
+    def take(self, skip: bool = False) -> tuple[Track, int]:
         if self._loop_type == LoopType.QUEUE:
             item = self._stack.popleft()
             self._stack.append(item)
             return item
 
-        if self._loop_type == LoopType.TRACK:
+        if self._loop_type == LoopType.TRACK and not skip:
             return self._stack[0]
 
         return self._stack.popleft()
@@ -81,7 +81,7 @@ class Queue:
         track = None
 
         for _ in range(amount):
-            track = self.take()
+            track = self.take(skip=True)
 
         assert track is not None
 
