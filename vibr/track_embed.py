@@ -10,6 +10,9 @@ from vibr.embed import Embed
 from vibr.inter import Inter
 from vibr.utils import truncate
 
+from . import buttons
+
+
 if TYPE_CHECKING:
     from mafic import Track
 
@@ -21,7 +24,6 @@ __all__ = ("track_embed",)
 
 MAX_AUTHOR_LENGTH = 3
 HTTP_FOUND = 302
-
 
 def get_authors(tracks: list[Track]) -> str:
     """Get a string of authors.
@@ -89,6 +91,8 @@ async def track_embed(
     next: bool = False,
     length_embed: bool = False,
 ) -> Embed:
+    view = buttons.PlayButtons(item)
+    
     if isinstance(item, Playlist):
         title = item.name
         authors = get_authors(item.tracks)
@@ -152,4 +156,4 @@ async def track_embed(
         )
     embed.set_thumbnail(url=thumbnail)
 
-    return embed
+    return embed ,view

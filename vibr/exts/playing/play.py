@@ -76,7 +76,7 @@ class Play(CogBase[Vibr]):
             queued = tracks[1:]
             await player.play(track)
 
-            embed = await track_embed(item, bot=self.bot, user=inter.user.id)
+            embed,view = await track_embed(item, bot=self.bot, user=inter.user.id)
 
             if queued:
                 if type == "Next":
@@ -85,21 +85,21 @@ class Play(CogBase[Vibr]):
                 else:
                     player.queue += [(track, inter.user.id) for track in queued]
         elif type == "Next":
-            embed = await self.handle_play_next(
+            embed,view = await self.handle_play_next(
                 player=player, inter=inter, item=item, tracks=tracks
             )
         elif type == "Now":
-            embed = await self.handle_play_now(
+            embed,view = await self.handle_play_now(
                 player=player, inter=inter, item=item, tracks=tracks
             )
         else:
             player.queue += [(track, inter.user.id) for track in tracks]
             length = len(player.queue)
-            embed = await track_embed(
+            embed,view = await track_embed(
                 item, bot=self.bot, user=inter.user.id, queued=length
             )
 
-        await inter.channel.send(embed=embed)  # pyright: ignore
+        await inter.channel.send(embed=embed,view=view)  # pyright: ignore
 
         # Delete defer message once it's not needed anymore.
         await inter.delete_original_message()
@@ -115,10 +115,10 @@ class Play(CogBase[Vibr]):
         for i in tracks[::-1]:
             player.queue.insert(0, i, inter.user.id)
         track, user = player.queue.skip(1)
-        embed = await track_embed(item, bot=self.bot, user=user)
+        embed,view = await track_embed(item, bot=self.bot, user=user)
         await player.play(track)
 
-        return embed
+        return embed,view
 
     async def handle_play_next(
         self,
@@ -130,8 +130,9 @@ class Play(CogBase[Vibr]):
     ) -> Embed:
         for i in tracks[::-1]:
             player.queue.insert(0, i, inter.user.id)
-        return await track_embed(item, bot=self.bot, user=inter.user.id, queued=1)
-
+        embed,view= await track_embed(item, bot=self.bot, user=inter.user.id, queued=1)
+        return embed,view
+    
     async def assert_player(self, *, inter: Inter) -> None:
         if not inter.guild.voice_client:
             commands = self.bot.get_all_application_commands()
