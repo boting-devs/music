@@ -23,7 +23,7 @@ class Join(CogBase[Vibr]):
         channel:
             The channel to connect to. Leave blank to connect to your current channel.
         """
-        if not inter.response.is_done():
+        if inter.application_command and inter.application_command.name == "join":
             # Defer in case we want to send an error message.
             # No need to clutter the channel with a public error message.
             await inter.response.defer(ephemeral=True)
@@ -46,7 +46,9 @@ class Join(CogBase[Vibr]):
         )
 
         await inter.channel.send(embed=embed)  # pyright: ignore
-        await inter.delete_original_message()
+
+        if inter.application_command and inter.application_command.name == "join":
+            await inter.delete_original_message()
 
 
 def setup(bot: Vibr) -> None:

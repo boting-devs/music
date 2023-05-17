@@ -52,6 +52,8 @@ class Play(CogBase[Vibr]):
             playing.
         """
 
+        await inter.response.defer(ephemeral=True)
+
         await self.assert_player(inter=inter)
         player = inter.guild.voice_client
         player.notification_channel = inter.channel  # pyright: ignore
@@ -138,8 +140,6 @@ class Play(CogBase[Vibr]):
                 raise RuntimeError
 
             await join(inter)
-        else:
-            await inter.response.defer(ephemeral=True)
 
 
 def setup(bot: Vibr) -> None:
