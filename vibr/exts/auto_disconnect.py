@@ -61,16 +61,23 @@ class AutoDisconnect(CogBase[Vibr]):
             player = cast(Player | None, member.guild.voice_client)
             if (
                 player is not None
-                and len(before.channel.voice_states) == 1
                 and cast(Snowflake, player.channel).id == before.channel.id
+                and len(before.channel.voice_states) == 1
             ):
                 player.start_pause_timer()
 
         # Switched channels, cancel existing timers.
-        elif before.channel is not None and after.channel is not None:
+        elif (
+            before.channel is not None
+            and after.channel is not None
+            and before.channel != after.channel
+        ):
             player = cast(Player | None, member.guild.voice_client)
             if player is not None:
-                if cast(Snowflake, player.channel).id == before.channel.id:
+                if (
+                    cast(Snowflake, player.channel).id == before.channel.id
+                    and len(before.channel.voice_states) == 1
+                ):
                     player.start_pause_timer()
                 elif cast(Snowflake, player.channel).id == after.channel.id:
                     player.cancel_pause_timer()
