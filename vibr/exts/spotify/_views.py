@@ -10,8 +10,6 @@ from nextcord.ui import Button, Select
 from vibr.utils import truncate
 
 if TYPE_CHECKING:
-    from async_spotify.authentification import SpotifyAuthorisationToken
-
     from vibr.bot import Vibr
     from vibr.inter import Inter
 
@@ -26,13 +24,13 @@ class PlaylistSource(PageSource):
         self,
         *,
         initial: PlaylistResponse,
-        token: SpotifyAuthorisationToken,
+        user_id: str,
         bot: Vibr,
         per_page: int = 25,
     ) -> None:
         self.initial = initial["items"]
         self.total = initial["total"]
-        self.token = token
+        self.user_id = user_id
         self.bot = bot
         self.per_page = per_page
 
@@ -47,8 +45,8 @@ class PlaylistSource(PageSource):
             return self.initial
 
         offset = page_number * self.per_page
-        playlists = await self.bot.spotify.playlists.current_get_all(
-            self.token, limit=self.per_page, offset=offset
+        playlists = await self.bot.spotify.playlists.get_user_all(
+            self.user_id, limit=self.per_page, offset=offset
         )
         return playlists["items"]
 

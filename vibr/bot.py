@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import yaml
 from async_spotify import SpotifyApiClient
-from async_spotify.authentification.authorization_flows import AuthorizationCodeFlow
+from async_spotify.authentification.authorization_flows import ClientCredentialsFlow
 from botbase import BotBase
 from mafic import Group, NodePool, Region, VoiceRegion
 from nextcord import (
@@ -65,10 +65,9 @@ class Vibr(BotBase):
 
         self.pool = NodePool(self)
 
-        auth = AuthorizationCodeFlow(
+        auth = ClientCredentialsFlow(
             application_id=environ["SPOTIFY_CLIENT_ID"],
             application_secret=environ["SPOTIFY_CLIENT_SECRET"],
-            redirect_url=f"{environ['SPOTIFY_REDIRECT_URL']}/spotify/callback",
         )
         self.spotify = SpotifyApiClient(auth)
 
