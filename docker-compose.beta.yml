@@ -5,11 +5,6 @@ services:
     environment:
       LAVALINK_FILE: lavalink/beta.nodes.yml
       SPOTIFY_REDIRECT_URL: https://vibr-beta-oauth.boting.xyz
-  api:
-    ports:
-      - 127.0.0.1:6796:8000
-    environment:
-      REDIRECT_URI: https://vibr-beta-oauth.boting.xyz
   gateway-proxy:
     volumes:
       - ./gateway-proxy/config.json:/config.json

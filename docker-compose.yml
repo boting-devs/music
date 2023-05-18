@@ -12,6 +12,3 @@ services:
       - 8000:8000
     environment:
       REDIRECT_URI: http://localhost:8000
-  bot:
-    environment:
-      SPOTIFY_REDIRECT_URL: http://localhost:8000
