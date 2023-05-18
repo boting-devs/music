@@ -11,6 +11,7 @@ from vibr.bot import Vibr
 from vibr.embed import ErrorEmbed
 from vibr.errors import CheckFailure
 from vibr.inter import Inter
+from async_spotify.spotify_errors import SpotifyAPIError
 
 log = getLogger(__name__)
 
@@ -34,6 +35,9 @@ class ErrorHandler(CogBase[Vibr]):
             view = embed.view
 
             await inter.send(embed=embed, view=view, ephemeral=True)
+        elif isinstance(exc, SpotifyAPIError):
+            await inter.send("SpotifyAPIError")
+            log.error("SpotifyAPIError: %s", exc.message, exc_info=True)
         else:
             log.error(
                 "Unexpected error in command %s",
