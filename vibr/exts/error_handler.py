@@ -4,6 +4,7 @@ from contextlib import suppress
 from logging import getLogger
 from traceback import format_exception
 
+from async_spotify.spotify_errors import SpotifyAPIError
 from botbase import CogBase
 from nextcord import ApplicationInvokeError, Colour, NotFound
 
@@ -11,7 +12,6 @@ from vibr.bot import Vibr
 from vibr.embed import ErrorEmbed
 from vibr.errors import CheckFailure
 from vibr.inter import Inter
-from async_spotify.spotify_errors import SpotifyAPIError
 
 log = getLogger(__name__)
 
