@@ -10,7 +10,7 @@ python = "^3.10"
 nextcord = { version = "^2.4.0", extras = ["speed"] }
 mafic = "^2.4.1"
 uvloop = "^0.17.0"
-ooliver-botbase = {version = "^2.0.3", extras = ["db"]}
+ooliver-botbase = { version = "^2.0.3", extras = ["db"] }
 alembic = "^1.9.3"
 psycopg2-binary = "^2.9.5"
 asyncpg = "^0.27.0"
@@ -19,8 +19,8 @@ matplotlib = "^3.7.0"
 pyyaml = "^6.0"
 docker-py = "^1.10.6"
 nextcord-ext-menus = "^1.5.6"
-delarva = {git = "https://github.com/ooliver1/delarva"}
-async-spotify = "^0.4.4"
+delarva = { git = "https://github.com/ooliver1/delarva" }
+async-spotify = { git = "https://github.com/ooliver1/AsyncSpotify", subdirectory = "src" }
 itsdangerous = "^2.1.2"
 
 [tool.poetry.group.dev.dependencies]

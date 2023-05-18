@@ -164,17 +164,23 @@ tz = ["python-dateutil"]
 [[package]]
 name = "async-spotify"
 version = "0.4.4"
-description = "An async spotify api client"
+description = ""
 category = "main"
 optional = false
 python-versions = ">=3.6"
-files = [
-    {file = "async-spotify-0.4.4.tar.gz", hash = "sha256:6ed9848a4e2d70c87ac07c0e386b52d84f1b845dfe932bc1b4451f239ec18731"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 aiodns = ">=2.0.0"
 aiohttp = ">=3.6.2"
+
+[package.source]
+type = "git"
+url = "https://github.com/ooliver1/AsyncSpotify"
+reference = "HEAD"
+resolved_reference = "dc09920cd5bda2e3faa9914d0a97adcab0a8b34d"
+subdirectory = "src"
 
 [[package]]
 name = "async-timeout"
@@ -2329,4 +2335,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "81441a4ff77502c51e26ef036a1013811fc11b06235700a257400fcb87f76e48"
+content-hash = "d2d2b69270a6f04b9717ffb51d2aebf3b0262f31341ea1f51eba7afbb2d8e850"
