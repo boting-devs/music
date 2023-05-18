@@ -1,10 +1,23 @@
+from __future__ import annotations
+
 from abc import ABC
+from typing import TYPE_CHECKING
 
 from nextcord import ApplicationCheckFailure, StageChannel, VoiceChannel
 
-from vibr.bot import ErrorEmbed, Vibr
+from .embed import ErrorEmbed
 
-__all__ = ("CheckFailure", "NotInSameVoice", "NotConnected", "NotPlaying")
+if TYPE_CHECKING:
+    from vibr.bot import Vibr
+
+__all__ = (
+    "CheckFailure",
+    "NotInSameVoice",
+    "NotConnected",
+    "NotPlaying",
+    "NoTracksFound",
+    "UserNotInVoice",
+)
 
 
 class CheckFailure(ApplicationCheckFailure, ABC):
@@ -35,3 +48,19 @@ class NotPlaying(CheckFailure):
             title="No song Playing",
             description=f"{bot.get_command_mention('play')} a song to use the command",
         )
+
+
+class NoTracksFound(CheckFailure):
+    embed = ErrorEmbed(
+        title="No Tracks Found",
+        description="Could not find any tracks for your config. "
+        "Try a different `search-type` or a more generic query.",
+    )
+
+
+class UserNotInVoice(CheckFailure):
+    embed = ErrorEmbed(
+        title="You Are Not in a Voice Channel",
+        description="You are not in a voice channel. Please connect to one or "
+        "specify the channel with the `channel` option.",
+    )

@@ -7,8 +7,3 @@ services:
   postgres:
     volumes:
       - ./pg_data:/var/lib/postgresql/data
-  api:
-    ports:
-      - 8000:8000
-    environment:
-      REDIRECT_URI: http://localhost:8000

@@ -11,4 +11,4 @@ class User(Model):
         tablename = "users"
 
     id: int = BigInteger(primary_key=True, autoincrement=False)
-    spotify_id: str = Text()
+    spotify_id: str | None = Text(nullable=True)

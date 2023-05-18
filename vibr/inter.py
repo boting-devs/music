@@ -5,15 +5,15 @@ from typing import TYPE_CHECKING
 import nextcord
 from botbase import MyInter
 
-from vibr.bot import Vibr
-
 if TYPE_CHECKING:
     from vibr.player import Player
+
+    from . import bot  # noqa: F401
 
 __all__ = ("Inter",)
 
 
-class Inter(MyInter[Vibr]):
+class Inter(MyInter["bot.Vibr"]):
     @property
     def guild(self) -> Guild:
         return super().guild  # pyright: ignore[reportGeneralTypeIssues]

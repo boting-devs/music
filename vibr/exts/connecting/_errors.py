@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from nextcord import StageChannel, VoiceChannel
 
 
-__all__ = ("AlreadyConnected", "UserNotInVoice")
+__all__ = ("AlreadyConnected",)
 
 
 class AlreadyConnected(CheckFailure):
@@ -18,11 +18,3 @@ class AlreadyConnected(CheckFailure):
             title="I Am Already Connected",
             description=f"I am already connected to {channel.mention}.",
         )
-
-
-class UserNotInVoice(CheckFailure):
-    embed = ErrorEmbed(
-        title="You Are Not in a Voice Channel",
-        description="You are not in a voice channel. Please connect to one or "
-        "specify the channel with the `channel` option.",
-    )

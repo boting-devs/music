@@ -9,27 +9,36 @@ import yaml
 from async_spotify import SpotifyApiClient
 from async_spotify.authentification.authorization_flows import ClientCredentialsFlow
 from botbase import BotBase
-from mafic import Group, NodePool, Region, VoiceRegion
+from discord import SlashApplicationSubcommand
+from mafic import Group, NodePool, Playlist, Region, SearchType, Track, VoiceRegion
 from nextcord import (
     ApplicationCommandType,
     Intents,
+    Member,
     MemberCacheFlags,
     SlashApplicationCommand,
+    StageChannel,
+    VoiceChannel,
 )
 from ormar import NoMatch
 
 from vibr.constants import COLOURS, GUILD_IDS
 from vibr.db.player import PlayerConfig
-from vibr.embed import ErrorEmbed
+from vibr.embed import Embed, ErrorEmbed
 from vibr.sharding import TOTAL_SHARDS, shard_ids
+from vibr.track_embed import track_embed
+
+from . import errors
+from .player import Player
 
 if TYPE_CHECKING:
     from typing import TypedDict
 
     from typing_extensions import NotRequired
 
+    from vibr.buttons import PlayButtons
+
     from .inter import Inter
-    from .player import Player
 
     class LavalinkInfo(TypedDict):
         host: str
@@ -162,7 +171,9 @@ class Vibr(BotBase):
         command = self.get_application_command_from_signature(
             name=name, cmd_type=ApplicationCommandType.chat_input.value, guild_id=None
         )
-        assert isinstance(command, SlashApplicationCommand)
+        assert isinstance(
+            command, SlashApplicationCommand | SlashApplicationSubcommand | None
+        )
 
         return command.get_mention(guild=None) if command else f"/{name}"
 
@@ -183,3 +194,142 @@ class Vibr(BotBase):
             await sleep(1)
 
         await player.set_volume(config.volume)
+
+    async def play(
+        self,
+        inter: Inter,
+        query: str,
+        search_type: str = SearchType.YOUTUBE.value,
+        type: str | None = None,
+    ) -> None:
+        await inter.response.defer(ephemeral=True)
+
+        await self.assert_player(inter=inter)
+        player = inter.guild.voice_client
+        player.notification_channel = inter.channel  # pyright: ignore
+
+        result = await player.fetch_tracks(
+            query=query, search_type=SearchType(search_type)
+        )
+        if not result:
+            raise errors.NoTracksFound
+
+        if isinstance(result, Playlist):
+            tracks = result.tracks
+            item = result
+            track = tracks[0]
+        else:
+            item = track = result[0]
+            tracks = [track]
+
+        if player.current is None:
+            queued = tracks[1:]
+            await player.play(track)
+
+            embed, view = await track_embed(item, bot=self, user=inter.user.id)
+
+            if queued:
+                if type == "Next":
+                    for i in tracks[::-1]:
+                        player.queue.insert(0, i, inter.user.id)
+                else:
+                    player.queue += [(track, inter.user.id) for track in queued]
+        elif type == "Next":
+            embed, view = await self.handle_play_next(
+                player=player, inter=inter, item=item, tracks=tracks
+            )
+        elif type == "Now":
+            embed, view = await self.handle_play_now(
+                player=player, inter=inter, item=item, tracks=tracks
+            )
+        else:
+            player.queue += [(track, inter.user.id) for track in tracks]
+            length = len(player.queue)
+            embed, view = await track_embed(
+                item, bot=self, user=inter.user.id, queued=length
+            )
+
+        await inter.channel.send(embed=embed, view=view)  # pyright: ignore
+
+    async def handle_play_now(
+        self,
+        *,
+        player: Player,
+        inter: Inter,
+        item: Track | Playlist,
+        tracks: list[Track],
+    ) -> tuple[Embed, PlayButtons]:
+        for i in tracks[::-1]:
+            player.queue.insert(0, i, inter.user.id)
+        track, user = player.queue.skip(1)
+        embed, view = await track_embed(item, bot=self, user=user)
+        await player.play(track)
+
+        return embed, view
+
+    async def handle_play_next(
+        self,
+        *,
+        player: Player,
+        inter: Inter,
+        item: Track | Playlist,
+        tracks: list[Track],
+    ) -> tuple[Embed, PlayButtons]:
+        for i in tracks[::-1]:
+            player.queue.insert(0, i, inter.user.id)
+        embed, view = await track_embed(item, bot=self, user=inter.user.id, queued=1)
+        return embed, view
+
+    async def assert_player(self, *, inter: Inter) -> None:
+        if not inter.guild.voice_client:
+            await self.join(inter=inter, channel=None)
+
+    async def join(
+        self, *, inter: Inter, channel: StageChannel | VoiceChannel | None
+    ) -> None:
+        if channel is None:
+            channel = inter.user.voice and inter.user.voice.channel
+
+            if channel is None:
+                raise errors.UserNotInVoice
+
+        if not await self.can_connect(channel, inter=inter):
+            return
+
+        player = await channel.connect(cls=Player, timeout=5)
+
+        await self.set_player_settings(player, channel.id)
+
+        embed = Embed(
+            title="Connected!", description=f"Connected to {channel.mention}."
+        )
+
+        await inter.channel.send(embed=embed)  # pyright: ignore
+
+    async def can_connect(
+        self, channel: VoiceChannel | StageChannel, *, inter: Inter
+    ) -> bool:
+        assert isinstance(inter.me, Member)
+
+        if not channel.permissions_for(inter.me).connect:
+            embed = ErrorEmbed(
+                title="I Cannot Connect",
+                description=(
+                    f"I do not have permission to connect to {channel.mention}."
+                ),
+            )
+            await inter.send(embed=embed, view=embed.view, ephemeral=True)
+            return False
+
+        if channel.user_limit and len(channel.voice_states) >= channel.user_limit:
+            permissions = channel.permissions_for(channel.guild.me)
+            if not (permissions.move_members or permissions.administrator):
+                embed = ErrorEmbed(
+                    title="I Cannot Connect",
+                    description=f"{channel.mention} is full, "
+                    "and I do not have permission to move members.",
+                )
+                await inter.send(embed=embed, view=embed.view, ephemeral=True)
+                return False
+
+        return True

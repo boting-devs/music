@@ -1,21 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from botbase import CogBase
-from mafic import Playlist, SearchType, Track
-from nextcord import ApplicationCommandType, SlashOption, slash_command
-from nextcord.utils import get
+from mafic import SearchType
+from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
 from vibr.inter import Inter
-from vibr.track_embed import track_embed
-
-from ._errors import NoTracksFound
-
-if TYPE_CHECKING:
-    from vibr.embed import Embed
-    from vibr.player import Player
 
 
 class Play(CogBase[Vibr]):
@@ -39,7 +29,7 @@ class Play(CogBase[Vibr]):
         inter: Inter,
         query: str,
         search_type: str = SEARCH_TYPE,
-        type: str = TYPE,
+        type: str | None = TYPE,
     ) -> None:
         """Play a link, query or past song.
 
@@ -54,93 +44,12 @@ class Play(CogBase[Vibr]):
 
         await inter.response.defer(ephemeral=True)
 
-        await self.assert_player(inter=inter)
-        player = inter.guild.voice_client
-        player.notification_channel = inter.channel  # pyright: ignore
-
-        result = await player.fetch_tracks(
-            query=query, search_type=SearchType(search_type)
+        await self.bot.play(
+            inter=inter, query=query, search_type=search_type, type=type
         )
-        if not result:
-            raise NoTracksFound
-
-        if isinstance(result, Playlist):
-            tracks = result.tracks
-            item = result
-            track = tracks[0]
-        else:
-            item = track = result[0]
-            tracks = [track]
-
-        if player.current is None:
-            queued = tracks[1:]
-            await player.play(track)
-
-            embed,view = await track_embed(item, bot=self.bot, user=inter.user.id)
-
-            if queued:
-                if type == "Next":
-                    for i in tracks[::-1]:
-                        player.queue.insert(0, i, inter.user.id)
-                else:
-                    player.queue += [(track, inter.user.id) for track in queued]
-        elif type == "Next":
-            embed,view = await self.handle_play_next(
-                player=player, inter=inter, item=item, tracks=tracks
-            )
-        elif type == "Now":
-            embed,view = await self.handle_play_now(
-                player=player, inter=inter, item=item, tracks=tracks
-            )
-        else:
-            player.queue += [(track, inter.user.id) for track in tracks]
-            length = len(player.queue)
-            embed,view = await track_embed(
-                item, bot=self.bot, user=inter.user.id, queued=length
-            )
-
-        await inter.channel.send(embed=embed,view=view)  # pyright: ignore
 
         # Delete defer message once it's not needed anymore.
         await inter.delete_original_message()
-
-    async def handle_play_now(
-        self,
-        *,
-        player: Player,
-        inter: Inter,
-        item: Track | Playlist,
-        tracks: list[Track],
-    ) -> Embed:
-        for i in tracks[::-1]:
-            player.queue.insert(0, i, inter.user.id)
-        track, user = player.queue.skip(1)
-        embed,view = await track_embed(item, bot=self.bot, user=user)
-        await player.play(track)
-
-        return embed,view
-
-    async def handle_play_next(
-        self,
-        *,
-        player: Player,
-        inter: Inter,
-        item: Track | Playlist,
-        tracks: list[Track],
-    ) -> Embed:
-        for i in tracks[::-1]:
-            player.queue.insert(0, i, inter.user.id)
-        embed,view= await track_embed(item, bot=self.bot, user=inter.user.id, queued=1)
-        return embed,view
-    
-    async def assert_player(self, *, inter: Inter) -> None:
-        if not inter.guild.voice_client:
-            commands = self.bot.get_all_application_commands()
-            join = get(commands, name="join", type=ApplicationCommandType.chat_input)
-            if not join:
-                raise RuntimeError
-
-            await join(inter)
 
 
 def setup(bot: Vibr) -> None:
