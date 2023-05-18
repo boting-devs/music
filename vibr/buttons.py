@@ -6,10 +6,10 @@ from mafic import Playlist, Track
 from nextcord import ButtonStyle
 from nextcord.abc import Snowflake
 from nextcord.ui import Button, Select, View
-from patches.nextcord.ui import button
 
 from vibr.embed import Embed, ErrorEmbed
 from vibr.inter import Inter
+from vibr.patches.nextcord.ui import button
 
 from .exts.queue._views import QueueMenu, QueueSource
 

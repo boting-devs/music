@@ -9,7 +9,6 @@ import yaml
 from async_spotify import SpotifyApiClient
 from async_spotify.authentification.authorization_flows import ClientCredentialsFlow
 from botbase import BotBase
-from discord import SlashApplicationSubcommand
 from mafic import Group, NodePool, Playlist, Region, SearchType, Track, VoiceRegion
 from nextcord import (
     ApplicationCommandType,
@@ -78,7 +77,7 @@ class Vibr(BotBase):
             application_id=environ["SPOTIFY_CLIENT_ID"],
             application_secret=environ["SPOTIFY_CLIENT_SECRET"],
         )
-        self.spotify = SpotifyApiClient(auth)
+        self.spotify = SpotifyApiClient(auth, hold_authentication=True)
 
     async def launch_shard(
         self, _gateway: str, shard_id: int, *, initial: bool = False
@@ -126,6 +125,7 @@ class Vibr(BotBase):
 
     async def start(self, token: str, *, reconnect: bool = True) -> None:
         await self.spotify.create_new_client()
+        await self.spotify.get_auth_token_with_client_credentials()
 
         await gather(self.add_nodes(), super().start(token, reconnect=reconnect))
 
@@ -168,14 +168,31 @@ class Vibr(BotBase):
         await super().process_application_commands(inter)
 
     def get_command_mention(self, name: str) -> str:
+        commands = name.split(" ")
         command = self.get_application_command_from_signature(
-            name=name, cmd_type=ApplicationCommandType.chat_input.value, guild_id=None
-        )
-        assert isinstance(
-            command, SlashApplicationCommand | SlashApplicationSubcommand | None
+            name=commands.pop(0),
+            cmd_type=ApplicationCommandType.chat_input.value,
+            guild_id=None,
         )
 
-        return command.get_mention(guild=None) if command else f"/{name}"
+        assert isinstance(command, SlashApplicationCommand | None)
+
+        if commands and command:
+            subcommand = command.children.get(commands.pop(0))
+
+            if subcommand:
+                command = subcommand
+
+        if commands and command:
+            subcommand = command.children.get(commands.pop(0))
+
+            if subcommand:
+                command = subcommand
+
+        if command:
+            return command.get_mention(None)
+
+        return f"`{name}`"
 
     async def set_player_settings(self, player: Player, channel_id: int) -> None:
         try:
@@ -202,8 +219,6 @@ class Vibr(BotBase):
         search_type: str = SearchType.YOUTUBE.value,
         type: str | None = None,
     ) -> None:
-        await inter.response.defer(ephemeral=True)
-
         await self.assert_player(inter=inter)
         player = inter.guild.voice_client
         player.notification_channel = inter.channel  # pyright: ignore
