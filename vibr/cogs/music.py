@@ -155,6 +155,7 @@ class Music(Cog, name="music", description="Play some tunes with or without frie
             await self.join(inter)
 
         player = inter.guild.voice_client
+        player.notification_channel = inter.channel  # type: ignore
         result = await player.get_tracks(query=query, ctx=inter)  # type: ignore
 
         if not result:

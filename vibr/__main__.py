@@ -78,9 +78,6 @@ class Vibr(BotBase):
         self.vote_webhook: nextcord.Webhook | None = None
         """The webhook in #vote-for-us for top.gg."""
 
-        self.listeners: dict[int, set[int]] = {}
-        """`channel: set[member]`, used for auto-pause"""
-
         # env var BETA exists, set our logging to DEBUG (all loggings in `vibr/`)
         if os.getenv("BETA"):
             getLogger("vibr").setLevel(DEBUG)
@@ -173,7 +170,7 @@ class Vibr(BotBase):
         for player in self.voice_clients:
             if len(self.listeners.get(player.channel.id, set())) == 0:  # type: ignore
                 assert isinstance(player, Player)
-                player.invoke_pause_timer()
+                player.start_pause_timer()
 
     async def close(self):
         # Alright, this is an expected close so we have time.
