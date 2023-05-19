@@ -5,6 +5,7 @@ from logging import getLogger
 from typing import TYPE_CHECKING, cast
 
 from botbase import CogBase
+from nextcord import Embed
 from nextcord.abc import Snowflake
 from nextcord.ext.tasks import loop
 from pomice import Track
@@ -12,7 +13,7 @@ from pomice import Track
 from vibr.__main__ import Vibr
 from vibr.cogs.extras.playing_embed import playing_embed
 
-from .extras.types import Player
+from .extras.types import MyInter, Player
 
 if TYPE_CHECKING:
     from nextcord import Member, VoiceState
@@ -196,4 +197,4 @@ class Events(CogBase[Vibr]):
 
 
 def setup(bot: Vibr) -> None:
-    bot.add_cog(AutoDisconnect(bot))
+    bot.add_cog(Events(bot))
