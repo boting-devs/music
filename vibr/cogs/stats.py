@@ -3,11 +3,12 @@ from __future__ import annotations
 from asyncio import sleep
 from contextlib import suppress
 from statistics import mean
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from asyncpg import UniqueViolationError
 from botbase import MyContext
 from nextcord import Embed
+from nextcord.channel import VocalGuildChannel
 from nextcord.ext.commands import Cog, command, is_owner
 from nextcord.ext.tasks import loop
 from nextcord.utils import utcnow
@@ -163,12 +164,11 @@ class Stats(Cog):
             int((stats.used or 0) / (stats.reservable or 0) * 100)
         )
 
-        channels = [v.channel.id for v in self.bot.voice_clients]  # type: ignore
+        [v.channel.id for v in self.bot.voice_clients]  # type: ignore
         self.listeners.append(
             sum(
-                len(listeners)
-                for channel, listeners in self.bot.listeners.items()
-                if channel in channels
+                len(cast(VocalGuildChannel, player.channel).voice_states)
+                for player in self.bot.voice_clients
             )
         )
 
@@ -219,7 +219,7 @@ class Stats(Cog):
         commands = await self.bot.db.fetchval("SELECT SUM(amount) FROM commands")
         songs = await self.bot.db.fetchval("SELECT SUM(amount) FROM songs")
 
-        channels = [v.channel.id for v in self.bot.voice_clients]  # type: ignore
+        [v.channel.id for v in self.bot.voice_clients]  # type: ignore
 
         embed = Embed(
             title="Current Stats",
@@ -237,9 +237,8 @@ class Stats(Cog):
                     (stats.used or 0) / (stats.reservable or 0) * 100
                 ),
                 listeners=sum(
-                    len(listeners)
-                    for channel, listeners in self.bot.listeners.items()
-                    if channel in channels
+                    len(cast(VocalGuildChannel, player.channel).voice_states)
+                    for player in self.bot.voice_clients
                 ),
             ),
             color=self.bot.color,

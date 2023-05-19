@@ -11,7 +11,7 @@ python-dotenv = "^0.20.0"
 ooliver-botbase = "^1.17.7"
 pomice = {git = "https://github.com/ooliver1/pomice", rev = "main"}
 spotipy = "^2.19.0"
-uvloop = "^0.16.0"
+uvloop = "^0.17.0"
 beautifulsoup4 = "^4.11.1"
 nextcord-ext-ipc = "^2.2.1"
 matplotlib = "^3.6.0"

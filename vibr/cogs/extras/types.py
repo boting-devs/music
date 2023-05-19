@@ -1,29 +1,30 @@
 from __future__ import annotations
 
 import datetime  # noqa: F401  # wtf
-from asyncio import create_task
 from logging import getLogger
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, TypedDict, cast
 
 import botbase
 import nextcord
 import pomice
+from nextcord import Embed
+from nextcord.abc import Messageable
+from pomice import Track
 
 if TYPE_CHECKING:
+    from vibr.__main__ import Vibr
     from asyncio import TimerHandle
-
-    from pomice import Track
 
 log = getLogger(__name__)
 
-LEAVE_TIMEOUT = 10 * 60
-"""The time to wait until auto-leaving the vc."""
-
-PAUSE_TIMEOUT = 30
-"""The time to wait before auto-pausing the player."""
-
 
 class Player(pomice.Player):
+    # PAUSE_TIMEOUT = 30
+    # DISCONNECT_TIMEOUT = 60 * 10
+
+    PAUSE_TIMEOUT = 10
+    DISCONNECT_TIMEOUT = 20
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -31,77 +32,11 @@ class Player(pomice.Player):
         self.looped_track: pomice.Track | None = None
         self.looped_queue_check: bool = False
         self.loop_queue: list[pomice.Track] = []
-        self.leave_timer: TimerHandle | None = None
-        """This is the object returned by call_later that lets us cancel autoleave."""
 
-        self.pause_timer: TimerHandle | None = None
-        """This is the object returned by call_later that lets us cancel autopause."""
+        self.notification_channel: Messageable | None = None
 
-    def invoke_leave_timer(self, track: Track) -> None:
-        """This is called when the player should auto-leave."""
-
-        if not self.is_connected:
-            return
-
-        inter: MyInter = track.ctx if track is not None else None  # type: ignore
-        channel = (
-            None if inter is None else botbase.WrappedChannel(inter.channel, inter.bot)
-        )
-
-        if self.leave_timer is not None:
-            self.leave_timer.cancel()
-
-        log.info("Invoking leave timer for %d", self.guild.id)
-        self.leave_timer = self.client.loop.call_later(
-            LEAVE_TIMEOUT, lambda: create_task(self.leave(channel))
-        )
-
-    def cancel_leave_timer(self) -> None:
-        """This is called when the player should not auto-leave."""
-
-        if self.leave_timer is not None:
-            log.info("Cancelling leave timer for %d", self.guild.id)  # type: ignore
-            self.leave_timer.cancel()
-            self.leave_timer = None
-
-    def invoke_pause_timer(self) -> None:
-        """This is called when the player should auto-pause."""
-
-        if not self.is_connected:
-            return
-
-        if self.current is None:
-            create_task(self.set_pause(True))
-            return
-
-        inter: MyInter = self.current.ctx  # type: ignore
-        channel = (
-            None if inter is None else botbase.WrappedChannel(inter.channel, inter.bot)
-        )
-
-        if self.pause_timer is not None:
-            self.pause_timer.cancel()
-
-        log.info("Invoking pause timer for %d", self.guild.id)
-        self.pause_timer = self.client.loop.call_later(
-            PAUSE_TIMEOUT, lambda: create_task(self.autopause(channel))
-        )
-
-    def cancel_pause_timer(self) -> None:
-        """This is called when the player should not auto-pause."""
-
-        if self.pause_timer is not None:
-            log.info("Cancelling pause timer for %d", self.guild.id)  # type: ignore
-            self.pause_timer.cancel()
-            self.pause_timer = None
-
-    def track_end(self, track: Track) -> None:
-        """Called when a track ends and nothing is in the queue.
-
-        Track is given to use the last known interaction.
-        """
-
-        self.invoke_leave_timer(track)
+        self._pause_timer: TimerHandle | None = None
+        self._disconnect_timer: TimerHandle | None = None
 
     async def play(
         self,
@@ -111,61 +46,78 @@ class Player(pomice.Player):
         end: int = 0,
         ignore_if_playing: bool = False,
     ) -> Track:
-        ret = await super().play(
+        self.cancel_pause_timer()
+
+        return await super().play(
             track, start=start, end=end, ignore_if_playing=ignore_if_playing
         )
 
-        self.cancel_leave_timer()
-
-        return ret
-
-    async def leave(self, channel: botbase.WrappedChannel | None) -> None:
-        """This is called when autoleave should be invoked."""
-
-        if not self.is_connected:
-            return
-
-        if channel is not None:
-            await channel.send_embed(
-                "Disconnecting Due to No Activity",
-                "To prevent unnecessary resource usage, I have disconnected the player.",
-            )
-
-        log.info("Auto-destroying player for %d", self.guild.id)
-        await self.destroy()
-
-    async def autopause(self, channel: botbase.WrappedChannel | None) -> None:
-        """This is called when autopause should be invoked."""
-
-        if self.is_paused:
-            return
-
-        if not self.is_connected:
-            return
-
-        if channel is not None:
-            await channel.send_embed(
-                "Pausing Due to No Listeners",
-                "To prevent unnecessary resource usage, I have paused the player.",
-            )
-
-        log.info("Auto-pausing player for %d", self.guild.id)
-        await self.set_pause(True)
-
     async def set_pause(self, pause: bool) -> bool:
-        ret = await super().set_pause(pause)
-
-        if ret:
-            self.invoke_leave_timer(self.current)
+        if pause:
+            self.start_disconnect_timer()
         else:
-            self.cancel_leave_timer()
+            self.cancel_disconnect_timer()
 
-        return ret
+        return await super().set_pause(pause)
 
-    async def stop(self) -> None:
-        await super().stop()
+    async def stop(self):
+        self.start_disconnect_timer()
 
-        self.invoke_leave_timer(self.current)
+        return await super().stop()
+
+    def cancel_pause_timer(self) -> None:
+        if self._pause_timer:
+            self._pause_timer.cancel()
+            self._pause_timer = None
+
+    def cancel_disconnect_timer(self) -> None:
+        if self._disconnect_timer:
+            self._disconnect_timer.cancel()
+            self._disconnect_timer = None
+
+    async def _pause_task(self) -> None:
+        await self.set_pause(True)
+        self._pause_timer = None
+
+        if channel := self.notification_channel:
+            embed = Embed(
+                title="Pausing Due to No Listeners",
+                description=(
+                    "To prevent unnecessary resource usage, "
+                    "I have paused the player."
+                ),
+                color=cast("Vibr", self.bot).color,
+            )
+            await channel.send(embed=embed)
+
+    async def _disconnect_task(self) -> None:
+        await self.destroy()
+        self._disconnect_timer = None
+
+        if channel := self.notification_channel:
+            embed = Embed(
+                title="Disconnecting Due to No Activity",
+                description=(
+                    "To prevent unnecessary resource usage, "
+                    "I have disconnected the player."
+                ),
+                color=cast("Vibr", self.bot).color,
+            )
+            await channel.send(embed=embed)
+
+    def start_pause_timer(self) -> None:
+        if self.is_paused or not self.current:
+            return
+
+        self._pause_timer = self.client.loop.call_later(
+            self.PAUSE_TIMEOUT, lambda: self.client.loop.create_task(self._pause_task())
+        )
+
+    def start_disconnect_timer(self) -> None:
+        self._disconnect_timer = self.client.loop.call_later(
+            self.DISCONNECT_TIMEOUT,
+            lambda: self.client.loop.create_task(self._disconnect_task()),
+        )
 
 
 class MyContext(botbase.MyContext):
