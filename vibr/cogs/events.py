@@ -7,7 +7,10 @@ from typing import TYPE_CHECKING, cast
 from botbase import CogBase
 from nextcord.abc import Snowflake
 from nextcord.ext.tasks import loop
+from pomice import Track
+
 from vibr.__main__ import Vibr
+from vibr.cogs.extras.playing_embed import playing_embed
 
 from .extras.types import Player
 
@@ -18,7 +21,7 @@ if TYPE_CHECKING:
 log = getLogger(__name__)
 
 
-class AutoDisconnect(CogBase[Vibr]):
+class Events(CogBase[Vibr]):
     def __init__(self, bot: Vibr):
         super().__init__(bot)
 
@@ -69,12 +72,10 @@ class AutoDisconnect(CogBase[Vibr]):
         # Joined, cancel existing timers.
         if before.channel is None and after.channel is not None:
             player = cast(Player | None, member.guild.voice_client)
-            log.info("Joined, player: %s", player)
             if (
                 player is not None
                 and cast(Snowflake, player.channel).id == after.channel.id
             ):
-                log.info("Joined, cancelling timer")
                 player.cancel_pause_timer()
 
         # Left, start a timer if needed.
@@ -102,6 +103,25 @@ class AutoDisconnect(CogBase[Vibr]):
                     player.start_pause_timer()
                 elif cast(Snowflake, player.channel).id == after.channel.id:
                     player.cancel_pause_timer()
+
+    @CogBase.listener()
+    async def on_pomice_track_end(self, player: Player, track: Track, __: str):
+        await sleep(0.1)
+        if player.is_playing:
+            return
+
+        if player.looped_track:
+            await player.play(player.looped_track)
+            await playing_embed(player.looped_track, loop=True)
+            return
+
+        if player.looped_queue_check:
+            player.queue += player.loop_queue
+
+        if player.queue:
+            await self.play_next(player)
+        else:
+            player.start_disconnect_timer()
 
 
 def setup(bot: Vibr) -> None:
