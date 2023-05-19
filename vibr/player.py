@@ -150,6 +150,7 @@ class Player(mafic.Player):
 
         if track is not None:
             self.cancel_pause_timer()
+            self.cancel_disconnect_timer()
 
         return await super().play(
             track,
