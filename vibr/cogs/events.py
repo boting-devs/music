@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, cast
 
 from botbase import CogBase
 from nextcord.abc import Snowflake
-
+from nextcord.ext.tasks import loop
 from vibr.__main__ import Vibr
 
 from .extras.types import Player
@@ -19,6 +19,20 @@ log = getLogger(__name__)
 
 
 class AutoDisconnect(CogBase[Vibr]):
+    def __init__(self, bot: Vibr):
+        super().__init__(bot)
+
+        self.fix_clients.start()
+
+    @loop(seconds=15)
+    async def fix_clients(self):
+        for player in self.bot.voice_clients:
+            if not player.is_connected:
+                try:
+                    await player.destroy()
+                except Exception:
+                    log.error("failed to clean player", exc_info=True)
+
     async def handle_own_voice_state(
         self, member: Member, before: VoiceState, after: VoiceState
     ) -> None:
