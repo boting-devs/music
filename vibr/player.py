@@ -163,6 +163,8 @@ class Player(mafic.Player):
     async def pause(self, pause: bool = True) -> None:
         if pause:
             self.start_disconnect_timer()
+        else:
+            self.cancel_disconnect_timer()
 
         return await super().pause(pause)
 
