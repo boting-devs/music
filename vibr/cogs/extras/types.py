@@ -47,6 +47,7 @@ class Player(pomice.Player):
         ignore_if_playing: bool = False,
     ) -> Track:
         self.cancel_pause_timer()
+        self.cancel_disconnect_timer()
 
         return await super().play(
             track, start=start, end=end, ignore_if_playing=ignore_if_playing
