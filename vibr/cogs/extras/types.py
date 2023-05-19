@@ -22,8 +22,8 @@ class Player(pomice.Player):
     PAUSE_TIMEOUT = 30
     DISCONNECT_TIMEOUT = 60 * 10
 
-    # PAUSE_TIMEOUT = 10
-    # DISCONNECT_TIMEOUT = 20
+    PAUSE_TIMEOUT = 10
+    DISCONNECT_TIMEOUT = 20
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -110,11 +110,17 @@ class Player(pomice.Player):
         if self.is_paused or not self.current:
             return
 
+        if self._pause_timer:
+            return
+
         self._pause_timer = self.client.loop.call_later(
             self.PAUSE_TIMEOUT, lambda: self.client.loop.create_task(self._pause_task())
         )
 
     def start_disconnect_timer(self) -> None:
+        if self._disconnect_timer:
+            return
+
         self._disconnect_timer = self.client.loop.call_later(
             self.DISCONNECT_TIMEOUT,
             lambda: self.client.loop.create_task(self._disconnect_task()),
