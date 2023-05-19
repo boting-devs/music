@@ -22,8 +22,8 @@ class Player(pomice.Player):
     PAUSE_TIMEOUT = 30
     DISCONNECT_TIMEOUT = 60 * 10
 
-    PAUSE_TIMEOUT = 10
-    DISCONNECT_TIMEOUT = 20
+    # PAUSE_TIMEOUT = 10
+    # DISCONNECT_TIMEOUT = 20
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
