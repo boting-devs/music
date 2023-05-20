@@ -90,6 +90,7 @@ async def track_embed(
     looping: bool = False,
     next: bool = False,
     length_embed: bool = False,
+    grabbed:bool = False,
 ) -> tuple[Embed, buttons.PlayButtons]:
     view = buttons.PlayButtons(item)
 
@@ -119,6 +120,8 @@ async def track_embed(
         embed = Embed(title=title)
         embed.add_field(name="Requested By", value=f"<@{user}>")
         embed.add_field(name="Skipped By", value=f"<@{skipped}>")
+    if grabbed:
+         embed = Embed(title=title)
     else:
         embed = Embed(title=title, description=f"Requested by <@{user}>")
 
@@ -148,7 +151,7 @@ async def track_embed(
         embed.set_footer(text=f"Looping | Length: {track_time}")
     elif next:
         embed.set_footer(text=f"Playing Up Next | Length: {track_time}")
-    elif length_embed:
+    elif length_embed or grabbed:
         embed.timestamp = utcnow()
     else:
         embed.set_footer(

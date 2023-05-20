@@ -34,14 +34,14 @@ class Queue(CogBase[Vibr]):
                 if player.dnd:
                     return
 
-                embed = await track_embed(
+                embed,view = await track_embed(
                     play_next,
                     bot=self.bot,
                     user=member,
                     looping=player.queue.loop_type is not None,
                 )
                 if channel := player.notification_channel:
-                    await channel.send(embed=embed)
+                    await channel.send(embed=embed,view=view)
 
     @CogBase.listener()
     async def on_track_start(self, event: TrackStartEvent[Player]) -> None:
