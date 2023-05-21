@@ -132,6 +132,23 @@ class Player(mafic.Player):
         self._pause_timer: TimerHandle | None = None
         self._disconnect_timer: TimerHandle | None = None
 
+    async def connect(
+        self,
+        *,
+        timeout: float,
+        reconnect: bool,
+        self_mute: bool = False,
+        self_deaf: bool = False,  # noqa: ARG002
+    ) -> None:
+        ret = await super().connect(
+            timeout=timeout,
+            reconnect=reconnect,
+            self_mute=self_mute,
+            self_deaf=True,
+        )
+        self.start_disconnect_timer()
+        return ret
+
     async def play(
         self,
         track: Track | str,
