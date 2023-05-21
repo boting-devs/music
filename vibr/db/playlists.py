@@ -1,4 +1,4 @@
-# pyright: reportGeneralTypeIssues=false
+# pyright: reportGeneralTypeIssues=false, reportPrivateImportUsage=false
 
 from __future__ import annotations
 
@@ -15,13 +15,12 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 
-class SongData(Model):
+class Song(Model):
     class Meta(BaseMeta):
-        tablename = "song_data"
+        tablename = "songs"
 
-    lavalink_id: str = LargeBinary(
-        primary_key=True, max_length=300, represent_as_base64_str=True
-    )
+    id: int = Integer(primary_key=True, autoincrement=True)
+    lavalink_id: str = LargeBinary(max_length=300, represent_as_base64_str=True)
     likes: int = Integer(default=0)
 
 
@@ -46,9 +45,4 @@ class Playlist(Model):
         User, related_name="playlists", ondelete="CASCADE", nullable=False
     )
     description: str = Text(default="")
-    songs: list[SongData] = ManyToMany(
-        SongData,
-        through=PlaylistToSong,
-        skip_reverse=True,
-        through_reverse_relation_name="song",
-    )
+    songs = ManyToMany(Song, through=PlaylistToSong)

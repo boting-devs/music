@@ -31,10 +31,10 @@ select = [
     "TRY",
     "RUF",
 ]
-ignore = ["S101", "ANN101", "ANN102", "F405", "S311"]
+ignore = ["S101", "ANN101", "ANN102", "F405", "S311", "F403"]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+"__init__.py" = ["F401"]
 "api/*" = ["ANN201"]
 
 [tool.ruff.flake8-type-checking]
