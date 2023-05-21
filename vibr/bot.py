@@ -182,17 +182,21 @@ class Vibr(BotBase):
 
             if subcommand:
                 command = subcommand
+            else:
+                return f"`/{name}`"
 
         if commands and command:
             subcommand = command.children.get(commands.pop(0))
 
             if subcommand:
                 command = subcommand
+            else:
+                return f"`/{name}`"
 
         if command:
             return command.get_mention(None)
 
-        return f"`{name}`"
+        return f"`/{name}`"
 
     async def set_player_settings(self, player: Player, channel_id: int) -> None:
         try:

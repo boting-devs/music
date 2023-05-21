@@ -5,7 +5,7 @@ from mafic import Playlist, SearchType
 from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
-from vibr.database import add_to_liked
+from vibr.database import add_to_liked, remove_from_liked
 from vibr.errors import NoTracksFound
 from vibr.inter import Inter
 from vibr.views import SearchView
@@ -51,9 +51,9 @@ class Liked(CogBase[Vibr]):
         track = inter.guild.voice_client and inter.guild.voice_client.current
 
         if query:
-            player = inter.guild.voice_client
-            result = await player.fetch_tracks(
-                query, search_type=SearchType(search_type)
+            node = self.bot.pool.label_to_node["LOCAL"]
+            result = await node.fetch_tracks(
+                query, search_type=search_type or "youtube"
             )
 
             if not result:
@@ -64,12 +64,13 @@ class Liked(CogBase[Vibr]):
 
             view = SearchView(result)
             embed = view.create_search_embed(tracks=result)
-            message = await inter.edit_original_message(embed=embed, view=view)
-            view.message = message
+            await inter.edit_original_message(embed=embed, view=view)
+            view.message = inter
 
             await view.wait()
 
-            track = view.selected_track
+            track_index = view.selected_track
+            track = result[track_index] if track_index is not None else None
 
             if track is None:
                 return
@@ -77,10 +78,43 @@ class Liked(CogBase[Vibr]):
         elif track is None:
             raise NoTrackOrQuery
 
-        await add_to_liked(user=inter.author, track=track)
+        existed = await add_to_liked(user=inter.author, track=track)
 
+        if existed:
+            await inter.edit_original_message(
+                content=f"**{track.title}** is already in your liked songs playlist.",
+                embed=None,
+                view=None,
+            )
+            return
+
+        await inter.edit_original_message(
+            content=f"Added **{track.title}** to your liked songs playlist.",
+            embed=None,
+            view=None,
+        )
+
+    @liked.subcommand(name="remove")
+    async def liked_remove(self, inter: Inter, index: int) -> None:
+        """Remove a song from your liked songs playlist.
+
+        index:
+            The index of the song to remove.
+            This can be found by using the `/liked list` command.
+        """
+
+        await inter.response.defer(ephemeral=True)
+
+        index -= 1
+        lavalink_id = await remove_from_liked(user=inter.author, index=index)
+
+        if lavalink_id is None:
+            raise NoSongAtIndex(self.bot)
+
+        node = self.bot.pool.label_to_node["LOCAL"]
+        track = await node.decode_track(lavalink_id)
         await inter.send(
-            f"Added **{track.title}** to your liked songs playlist.",
+            f"Removed **{track.title}** from your liked songs playlist.",
             ephemeral=True,
         )
 

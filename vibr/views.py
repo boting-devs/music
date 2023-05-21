@@ -3,7 +3,7 @@ from __future__ import annotations
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
-from nextcord import InteractionMessage, SelectOption
+from nextcord import SelectOption
 from nextcord.ui import Button, Select, View
 
 from vibr.embed import Embed
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class TimeoutView(View):
-    message: PartialInteractionMessage | InteractionMessage | None = None
+    message: PartialInteractionMessage | Inter | None = None
 
     async def on_timeout(self) -> None:
         self.stop()
@@ -32,7 +32,7 @@ class TimeoutView(View):
 class SearchSelect(Select["SearchView"]):
     def __init__(self, tracks: list[Track]) -> None:
         super().__init__(
-            placeholder="Select a track to play.",
+            placeholder="Select a track.",
             options=[
                 SelectOption(
                     label=truncate(
@@ -49,7 +49,7 @@ class SearchSelect(Select["SearchView"]):
 
     async def callback(self, _: Inter) -> None:
         assert self.view is not None
-        self.view.selected_track = self.view.tracks[int(self.values[0])]
+        self.view.selected_track = int(self.values[0])
         self.view.stop()
 
 
@@ -57,7 +57,7 @@ class SearchView(TimeoutView):
     def __init__(self, tracks: list[Track]) -> None:
         super().__init__(timeout=60)
 
-        self.selected_track: Track | None = None
+        self.selected_track: int | None = None
         self.add_item(SearchSelect(tracks))
 
     @staticmethod
