@@ -2,7 +2,7 @@ from vibr.bot import Vibr
 from vibr.embed import ErrorEmbed
 from vibr.errors import CheckFailure
 
-__all__ = ("NoTrackOrQuery", "NoPlaylists", "NoSongAtIndex")
+__all__ = ("NoTrackOrQuery", "NoPlaylists", "NoSongAtIndex", "NoLikedSongs")
 
 
 class NoTrackOrQuery(CheckFailure):
@@ -27,5 +27,16 @@ class NoSongAtIndex(CheckFailure):
                 "Could not find a track at that index. "
                 "Try again by checking the index at "
                 f"{bot.get_command_mention('liked list')}"
+            ),
+        )
+
+
+class NoLikedSongs(CheckFailure):
+    def __init__(self, bot: Vibr) -> None:
+        self.embed = ErrorEmbed(
+            title="No Liked Songs",
+            description=(
+                "You do not have any liked songs. Add some using "
+                f"{bot.get_command_mention('liked add')}"
             ),
         )

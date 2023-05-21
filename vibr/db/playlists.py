@@ -21,7 +21,7 @@ class Song(Model):
 
     id: int = Integer(primary_key=True, autoincrement=True)
     lavalink_id: str = LargeBinary(max_length=300, represent_as_base64_str=True)
-    likes: int = Integer(default=0)
+    likes: int = Integer(default=1)
 
 
 class PlaylistToSong(Model):

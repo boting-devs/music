@@ -1,16 +1,20 @@
 from __future__ import annotations
 
+import mafic
 from botbase import CogBase
-from mafic import Playlist, SearchType
+from mafic import SearchType
 from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
 from vibr.database import add_to_liked, remove_from_liked
+from vibr.db import Playlist
+from vibr.db.playlists import Song
 from vibr.errors import NoTracksFound
 from vibr.inter import Inter
 from vibr.views import SearchView
 
 from ._errors import *
+from ._views import LikedMenu, LikedSource
 
 
 class Liked(CogBase[Vibr]):
@@ -59,7 +63,7 @@ class Liked(CogBase[Vibr]):
             if not result:
                 raise NoTracksFound
 
-            if isinstance(result, Playlist):
+            if isinstance(result, mafic.Playlist):
                 raise NoPlaylists
 
             view = SearchView(result)
@@ -117,6 +121,24 @@ class Liked(CogBase[Vibr]):
             f"Removed **{track.title}** from your liked songs playlist.",
             ephemeral=True,
         )
+
+    @liked.subcommand(name="list")
+    async def liked_list(self, inter: Inter) -> None:
+        """List your liked songs playlist."""
+
+        playlist = await Playlist.objects.get_or_none(
+            owner=inter.user.id, name="Liked Songs"
+        )
+        if playlist is None:
+            raise NoLikedSongs(self.bot)
+
+        count = await Song.objects.filter(playlisttosong__playlist=playlist.id).count()
+        if count == 0:
+            raise NoLikedSongs(self.bot)
+
+        source = LikedSource(bot=self.bot, count=count, playlist=playlist)
+        menu = LikedMenu(source=source)
+        await menu.start(interaction=inter, ephemeral=True)
 
 
 def setup(bot: Vibr) -> None:
