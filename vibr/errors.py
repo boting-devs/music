@@ -17,6 +17,7 @@ __all__ = (
     "NotPlaying",
     "NoTracksFound",
     "UserNotInVoice",
+    "VoiceConnectionError",
 )
 
 
@@ -63,4 +64,13 @@ class UserNotInVoice(CheckFailure):
         title="You Are Not in a Voice Channel",
         description="You are not in a voice channel. Please connect to one or "
         "specify the channel with the `channel` option.",
+    )
+
+
+class VoiceConnectionError(CheckFailure):
+    embed = ErrorEmbed(
+        title="Failed to Connect",
+        description=(
+            "Failed to connect to the vocie channel. Please try again later.",
+        ),
     )

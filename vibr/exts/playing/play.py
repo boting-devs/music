@@ -42,14 +42,9 @@ class Play(CogBase[Vibr]):
             playing.
         """
 
-        await inter.response.defer(ephemeral=True)
-
         await self.bot.play(
             inter=inter, query=query, search_type=search_type, type=type
         )
-
-        # Delete defer message once it's not needed anymore.
-        await inter.delete_original_message()
 
 
 def setup(bot: Vibr) -> None:

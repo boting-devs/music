@@ -22,11 +22,7 @@ class Join(CogBase[Vibr]):
         """
         # Defer in case we want to send an error message.
         # No need to clutter the channel with a public error message.
-        await inter.response.defer(ephemeral=True)
-
         await self.bot.join(inter=inter, channel=channel)
-
-        await inter.delete_original_message()
 
 
 def setup(bot: Vibr) -> None:

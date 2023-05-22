@@ -4,7 +4,6 @@ from contextlib import suppress
 from logging import getLogger
 from traceback import format_exception
 
-from async_spotify.spotify_errors import SpotifyAPIError
 from botbase import CogBase
 from nextcord import ApplicationInvokeError, Colour, NotFound
 
@@ -35,9 +34,6 @@ class ErrorHandler(CogBase[Vibr]):
             view = embed.view
 
             await inter.send(embed=embed, view=view, ephemeral=True)
-        elif isinstance(exc, SpotifyAPIError):
-            await inter.send("SpotifyAPIError")
-            log.error("SpotifyAPIError: %s", exc.message, exc_info=True)
         else:
             log.error(
                 "Unexpected error in command %s",

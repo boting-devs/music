@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from asyncio import gather, sleep
 from os import environ
 from pathlib import Path
@@ -268,7 +269,7 @@ class Vibr(BotBase):
                 item, bot=self, user=inter.user.id, queued=length
             )
 
-        await inter.channel.send(embed=embed, view=view)  # pyright: ignore
+        await inter.send(embed=embed, view=view)  # pyright: ignore
 
     async def handle_play_now(
         self,
@@ -315,7 +316,10 @@ class Vibr(BotBase):
         if not await self.can_connect(channel, inter=inter):
             return
 
-        player = await channel.connect(cls=Player, timeout=5)
+        try:
+            player = await channel.connect(cls=Player, timeout=2)
+        except asyncio.TimeoutError as e:
+            raise errors.VoiceConnectionError from e
 
         await self.set_player_settings(player, channel.id)
 
@@ -323,7 +327,7 @@ class Vibr(BotBase):
             title="Connected!", description=f"Connected to {channel.mention}."
         )
 
-        await inter.channel.send(embed=embed)  # pyright: ignore
+        await inter.send(embed=embed)  # pyright: ignore
 
     async def can_connect(
         self, channel: VoiceChannel | StageChannel, *, inter: Inter
