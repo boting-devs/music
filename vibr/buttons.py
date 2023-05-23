@@ -85,7 +85,7 @@ class PlayButtons(View):
             await inter.send(embed=embed1, ephemeral=True)
             return
 
-        if player._paused is False:
+        if player.paused is False:
             await player.pause(pause=True)
             embed = Embed(title="Paused")
         else:
@@ -147,4 +147,3 @@ class PlayButtons(View):
         menu = QueueMenu(source=QueueSource(current, queue), inter=inter)
         await menu.start(interaction=inter)
 
-    # todo loop and liked (not quite sure of them yet)
