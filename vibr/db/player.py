@@ -1,14 +1,9 @@
-# pyright: reportGeneralTypeIssues=false
-
 from __future__ import annotations
 
-from botbase import BaseMeta
-from ormar import BigInteger, Model, SmallInteger
+from piccolo.columns import BigInt, SmallInt
+from piccolo.table import Table
 
 
-class PlayerConfig(Model):
-    class Meta(BaseMeta):
-        tablename = "players"
-
-    channel_id: int = BigInteger(primary_key=True, autoincrement=False)
-    volume: int = SmallInteger(minimum=0, maximum=500)
+class PlayerConfig(Table):
+    channel_id = BigInt(primary_key=True)
+    volume = SmallInt()

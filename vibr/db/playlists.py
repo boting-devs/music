@@ -2,47 +2,38 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from botbase import BaseMeta
-from nextcord.utils import utcnow
-from ormar import DateTime, ForeignKey, Integer, LargeBinary, ManyToMany, Model, Text
-from sqlalchemy import UniqueConstraint
+from piccolo.columns import (
+    M2M,
+    Bytea,
+    ForeignKey,
+    Integer,
+    LazyTableReference,
+    Serial,
+    Text,
+    Timestamptz,
+)
+from piccolo.table import Table
 
 from .user import User
 
-if TYPE_CHECKING:
-    from datetime import datetime
+
+class Song(Table):
+    id = Serial(primary_key=True)
+    lavalink_id = Bytea()
+    likes = Integer(default=1)
+    playlists = M2M(LazyTableReference("PlaylistToSong", module_path=__name__))
 
 
-class Song(Model):
-    class Meta(BaseMeta):
-        tablename = "songs"
-
-    id: int = Integer(primary_key=True, autoincrement=True)
-    lavalink_id: str = LargeBinary(max_length=300, represent_as_base64_str=True)
-    likes: int = Integer(default=1)
-
-
-class PlaylistToSong(Model):
-    class Meta(BaseMeta):
-        tablename = "playlists_to_songs"
-        # This is in the migration, but cannot be done easily with ormar :(
-        # constraints = [UniqueConstraint("song", "playlist")]
-
-    # This is not the real primary key, just to appease ormar. I wanna use piccolo :(
-    added: datetime = DateTime(timezone=True, default=utcnow, primary_key=True)
+class Playlist(Table):
+    id = Integer(primary_key=True, autoincrement=True)
+    name = Text(default="Liked Songs")
+    owner = ForeignKey(User, null=False)
+    description = Text()
+    songs = M2M(LazyTableReference("PlaylistToSong", module_path=__name__))
 
 
-class Playlist(Model):
-    class Meta(BaseMeta):
-        tablename = "playlists"
-        constraints = [UniqueConstraint("name", "owner")]
-
-    id: int = Integer(primary_key=True, autoincrement=True)
-    name: str = Text(default="Liked Songs")
-    owner: int = ForeignKey(
-        User, related_name="playlists", ondelete="CASCADE", nullable=False
-    )
-    description: str = Text(default="")
-    songs = ManyToMany(Song, through=PlaylistToSong)
+class PlaylistToSong(Table):
+    id = Serial(primary_key=True)
+    playlist = ForeignKey(Playlist)
+    song = ForeignKey(Song)
+    added = Timestamptz()

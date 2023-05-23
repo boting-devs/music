@@ -7,3 +7,5 @@
 !alembic/
 !alembic.ini
 !api/
+!piccolo_conf.py
+!migrations/

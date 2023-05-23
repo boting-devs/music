@@ -7,8 +7,8 @@ from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
 from vibr.database import add_to_liked, remove_from_liked
-from vibr.db import Playlist
-from vibr.db.playlists import Song
+from vibr.db import Playlist, Song
+from vibr.db.playlists import PlaylistToSong
 from vibr.errors import NoTracksFound
 from vibr.inter import Inter
 from vibr.views import SearchView
@@ -126,13 +126,13 @@ class Liked(CogBase[Vibr]):
     async def liked_list(self, inter: Inter) -> None:
         """List your liked songs playlist."""
 
-        playlist = await Playlist.objects.get_or_none(
-            owner=inter.user.id, name="Liked Songs"
+        playlist = await Playlist.objects().get(
+            (Playlist.owner.id == inter.user.id) & (Playlist.name == "Liked Songs")
         )
         if playlist is None:
             raise NoLikedSongs(self.bot)
 
-        count = await Song.objects.filter(playlisttosong__playlist=playlist.id).count()
+        count = await PlaylistToSong.count().where(PlaylistToSong.playlist == playlist.id)
         if count == 0:
             raise NoLikedSongs(self.bot)
 

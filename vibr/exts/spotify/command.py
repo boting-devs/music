@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 import re
-from os import environ
 from typing import TYPE_CHECKING, cast
 
 from botbase import CogBase
 from discord import SlashOption
-from itsdangerous import URLSafeSerializer
 from nextcord import slash_command
-from ormar import NoMatch
 
 from vibr.bot import Vibr
 from vibr.db import User
@@ -40,13 +37,6 @@ class Spotify(CogBase[Vibr]):
     e.g. https://open.spotify.com/user/uwv4xcjfd79as24pcpckc9grb?si=c1c4d421a1f54b93
     """
 
-    def __init__(self, bot: Vibr) -> None:
-        super().__init__(bot)
-
-        self.serializer = URLSafeSerializer(
-            secret_key=environ["OAUTH_SECRET_KEY"], salt="vibr"
-        )
-
     @slash_command(dm_permission=False)
     async def spotify(self, inter: Inter) -> None:
         ...
@@ -66,13 +56,9 @@ class Spotify(CogBase[Vibr]):
 
         spotify_id = match.group("id")
 
-        try:
-            user = await User.objects.get(id=inter.user.id)
-        except NoMatch:
-            await User.objects.create(id=inter.user.id, spotify_id=spotify_id)
-        else:
-            user.spotify_id = spotify_id
-            await user.update()
+        user = await User.objects().get_or_create(User.id == inter.user.id)
+        user.spotify_id = spotify_id
+        await user.update()
 
         embed = Embed(
             title="Linked to Spotify", description="Successfully linked to Spotify!"
@@ -83,12 +69,8 @@ class Spotify(CogBase[Vibr]):
     async def spotify_unlink(self, inter: Inter) -> None:
         """Unlink your spotify account."""
 
-        try:
-            user = await User.objects.get(id=inter.user.id)
-        except NoMatch as e:
-            raise NotLinked(self.bot) from e
-
-        if user.spotify_id is None:
+        user = await User.objects().get(User.id == inter.user.id)
+        if user is None or user.spotify_id is None:
             raise NotLinked(self.bot)
 
         user.spotify_id = None
@@ -101,10 +83,9 @@ class Spotify(CogBase[Vibr]):
     async def spotify_playlists(self, inter: Inter) -> None:
         """List your spotify playlists."""
 
-        try:
-            user = await User.objects.get(id=inter.user.id)
-        except NoMatch as e:
-            raise NotLinked(self.bot) from e
+        user = await User.objects().get(User.id == inter.user.id)
+        if user is None:
+            raise NotLinked(self.bot)
 
         user_id = user.spotify_id
         if user_id is None:

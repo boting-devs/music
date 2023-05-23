@@ -20,7 +20,6 @@ from nextcord import (
     StageChannel,
     VoiceChannel,
 )
-from ormar import NoMatch
 
 from vibr.constants import COLOURS, GUILD_IDS
 from vibr.db.player import PlayerConfig
@@ -200,12 +199,15 @@ class Vibr(BotBase):
         return f"`/{name}`"
 
     async def set_player_settings(self, player: Player, channel_id: int) -> None:
-        try:
-            config = await PlayerConfig.objects.get(channel_id=channel_id)
-        except NoMatch:
+        config = (
+            await PlayerConfig.select(PlayerConfig.volume)
+            .where(PlayerConfig.channel_id == channel_id)
+            .first()
+        )
+        if config is None:
             return
 
-        if config.volume == DEFAULT_VOLUME:
+        if config["volume"] == DEFAULT_VOLUME:
             return
 
         # TODO: Add actual public interface to mafic.
@@ -215,7 +217,7 @@ class Vibr(BotBase):
 
             await sleep(1)
 
-        await player.set_volume(config.volume)
+        await player.set_volume(config["volume"])
 
     async def play(
         self,

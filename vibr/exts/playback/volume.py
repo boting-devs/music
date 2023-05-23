@@ -6,7 +6,6 @@ from botbase import CogBase
 from nextcord import slash_command
 from nextcord.abc import Snowflake
 from nextcord.utils import utcnow
-from ormar import NoMatch
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected
@@ -35,12 +34,11 @@ class Volume(CogBase[Vibr]):
         await inter.send(embed=embed)
 
         channel_id = cast(Snowflake, player.channel).id
-        try:
-            model = await PlayerConfig.objects.get(channel_id=channel_id)
-        except NoMatch:
-            await PlayerConfig.objects.create(channel_id=channel_id, volume=number)
-        else:
-            await model.update(volume=number)
+        config = await PlayerConfig.objects().get_or_create(
+            PlayerConfig.channel_id == channel_id
+        )
+        config.volume = number
+        await config.save()
 
 
 # volume cap left

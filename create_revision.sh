@@ -13,7 +13,7 @@ echo "Waiting for start..."
 until nc -w 10 127.0.0.1 5432; do sleep 1; done
 export DB_URI=postgresql://postgres:postgres@localhost:5432/bot
 sudo rm -rf pg_data/
-python -m alembic upgrade head
-python -m alembic revision --autogenerate -m "$*"
+piccolo migrations forwards all
+piccolo migrations new vibr --auto --desc="$*"
 unset DB_URI
 docker-compose down

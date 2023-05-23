@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from botbase import CogBase
-from nextcord import slash_command , SlashOption
-from mafic import SearchType , Playlist
+from mafic import Playlist, SearchType
+from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
+from vibr.errors import NoTracksFound
+from vibr.exts.liked._errors import NoPlaylists
 from vibr.inter import Inter
 from vibr.views import SearchView
 
-from vibr.errors import NoTracksFound
-from vibr.exts.liked._errors import NoPlaylists
 
 class Search(CogBase[Vibr]):
     SEARCH_TYPE = SlashOption(
@@ -26,29 +26,31 @@ class Search(CogBase[Vibr]):
     )
 
     @slash_command(dm_permission=False)
-    async def search(self,inter:Inter,song:str,search_type:str = SEARCH_TYPE) ->None:
+    async def search(
+        self, inter: Inter, song: str, search_type: str = SEARCH_TYPE
+    ) -> None:
         """Search for a song
-        
+
         song:
             The song to search.
-            
+
         search_type:
             The platform to search if this is a query."""
-        
+
         await inter.response.defer(ephemeral=True)
 
         node = self.bot.pool.label_to_node["LOCAL"]
-        result = await node.fetch_tracks(song,search_type=search_type or "youtube")
+        result = await node.fetch_tracks(song, search_type=search_type or "youtube")
 
         if not result:
             raise NoTracksFound
-        
-        if isinstance(result,Playlist):
+
+        if isinstance(result, Playlist):
             raise NoPlaylists
-        
+
         view = SearchView(result)
         embed = view.create_search_embed(tracks=result)
-        await inter.send(embed=embed,view=view)
+        await inter.send(embed=embed, view=view)
         view.message = inter
 
         await view.wait()
@@ -59,7 +61,8 @@ class Search(CogBase[Vibr]):
         if track is None:
             return
 
-        await self.bot.play(inter=inter,query=track.uri)
-        
+        await self.bot.play(inter=inter, query=track.uri)
+
+
 def setup(bot: Vibr) -> None:
     bot.add_cog(Search(bot))

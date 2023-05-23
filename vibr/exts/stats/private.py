@@ -7,7 +7,6 @@ from nextcord.ext.application_checks import is_owner
 from vibr.bot import GUILD_IDS, Vibr
 from vibr.inter import Inter
 
-from ._view import StatsView
 
 MAIN_STATS = """
 Guilds: `{guilds:,}`
@@ -38,7 +37,7 @@ class PrivateStats(CogBase[Vibr]):
 
         embed = Embed(colour=self.bot.colour)
         guilds = len(self.bot.guilds)
-        commands = await CommandLog.objects.count()
+        commands = await CommandLog.count()
         # TODO: songs
         songs = 69
 
@@ -80,18 +79,6 @@ class PrivateStats(CogBase[Vibr]):
         )
 
         await inter.response.send_message(embed=embed)
-
-    @slash_command(
-        name="stats-graph", default_member_permissions=8, guild_ids=GUILD_IDS
-    )
-    @is_owner()
-    async def stats_graph(self, inter: Inter) -> None:
-        """Get a fancy graph of stats."""
-
-        v = StatsView(self.bot)
-        message = await inter.response.send_message(view=v)
-        v.message = message
-        await v.update()
 
 
 def setup(bot: Vibr) -> None:

@@ -1,68 +1,110 @@
 from __future__ import annotations
 
-from base64 import b64decode
-from typing import TYPE_CHECKING
+import functools
+from base64 import b64decode, b64encode
+from typing import TYPE_CHECKING, ParamSpec, TypeVar, cast
 
 from asyncpg import UniqueViolationError
-from botbase.db import database
 
 from vibr.db import Playlist, Song, User
+from vibr.db.playlists import PlaylistToSong
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     import nextcord
     from mafic import Track
     from nextcord import Member
+    from piccolo.columns import ForeignKey
+    from piccolo.engine.postgres import PostgresTransaction
+
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
-@database.transaction()
+def transaction(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+    @functools.wraps(func)
+    async def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        db = User._meta.db
+        async with cast("PostgresTransaction", db.transaction()):
+            return await func(*args, **kwargs)
+
+    return wrapped
+
+
+@transaction
 async def add_to_liked(*, user: nextcord.User | Member, track: Track) -> bool:
-    await User.objects.get_or_create(id=user.id)
+    # song = (
+    #     await Song.insert(
+    #         Song({Song.lavalink_id: b64decode(track.id)}),
+    #     )
+    #     .on_conflict(
+    #         (Song.id),
+    #         "DO UPDATE",
+    #         ((Song.likes, Unquoted("song.likes + 1")),),
+    #     )
+    #     .returning(*Song.all_columns())
+    # )[0]
+    try:
+        song = Song.from_dict(
+            (
+                await Song.insert(
+                    Song({Song.lavalink_id: b64decode(track.id)})
+                ).returning(*Song.all_columns())
+            )[0]
+        )
+        song._exists_in_db = True
+    except UniqueViolationError:
+        song = cast(
+            Song, await Song.objects().get(Song.lavalink_id == b64decode(track.id))
+        )
+        song.likes += 1
+        await song.update()
 
-    # represent_as_base64_str means this cant use str itself since
-    # it is only converted by ormar on `__get__` and `__set__`.
-    data, created = await Song.objects.get_or_create(lavalink_id=b64decode(track.id))
-    if not created:
-        data.likes += 1
-        await data.update()
-
-    playlist, created = await Playlist.objects.get_or_create(
-        name="Liked Songs", owner=user.id
+    owner = await User.objects().get_or_create(User.id == user.id)
+    playlist = await Playlist.objects().get_or_create(
+        (Playlist.name == "Liked Songs") & (Playlist.owner.id == owner.id),
+        defaults={
+            Playlist.owner: owner,
+        },
     )
 
     try:
-        await playlist.songs.add(data)
+        await playlist.add_m2m(song, m2m=Playlist.songs)
     except UniqueViolationError:
         return True
 
     return False
 
 
-@database.transaction()
+@transaction
 async def remove_from_liked(*, user: nextcord.User | Member, index: int) -> str | None:
-    playlist = (
-        await Playlist.objects.select_related(["songs"])
-        .filter(owner=user.id, name="Liked Songs")
-        .offset(index, limit_raw_sql=True)
-        .limit(1, limit_raw_sql=True)
-        .order_by("playlisttosong__added")
-        .get_or_none()
+    playlist_to_song = (
+        await PlaylistToSong.objects(PlaylistToSong.song, PlaylistToSong.playlist)
+        .where(
+            (cast("ForeignKey", PlaylistToSong.playlist.owner).id == user.id)
+            & (PlaylistToSong.playlist.name == "Liked Songs")
+        )
+        .offset(index)
+        .limit(1)
+        .order_by(PlaylistToSong.added)
+        .first()
     )
-    if playlist is None:
+    if playlist_to_song is None:
         return None
 
-    if not playlist.songs:
+    song = playlist_to_song.song
+    playlist = playlist_to_song.playlist
+
+    if song is None:
         return None
 
-    song = playlist.songs[0]
-    await playlist.songs.remove(song)
+    await playlist.remove_m2m(song, m2m=Playlist.songs)
 
     song.likes -= 1
     if song.likes == 0:
-        await song.delete()
+        await song.remove()
     else:
-        # Apparently ormar forgor I wanted it to be a str but store as bytes.
-        # So I have to do it myself.
-        song.lavalink_id = song.lavalink_id
-        await song.update()
+        await song.save()
 
-    return song.lavalink_id
+    return b64encode(song.lavalink_id).decode()

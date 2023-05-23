@@ -1,4 +1,5 @@
 from __future__ import annotations
+from base64 import b64encode
 
 from math import ceil
 from time import gmtime, strftime
@@ -6,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from nextcord.ext.menus import ButtonMenuPages, PageSource
 
-from vibr.db.playlists import Playlist, Song
+from vibr.db.playlists import Playlist, PlaylistToSong, Song
 from vibr.embed import Embed
 from vibr.utils import truncate
 
@@ -41,15 +42,18 @@ class LikedSource(PageSource):
 
     async def get_page(self, page_number: int) -> list[tuple[Track, int]]:
         songs = (
-            await Song.objects.filter(playlisttosong__playlist=self.playlist.id)
-            .paginate(page_number + 1, page_size=self.per_page)
-            .order_by("playlisttosong__added")
-            .all()
+            await PlaylistToSong.select(PlaylistToSong.song.lavalink_id)
+            .where(PlaylistToSong.playlist == self.playlist.id)
+            .offset(page_number * self.per_page)
+            .limit(self.per_page)
+            .order_by(PlaylistToSong.added)
         )
         node = self.bot.pool.label_to_node["LOCAL"]
         return list(
             zip(
-                await node.decode_tracks([song.lavalink_id for song in songs]),
+                await node.decode_tracks(
+                    [b64encode(song["song.lavalink_id"]).decode() for song in songs]
+                ),
                 range(
                     page_number * self.per_page,
                     page_number * self.per_page + self.per_page,

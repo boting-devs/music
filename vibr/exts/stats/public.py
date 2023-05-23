@@ -23,7 +23,7 @@ class PublicStats(CogBase[Vibr]):
 
         embed = Embed(colour=self.bot.colour)
         guilds = len(self.bot.guilds)
-        commands = await CommandLog.objects.count()
+        commands = await CommandLog.count()
         # TODO: songs
         songs = 69
 
