@@ -90,6 +90,7 @@ class PlayButtons(View):
             embed = Embed(title="Paused")
         else:
             await player.resume()
+            await player.pause(pause=False)
             embed = Embed(title="Resumed")
 
         await inter.send(embed=embed)
