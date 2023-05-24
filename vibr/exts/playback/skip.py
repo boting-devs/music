@@ -54,8 +54,10 @@ class Skip(CogBase[Vibr]):
 
         track, user = player.queue.skip(amount_int)
         await player.play(track)
-        embed,view = await track_embed(track, user=user, skipped=inter.user.id, bot=self.bot)
-        await inter.response.send_message(embed=embed,view=view)
+        embed, view = await track_embed(
+            track, user=user, skipped=inter.user.id, bot=self.bot
+        )
+        await inter.response.send_message(embed=embed, view=view)
 
     @skip.on_autocomplete("amount")
     async def skip_autocomplete(self, inter: Inter, amount: str) -> dict[str, str]:

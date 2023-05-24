@@ -7,7 +7,6 @@ from nextcord.ext.application_checks import is_owner
 from vibr.bot import GUILD_IDS, Vibr
 from vibr.inter import Inter
 
-
 MAIN_STATS = """
 Guilds: `{guilds:,}`
 Commands Used `{commands:,}`

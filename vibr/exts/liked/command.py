@@ -7,7 +7,7 @@ from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
 from vibr.database import add_to_liked, remove_from_liked
-from vibr.db import Playlist, Song
+from vibr.db import Playlist
 from vibr.db.playlists import PlaylistToSong
 from vibr.errors import NoTracksFound
 from vibr.inter import Inter
@@ -132,7 +132,9 @@ class Liked(CogBase[Vibr]):
         if playlist is None:
             raise NoLikedSongs(self.bot)
 
-        count = await PlaylistToSong.count().where(PlaylistToSong.playlist == playlist.id)
+        count = await PlaylistToSong.count().where(
+            PlaylistToSong.playlist == playlist.id
+        )
         if count == 0:
             raise NoLikedSongs(self.bot)
 

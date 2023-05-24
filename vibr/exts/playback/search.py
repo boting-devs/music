@@ -61,6 +61,8 @@ class Search(CogBase[Vibr]):
         if track is None:
             return
 
+        assert track.uri is not None
+
         await self.bot.play(inter=inter, query=track.uri)
 
 

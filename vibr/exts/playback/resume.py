@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from botbase import CogBase
 from nextcord import slash_command
-from nextcord.utils import utcnow
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
@@ -22,10 +21,7 @@ class Resume(CogBase[Vibr]):
 
         if player.paused is True:
             await player.resume()
-            embed = Embed(
-                title="Resumed",
-                timestamp=utcnow(),
-            )
+            embed = Embed(title="Resumed")
             await inter.send(embed=embed)
         else:
             raise AlreadyResumed

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from botbase import CogBase
 from nextcord import slash_command
-from nextcord.utils import utcnow
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected_and_playing
@@ -22,10 +21,7 @@ class Pause(CogBase[Vibr]):
 
         if player._paused is False:
             await player.pause(pause=True)
-            embed = Embed(
-                title="Paused",
-                timestamp=utcnow(),
-            )
+            embed = Embed(title="Paused")
             await inter.send(embed=embed)
         else:
             raise AlreadyPaused

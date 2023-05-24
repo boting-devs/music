@@ -1,13 +1,13 @@
 from __future__ import annotations
-from base64 import b64encode
 
+from base64 import b64encode
 from math import ceil
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
 from nextcord.ext.menus import ButtonMenuPages, PageSource
 
-from vibr.db.playlists import Playlist, PlaylistToSong, Song
+from vibr.db.playlists import Playlist, PlaylistToSong
 from vibr.embed import Embed
 from vibr.utils import truncate
 

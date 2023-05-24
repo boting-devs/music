@@ -16,7 +16,9 @@ class Grab(CogBase[Vibr]):
         """Sends the current playing song through direct messages"""
 
         player = inter.guild.voice_client
-        embed, view = await track_embed(
+        assert player.current is not None
+
+        embed, _ = await track_embed(
             player.current, bot=self.bot, user=inter.user.id, inter=inter, grabbed=True
         )
 
