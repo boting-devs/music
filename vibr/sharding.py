@@ -3,7 +3,7 @@ from os import environ
 import docker
 import requests
 
-docker = docker.Client(base_url="unix:///var/run/docker.sock")
+docker = docker.APIClient(base_url="unix:///var/run/docker.sock")
 HOSTNAME = environ["HOSTNAME"]
 all_containers = docker.containers()
 our_container = [c for c in all_containers if c["Id"][:12] == HOSTNAME[:12]][0]
