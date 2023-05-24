@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import re
 from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
-from mafic import Playlist
+from mafic import Playlist, Track
 from nextcord.utils import escape_markdown, utcnow
 
+from vibr.db import SongLog
 from vibr.embed import Embed
 from vibr.inter import Inter
 from vibr.utils import truncate
@@ -13,8 +15,6 @@ from vibr.utils import truncate
 from . import buttons
 
 if TYPE_CHECKING:
-    from mafic import Track
-
     from vibr.bot import Vibr
 
 
@@ -23,6 +23,13 @@ __all__ = ("track_embed",)
 
 MAX_AUTHOR_LENGTH = 3
 HTTP_FOUND = 302
+BANDCAMP_TRACK = "https://chordorchard.bandcamp.com/track/"
+DISCORD_ATTACHMENT_RE = re.compile(
+    r"https?://cdn\.discordapp\.com/attachments/"
+    r"((?:[0-9]+)/(?:[0-9]+)/(?:[a-zA-Z0-9_.]+)+)",
+)
+SOUNDCLOUD_TRACK = "https://soundcloud.com/"
+VIMEO_VIDEO = "https://vimeo.com/"
 
 
 def get_authors(tracks: list[Track]) -> str:
@@ -79,6 +86,40 @@ async def get_url(track: Track, *, bot: Vibr) -> str | None:
     #     return None
 
 
+SIMPLE_SOURCES = {
+    "applemusic": SongLog.Type.APPLE_MUSIC,
+    "deezer": SongLog.Type.DEEZER,
+    "spotify": SongLog.Type.SPOTIFY,
+    "youtube": SongLog.Type.YOUTUBE,
+}
+
+
+def get_type_and_identifier(track: Track) -> tuple[str, int]:  # noqa: PLR0911
+    assert track.uri is not None
+
+    if track.source == "bandcamp":
+        return track.uri.removeprefix(BANDCAMP_TRACK), SongLog.Type.BANDCAMP.value
+
+    if track.source == "http":
+        if match := DISCORD_ATTACHMENT_RE.match(track.uri):
+            return match.group(1), SongLog.Type.DISCORD.value
+
+        return track.uri, SongLog.Type.OTHER.value
+
+    if track.source == "soundcloud":
+        return track.uri.removeprefix(SOUNDCLOUD_TRACK), SongLog.Type.SOUNDCLOUD.value
+
+    # I do not think Twitch works right now.
+
+    if track.source == "vimeo":
+        return track.uri.removeprefix(VIMEO_VIDEO), SongLog.Type.VIMEO.value
+
+    if track.source in SIMPLE_SOURCES:
+        return track.identifier, SIMPLE_SOURCES[track.source].value
+
+    return track.uri, SongLog.Type.OTHER.value
+
+
 async def track_embed(
     item: Track | Playlist,
     *,
@@ -90,7 +131,7 @@ async def track_embed(
     looping: bool = False,
     next: bool = False,
     length_embed: bool = False,
-    grabbed:bool = False,
+    grabbed: bool = False,
 ) -> tuple[Embed, buttons.PlayButtons]:
     view = buttons.PlayButtons(item)
 
@@ -121,7 +162,7 @@ async def track_embed(
         embed.add_field(name="Requested By", value=f"<@{user}>")
         embed.add_field(name="Skipped By", value=f"<@{skipped}>")
     if grabbed:
-         embed = Embed(title=title)
+        embed = Embed(title=title)
     else:
         embed = Embed(title=title, description=f"Requested by <@{user}>")
 
@@ -158,5 +199,17 @@ async def track_embed(
             text=f"Queued - {queued} | " * bool(queued) + f"Length: {track_time}"
         )
     embed.set_thumbnail(url=thumbnail)
+
+    if not grabbed and isinstance(item, Track):
+        await SongLog.raw(
+            """INSERT INTO song_log (identifier, type, user_id)
+            VALUES ({}, {}, {})
+            ON CONFLICT (type, identifier, user_id)
+            DO UPDATE SET
+                amount = song_log.amount + 1
+            """,
+            *get_type_and_identifier(item),
+            user,
+        )
 
     return embed, view
