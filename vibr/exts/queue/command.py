@@ -133,7 +133,8 @@ class QueueCommand(CogBase[Vibr]):
             )
             return
 
-        await inter.send_author_embed(f'"{song_n.title}" removed from queue')
+        embed = Embed(title=f'"{song_n.title}" removed from queue')
+        await inter.send(embed=embed)
 
     @queue_move.on_autocomplete("track")
     @queue_remove.on_autocomplete("position")
