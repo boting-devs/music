@@ -5,7 +5,6 @@ from typing import cast
 from botbase import CogBase
 from nextcord import slash_command
 from nextcord.abc import Snowflake
-from nextcord.utils import utcnow
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected
@@ -27,10 +26,7 @@ class Volume(CogBase[Vibr]):
         player = inter.guild.voice_client
 
         await player.set_volume(number)
-        embed = Embed(
-            title=f"Volume set to {number}",
-            timestamp=utcnow(),
-        )
+        embed = Embed(title=f"Volume set to {number}")
         await inter.send(embed=embed)
 
         channel_id = cast(Snowflake, player.channel).id

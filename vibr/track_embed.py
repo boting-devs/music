@@ -5,7 +5,7 @@ from time import gmtime, strftime
 from typing import TYPE_CHECKING
 
 from mafic import Playlist, Track
-from nextcord.utils import escape_markdown, utcnow
+from nextcord.utils import escape_markdown
 
 from vibr.db import SongLog
 from vibr.embed import Embed
@@ -192,9 +192,7 @@ async def track_embed(
         embed.set_footer(text=f"Looping | Length: {track_time}")
     elif next:
         embed.set_footer(text=f"Playing Up Next | Length: {track_time}")
-    elif length_embed or grabbed:
-        embed.timestamp = utcnow()
-    else:
+    elif queued:
         embed.set_footer(
             text=f"Queued - {queued} | " * bool(queued) + f"Length: {track_time}"
         )

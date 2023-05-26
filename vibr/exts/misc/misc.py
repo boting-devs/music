@@ -6,7 +6,6 @@ from os import getenv
 from botbase import CogBase
 from nextcord import slash_command
 from nextcord.ext.tasks import loop
-from nextcord.utils import utcnow
 
 from vibr.bot import Vibr
 from vibr.embed import Embed
@@ -82,7 +81,7 @@ class Misc(CogBase[Vibr]):
     async def vote(self, inter: Inter) -> None:
         """Vote for me!"""
 
-        embed = Embed(title="**Vote for Vibr**", timestamp=utcnow())
+        embed = Embed(title="**Vote for Vibr**")
         embed.add_field(
             name="Like our bot? Vote for us",
             value="[click here](https://top.gg/bot/882491278581977179)",

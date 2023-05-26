@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 from botbase import CogBase
 from nextcord import slash_command
-from nextcord.utils import utcnow
 
 from vibr.bot import Vibr
 from vibr.embed import Embed
@@ -67,7 +66,7 @@ class Lyrics(CogBase[Vibr]):
 
         lyrics_text = truncate(lyrics_text, length=4096)
 
-        embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
+        embed = Embed(title=title, description=lyrics_text)
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
         await inter.send(embed=embed)
