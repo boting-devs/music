@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from collections import deque
 from enum import Enum, auto
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Coroutine
 
 import mafic
 from mafic import Track
@@ -196,6 +196,17 @@ class Player(mafic.Player):
 
         return await super().pause(pause)
 
+    def stop(self) -> Coroutine[Any, Any, None]:
+        self.start_disconnect_timer()
+
+        return super().stop()
+
+    def destroy(self) -> Coroutine[Any, Any, None]:
+        self.cancel_pause_timer()
+        self.cancel_disconnect_timer()
+
+        return super().destroy()
+
     def cancel_pause_timer(self) -> None:
         if self._pause_timer:
             self._pause_timer.cancel()
@@ -238,11 +249,17 @@ class Player(mafic.Player):
         if self.paused or not self.current:
             return
 
+        if self._pause_timer is not None:
+            return
+
         self._pause_timer = self.client.loop.call_later(
             self.PAUSE_TIMEOUT, lambda: self.client.loop.create_task(self._pause_task())
         )
 
     def start_disconnect_timer(self) -> None:
+        if self._disconnect_timer is not None:
+            return
+
         self._disconnect_timer = self.client.loop.call_later(
             self.DISCONNECT_TIMEOUT,
             lambda: self.client.loop.create_task(self._disconnect_task()),
