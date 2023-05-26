@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from collections import deque
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Coroutine
+from typing import TYPE_CHECKING, Any
 
 import mafic
 from mafic import Track
@@ -13,7 +13,7 @@ from vibr.errors import QueueFull
 
 if TYPE_CHECKING:
     from asyncio import TimerHandle
-    from collections.abc import Sequence
+    from collections.abc import Coroutine, Sequence
 
     from mafic import Node
     from mafic.type_variables import ClientT

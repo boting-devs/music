@@ -45,10 +45,10 @@ class QueueCommand(CogBase[Vibr]):
         current = player.current
         assert current is not None
         queue = player.queue
-        if not queue:
+        if not queue and not current:
             raise EmptyQueue
 
-        menu = QueueMenu(source=QueueSource(current, queue), inter=inter)
+        menu = QueueMenu(source=QueueSource([current, *queue]), inter=inter)
         await menu.start(interaction=inter)
 
 

@@ -71,7 +71,6 @@ class LikedSource(PageSource):
             description="\n".join(
                 self._get_track_description(track, index) for track, index in entries
             ),
-            colour=self.bot.colour,
         )
 
     def _get_track_description(self, track: Track, index: int) -> str:

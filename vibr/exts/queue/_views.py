@@ -3,11 +3,12 @@ from __future__ import annotations
 from time import gmtime, strftime
 from typing import TYPE_CHECKING, cast
 
-from nextcord import ButtonStyle, Embed
+from nextcord import ButtonStyle
 from nextcord.abc import Snowflake
 from nextcord.ext.menus import ButtonMenuPages, ListPageSource
 from nextcord.ui import Button, Select
 
+from vibr.embed import Embed
 from vibr.patches.nextcord.ui import button
 
 if TYPE_CHECKING:
@@ -15,7 +16,6 @@ if TYPE_CHECKING:
     from nextcord import PartialInteractionMessage
 
     from vibr.inter import Inter
-    from vibr.player import Queue
 
 
 class QueueMenu(ButtonMenuPages):
@@ -81,21 +81,21 @@ class QueueMenu(ButtonMenuPages):
             return
 
         player.queue.shuffle()
-        embed =Embed(title="Shuffled the queue")
+        embed = Embed(title="Shuffled the queue")
         await inter.send(embed=embed)
-        await self.change_source(QueueSource(player.current, player.queue))
+        await self.change_source(QueueSource([player.current, *player.queue]))
 
 
 class QueueSource(ListPageSource):
-    def __init__(self, now: Track, queue: Queue) -> None:
-        tracks = queue.tracks
+    def __init__(self, tracks: list[Track]) -> None:
         super().__init__(entries=tracks, per_page=10)
         self.queue = tracks
-        self.now = now
-        self.title = f"Queue of {len(queue)} songs"
+        self.title = f"Queue of {len(tracks)} songs"
 
     def format_page(self, menu: QueueMenu, tracks: list[Track]) -> Embed:
         add = self.queue.index(tracks[0]) + 1
+
+        current = tracks.pop(0) if tracks[0] == self.queue[0] else None
 
         desc = "\n".join(
             # 1. title by author [length]
@@ -104,17 +104,13 @@ class QueueSource(ListPageSource):
             for i, t in enumerate(tracks)
         )
         # This is the first page, share the now playing and next song.
-        if tracks[0] == self.queue[0]:
-            c = self.now
-            desc = (
-                f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
-                f"\U0001f3b6 Up Next:\n" + desc
-            )
+        if current:
+            c = current
+            desc = f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
+            if tracks:
+                desc += "\U0001f3b6 Up Next:\n" + desc
 
-        embed = Embed(
-            description=desc,
-            color=menu.interaction.client.colour,
-        )
+        embed = Embed(description=desc)
 
         maximum = self.get_max_pages()
         # if maximum > 1:

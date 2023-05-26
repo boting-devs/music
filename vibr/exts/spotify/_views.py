@@ -3,10 +3,11 @@ from __future__ import annotations
 from math import ceil
 from typing import TYPE_CHECKING
 
-from nextcord import Embed, SelectOption
+from nextcord import SelectOption
 from nextcord.ext.menus import ButtonMenuPages, PageSource
 from nextcord.ui import Button, Select
 
+from vibr.embed import Embed
 from vibr.utils import truncate
 
 if TYPE_CHECKING:
@@ -61,7 +62,6 @@ class PlaylistSource(PageSource):
             description="\n".join(
                 self._get_playlist_description(playlist) for playlist in entries
             ),
-            colour=self.bot.colour,
         )
 
     def _get_playlist_description(self, playlist: SpotifyPlaylist) -> str:
