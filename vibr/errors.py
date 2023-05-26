@@ -18,6 +18,7 @@ __all__ = (
     "NoTracksFound",
     "UserNotInVoice",
     "VoiceConnectionError",
+    "QueueFull",
 )
 
 
@@ -73,4 +74,11 @@ class VoiceConnectionError(CheckFailure):
         description=(
             "Failed to connect to the vocie channel. Please try again later.",
         ),
+    )
+
+
+class QueueFull(CheckFailure):
+    embed = ErrorEmbed(
+        title="Queue Full",
+        description="The queue is full, you cannot add more tracks.",
     )

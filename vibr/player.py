@@ -9,6 +9,7 @@ import mafic
 from mafic import Track
 
 from vibr.embed import Embed
+from vibr.errors import QueueFull
 
 if TYPE_CHECKING:
     from asyncio import TimerHandle
@@ -51,12 +52,18 @@ class Queue:
         self._loop_type = None
 
     def extend(self, items: Sequence[tuple[Track, int]]) -> None:
-        if (len(self._stack) + len(items)) == self._maxlen:
-            raise IndexError
+        if (len(self._stack) + len(items)) > self._maxlen:
+            items = items[: self._maxlen - len(self._stack)]
+
+            if not items:
+                raise QueueFull
 
         self._stack.extend(items)
 
     def add(self, track: Track, user: int) -> None:
+        if len(self._stack) == self._maxlen:
+            raise QueueFull
+
         self._stack.append((track, user))
 
     def __iadd__(self, other: Sequence[tuple[Track, int]]) -> Queue:
@@ -104,6 +111,9 @@ class Queue:
         del self._stack[index]
 
     def insert(self, index: int, track: Track, user: int) -> None:
+        if len(self._stack) == self._maxlen:
+            raise QueueFull
+
         self._stack.insert(index, (track, user))
 
 
