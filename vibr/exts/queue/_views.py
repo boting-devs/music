@@ -97,7 +97,7 @@ class QueueSource(ListPageSource):
 
         current = tracks.pop(0) if tracks[0] == self.queue[0] else None
 
-        desc = "\n".join(
+        tracks_desc = "\n".join(
             # 1. title by author [length]
             f"**{i + add}.** [{t.title}]({t.uri}) by "
             f"{t.author} [{strftime('%H:%M:%S', gmtime((t.length or 0) / 1000))}]"
@@ -106,11 +106,15 @@ class QueueSource(ListPageSource):
         # This is the first page, share the now playing and next song.
         if current:
             c = current
-            desc = f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
+            now_desc = (
+                f"\U0001f3b6 Now Playing:\n[{c.title}]({c.uri}) by {c.author}\n\n"
+            )
             if tracks:
-                desc += "\U0001f3b6 Up Next:\n" + desc
+                now_desc += "\U0001f3b6 Up Next:\n" + tracks_desc
 
-        embed = Embed(description=desc)
+            tracks_desc = now_desc
+
+        embed = Embed(description=tracks_desc)
 
         maximum = self.get_max_pages()
         # if maximum > 1:
