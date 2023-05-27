@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-from asyncio import sleep
-from os import getenv
-
 from botbase import CogBase
 from nextcord import slash_command
-from nextcord.ext.tasks import loop
 
 from vibr.bot import Vibr
 from vibr.embed import Embed
@@ -15,38 +11,6 @@ from vibr.inter import Inter
 class Misc(CogBase[Vibr]):
     def __init__(self, bot: Vibr) -> None:
         self.bot = bot
-        self.topgg.start()
-
-    def cog_unload(self) -> None:
-        self.topgg.stop()
-
-    @loop(minutes=30)
-    async def topgg(self) -> None:
-        if getenv("TOPGG_TOKEN") is None:  # add top.gg token
-            return
-
-        headers = {"Authorization": getenv("TOPGG_TOKEN")}
-        data = {
-            "server_count": len(self.bot.guilds),
-            "shard_count": self.bot.shard_count or 1,
-        }
-        assert self.bot.user is not None
-        await self.bot.session.post(
-            f"https://top.gg/api/bots/{self.bot.user.id}/stats",
-            headers=headers,
-            data=data,
-        )
-
-    @topgg.before_loop
-    async def topgg_before_loop(self) -> None:
-        await self.bot.wait_until_ready()
-        await sleep(20)
-
-    @slash_command(dm_permission=False)
-    async def ping(self, inter: Inter) -> None:
-        """Pong!"""
-
-        await inter.send(f"🏓 Pong! `{round(self.bot.latency * 1000)} ms`")
 
     @slash_command()
     async def invite(self, inter: Inter) -> None:
@@ -96,7 +60,7 @@ class Misc(CogBase[Vibr]):
         """Donate to vibr"""
         embed = Embed(title="**Support Me :)**")
         embed.add_field(
-            name="**Enjoy the bot? Help us keep it the way it is**",
+            name="**Enjoy the bot? Help us keep it running!**",
             value="**[click here](https://donate.stripe.com/eVa9DSdGs0Qed8s7ss)**",
         )
         embed.set_image(
