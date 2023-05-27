@@ -52,6 +52,7 @@ __all__ = ("Vibr",)
 
 REGION_CLS = [Group, Region, VoiceRegion]
 DEFAULT_VOLUME = 100
+LOG_CHANNEL = int(environ["LOG_CHANNEL"])
 
 
 class Vibr(BotBase):
@@ -62,7 +63,7 @@ class Vibr(BotBase):
             name="vibr",
             # i have no idea how do i diffrentiate btw beta and normal,
             # so doing this for now
-            log_channel=1101963855141281912,
+            log_channel=LOG_CHANNEL,
             guild_ids=GUILD_IDS,
             log_guilds=True,
             intents=Intents(guilds=True, voice_states=True),

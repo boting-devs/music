@@ -26,6 +26,7 @@ services:
       REDIS_URL: redis://keydb:6379
       SPOTIFY_CLIENT_ID: $SPOTIFY_CLIENT_ID
       SPOTIFY_CLIENT_SECRET: $SPOTIFY_CLIENT_SECRET
+      LOG_CHANNEL: 1101963855141281900
   gateway-proxy:
     image: ghcr.io/ooliver1/gateway-proxy:x86-64
     environment:
