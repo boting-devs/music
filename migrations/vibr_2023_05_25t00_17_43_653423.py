@@ -43,7 +43,7 @@ async def forwards() -> MigrationManager:
         column_class_name="SmallInt",
         column_class=SmallInt,
         params={
-            "default": 10,
+            "default": 9,
             "null": False,
             "primary_key": False,
             "unique": False,

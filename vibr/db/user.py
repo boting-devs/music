@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from piccolo.columns import BigInt, Text
+from piccolo.columns import BigInt, Boolean, Text
 from piccolo.table import Table
 
 
@@ -10,3 +10,5 @@ from piccolo.table import Table
 class User(Table, tablename="users"):
     id = BigInt(primary_key=True)
     spotify_id = Text()
+    notified = Boolean()
+    notifications = Boolean(default=True)

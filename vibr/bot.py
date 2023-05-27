@@ -61,8 +61,6 @@ class Vibr(BotBase):
             version="3.0.0",
             colours=COLOURS,
             name="vibr",
-            # i have no idea how do i diffrentiate btw beta and normal,
-            # so doing this for now
             log_channel=LOG_CHANNEL,
             guild_ids=GUILD_IDS,
             log_guilds=True,

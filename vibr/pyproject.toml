@@ -19,6 +19,9 @@ nextcord-ext-menus = "^1.5.6"
 delarva = { git = "https://github.com/ooliver1/delarva" }
 async-spotify = { git = "https://github.com/ooliver1/AsyncSpotify", subdirectory = "src" }
 docker = "^6.1.2"
+asyncache = "^0.3.1"
+cachetools = "^5.3.0"
+humanfriendly = "^10.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
