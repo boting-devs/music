@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
     from nextcord import Colour, embeds
 
-    EmbedType = embeds.EmbedType
+    EmbedType = embeds.EmbedType  # pyright: ignore[reportPrivateImportUsage]
 
 
 __all__ = ("Embed",)

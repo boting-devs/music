@@ -4,6 +4,7 @@ from abc import ABC
 from typing import TYPE_CHECKING
 
 from nextcord import ApplicationCheckFailure, StageChannel, VoiceChannel
+from nextcord.ui import Button, View
 
 from .embed import ErrorEmbed
 
@@ -19,11 +20,13 @@ __all__ = (
     "UserNotInVoice",
     "VoiceConnectionError",
     "QueueFull",
+    "NotVoted",
 )
 
 
 class CheckFailure(ApplicationCheckFailure, ABC):
     embed: ErrorEmbed
+    view: View | None = None
 
 
 class NotInSameVoice(CheckFailure):
@@ -82,3 +85,18 @@ class QueueFull(CheckFailure):
         title="Queue Full",
         description="The queue is full, you cannot add more tracks.",
     )
+
+
+class NotVoted(CheckFailure):
+    def __init__(self, bot: Vibr) -> None:
+        self.view = View()
+        self.view.add_item(
+            Button(label="Vote", url="https://top.gg/bot/882491278581977179/vote")
+        )
+        self.embed = ErrorEmbed(
+            title="Not Voted",
+            description=(
+                "This command requires a vote. Use the link below or "
+                f"{bot.get_command_mention('vote')}."
+            ),
+        )

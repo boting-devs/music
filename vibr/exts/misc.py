@@ -27,7 +27,7 @@ class Misc(CogBase[Vibr]):
         embed.set_image(
             url="https://learnenglishfunway.com/wp-content/uploads/2020/12/Music-2.jpg"
         )
-        await inter.send(embed=embed)
+        await inter.send(embed=embed, ephemeral=True)
 
     @slash_command()
     async def support(self, inter: Inter) -> None:
@@ -39,7 +39,7 @@ class Misc(CogBase[Vibr]):
             value="**[click here](https://discord.gg/v3UvgPXwHq)**",
         )
         embed.set_image(url="https://c.tenor.com/lhlDEs5fNNEAAAAC/music-beat.gif")
-        await inter.send(embed=embed)
+        await inter.send(embed=embed, ephemeral=True)
 
     @slash_command()
     async def vote(self, inter: Inter) -> None:
@@ -53,7 +53,7 @@ class Misc(CogBase[Vibr]):
         embed.set_image(
             url="https://d30i16bbj53pdg.cloudfront.net/wp-content/uploads/2018/10/vote-for-blog.jpg"
         )
-        await inter.send(embed=embed)
+        await inter.send(embed=embed, ephemeral=True)
 
     @slash_command()
     async def donate(self, inter: Inter) -> None:
@@ -66,7 +66,7 @@ class Misc(CogBase[Vibr]):
         embed.set_image(
             url="https://i.postimg.cc/zG6kL55F/e-News-Thank-You-Large-1170x658.jpg"
         )
-        await inter.send(embed=embed)
+        await inter.send(embed=embed, ephemeral=True)
 
 
 def setup(bot: Vibr) -> None:

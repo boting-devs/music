@@ -5,7 +5,6 @@ services:
     depends_on:
       - postgres
       - keydb
-      - manager
       - lavalink
       - gateway-proxy
     build:
@@ -40,17 +39,15 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
   keydb:
     image: eqalpha/keydb
-  manager:
+  api:
     build:
       context: .
-      dockerfile: manager/Dockerfile
-    volumes:
-      - ./logs:/manager/logs
-    depends_on:
-      - keydb
+      dockerfile: api/Dockerfile
     pull_policy: build
+    ports:
+      - 127.0.0.1:6782:8000
     environment:
-      REDIS_URL: redis://keydb:6379
+      DB_URI: postgresql://postgres:postgres@postgres:5432/bot
   lavalink:
     image: ghcr.io/freyacodes/lavalink:v4
     volumes:

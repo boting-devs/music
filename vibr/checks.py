@@ -1,16 +1,20 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from nextcord import StageChannel, VoiceChannel
 from nextcord.ext.application_checks import check
+from nextcord.utils import utcnow
 
-from vibr.errors import NotConnected, NotInSameVoice, NotPlaying
+from vibr.db.user import User
+from vibr.errors import NotConnected, NotInSameVoice, NotPlaying, NotVoted
 
 if TYPE_CHECKING:
     from vibr.inter import Inter
 
-__all__ = ("is_connected", "is_connected_and_playing")
+__all__ = ("is_connected", "is_connected_and_playing", "voted")
+VOTE_INTERVAL = timedelta(hours=24)
 
 
 async def is_connected_predicate(inter: Inter) -> bool:
@@ -44,5 +48,21 @@ async def is_connected_and_playing_predicate(inter: Inter) -> bool:
     return True
 
 
-is_connected = check(is_connected_predicate)  # pyright: ignore
-is_connected_and_playing = check(is_connected_and_playing_predicate)  # pyright: ignore
+async def voted_predicate(inter: Inter) -> bool:
+    user = await User.select(User.topgg_voted).where(User.id == inter.user.id).first()
+    if user is None:
+        raise NotVoted(inter.client)
+
+    vote_time = user["topgg_voted"]
+
+    if vote_time is None or (vote_time + VOTE_INTERVAL) < utcnow():
+        raise NotVoted(inter.client)
+
+    return True
+
+
+is_connected = check(is_connected_predicate)  # pyright: ignore[reportGeneralTypeIssues]
+is_connected_and_playing = check(
+    is_connected_and_playing_predicate  # pyright: ignore[reportGeneralTypeIssues]
+)
+voted = check(voted_predicate)  # pyright: ignore[reportGeneralTypeIssues]

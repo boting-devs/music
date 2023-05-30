@@ -31,7 +31,7 @@ select = [
     "TRY",
     "RUF",
 ]
-ignore = ["S101", "ANN101", "ANN102", "F405", "S311", "F403"]
+ignore = ["S101", "ANN101", "ANN102", "F405", "S311", "F403", "PLR0913"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]

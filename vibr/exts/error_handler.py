@@ -31,7 +31,7 @@ class ErrorHandler(CogBase[Vibr]):
 
         if isinstance(exc, CheckFailure):
             embed = exc.embed
-            view = embed.view
+            view = exc.view if exc.view else embed.view
 
             await inter.send(embed=embed, view=view, ephemeral=True)
         else:
@@ -67,8 +67,8 @@ class ErrorHandler(CogBase[Vibr]):
                     name = "dm"
                     guild = "dm"
                 else:
-                    channel = inter.channel.mention  # pyright: ignore
-                    name = inter.channel.name  # pyright: ignore
+                    channel = inter.channel.mention  # pyright: ignore  # noqa: PGH003
+                    name = inter.channel.name  # pyright: ignore  # noqa: PGH003
                     guild = inter.guild.name
 
                 tb = "\n".join(format_exception(exc))

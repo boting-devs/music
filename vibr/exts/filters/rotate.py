@@ -14,7 +14,9 @@ class Rotate(CogBase[Vibr]):
     @slash_command(name="rotate", dm_permission=False)
     @is_connected_and_playing
     async def rotate(
-        self, inter: Inter, frequency: Range[0.1, 10] | None  # pyright: ignore
+        self,
+        inter: Inter,
+        frequency: Range[0.1, 10] | None,  # pyright: ignore[reportGeneralTypeIssues]
     ) -> None:
         """A cool filter to pan audio around your head,
         best with headphones or other stereo audio systems!
@@ -26,13 +28,15 @@ class Rotate(CogBase[Vibr]):
 
         passed_custom = frequency is not None
 
-        frequency = frequency or 0.2  # pyright: ignore
+        frequency = frequency or 0.2  # pyright: ignore[reportGeneralTypeIssues]
 
         player = inter.guild.voice_client
 
         if await player.has_filter("rotate") and passed_custom:
             await player.remove_filter("rotate")
-            rotate = Rotation(rotation_hz=frequency)  # pyright: ignore
+            rotate = Rotation(
+                rotation_hz=frequency  # pyright: ignore[reportGeneralTypeIssues]
+            )
             rotate_filter = Filter(rotation=rotate)
             await player.add_filter(rotate_filter, label="rotate", fast_apply=True)
             embed = Embed(title="Rotation filter modified")
@@ -40,7 +44,9 @@ class Rotate(CogBase[Vibr]):
             await player.remove_filter("rotate", fast_apply=True)
             embed = Embed(title="Rotation filter Deactivated")
         else:
-            rotate = Rotation(rotation_hz=frequency)  # pyright: ignore
+            rotate = Rotation(
+                rotation_hz=frequency  # pyright: ignore[reportGeneralTypeIssues]
+            )
             rotate_filter = Filter(rotation=rotate)
             await player.add_filter(rotate_filter, label="rotate", fast_apply=True)
             embed = Embed(title="Rotation filter activated")

@@ -19,4 +19,6 @@ def already_connected_predicate(inter: Inter) -> bool:
     return True
 
 
-already_connected = check(already_connected_predicate)  # pyright: ignore
+already_connected = check(
+    already_connected_predicate  # pyright: ignore[reportGeneralTypeIssues]
+)

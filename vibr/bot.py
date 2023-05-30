@@ -27,12 +27,12 @@ from vibr.db.player import PlayerConfig
 from vibr.embed import Embed, ErrorEmbed
 from vibr.sharding import TOTAL_SHARDS, shard_ids
 from vibr.track_embed import track_embed
-
-from . import errors
-from .player import Player
 from vibr.utils import truncate
 
-from .exts.playing._errors import SongNotProvided, LyricsNotFound
+from . import errors
+from .exts.playing._errors import LyricsNotFound, SongNotProvided
+from .player import Player
+
 if TYPE_CHECKING:
     from typing import TypedDict
 
@@ -96,7 +96,9 @@ class Vibr(BotBase):
 
     async def add_nodes(self) -> None:
         with Path(environ["LAVALINK_FILE"]).open("rb") as f:
-            data: list[LavalinkInfo] = yaml.safe_load(f)  # pyright: ignore
+            data: list[LavalinkInfo] = yaml.safe_load(
+                f
+            )  # pyright: ignore[reportGeneralTypeIssues]
 
         for node in data:
             regions: list[Group | Region | VoiceRegion] | None = None
@@ -230,7 +232,9 @@ class Vibr(BotBase):
     ) -> None:
         await self.assert_player(inter=inter)
         player = inter.guild.voice_client
-        player.notification_channel = inter.channel  # pyright: ignore
+        player.notification_channel = (
+            inter.channel
+        )  # pyright: ignore[reportGeneralTypeIssues]
 
         result = await player.fetch_tracks(
             query=query, search_type=SearchType(search_type)
@@ -273,7 +277,9 @@ class Vibr(BotBase):
                 item, bot=self, user=inter.user.id, queued=length
             )
 
-        await inter.send(embed=embed, view=view)  # pyright: ignore
+        await inter.send(
+            embed=embed, view=view
+        )  # pyright: ignore[reportGeneralTypeIssues]
 
     async def handle_play_now(
         self,
@@ -331,7 +337,7 @@ class Vibr(BotBase):
             title="Connected!", description=f"Connected to {channel.mention}."
         )
 
-        await inter.send(embed=embed)  # pyright: ignore
+        await inter.send(embed=embed)  # pyright: ignore[reportGeneralTypeIssues]
 
     async def can_connect(
         self, channel: VoiceChannel | StageChannel, *, inter: Inter
@@ -360,12 +366,7 @@ class Vibr(BotBase):
                 return False
         return True
 
-    
     async def lyrics(self, inter: Inter, query: str | None = None) -> None:
-        """Get Song's Lyrics
-        query:
-            The song to search lyrics for, do not input if you want the current song."""
-
         player: Player = inter.guild.voice_client
         if not query:
             if player is None or player.current is None:

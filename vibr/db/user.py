@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from piccolo.columns import BigInt, Boolean, Text
+from piccolo.columns import BigInt, Boolean, Text, Timestamptz
 from piccolo.table import Table
 
 
@@ -12,3 +12,4 @@ class User(Table, tablename="users"):
     spotify_id = Text()
     notified = Boolean()
     notifications = Boolean(default=True)
+    topgg_voted = Timestamptz(null=True, default=None)

@@ -109,7 +109,7 @@ class QueueCommand(CogBase[Vibr]):
             The position of the song to remove, found via the queue.
         """
 
-        player: Player = inter.guild.voice_client  # pyright: ignore
+        player: Player = inter.guild.voice_client
 
         assert inter.guild is not None and inter.guild.voice_client is not None
 
