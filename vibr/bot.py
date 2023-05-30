@@ -56,7 +56,6 @@ __all__ = ("Vibr",)
 REGION_CLS = [Group, Region, VoiceRegion]
 DEFAULT_VOLUME = 100
 LOG_CHANNEL = int(environ["LOG_CHANNEL"])
-__import__("logging").critical(LOG_CHANNEL)
 
 
 class Vibr(BotBase):
