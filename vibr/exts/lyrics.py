@@ -1,21 +1,13 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import TYPE_CHECKING
 
 from botbase import CogBase
 from nextcord import slash_command
 
 from vibr.bot import Vibr
 from vibr.checks import voted
-from vibr.embed import Embed
 from vibr.inter import Inter
-from vibr.utils import truncate
-
-from .playing._errors import LyricsNotFound, SongNotProvided
-
-if TYPE_CHECKING:
-    from vibr.player import Player
 
 log = getLogger(__name__)
 
