@@ -10,6 +10,7 @@ from nextcord.ui import Button, Select, View
 from vibr.embed import Embed, ErrorEmbed
 from vibr.inter import Inter
 from vibr.patches.nextcord.ui import button
+from vibr.database import add_to_liked,remove_from_liked
 
 from .exts.queue._views import QueueMenu, QueueSource
 
@@ -30,11 +31,15 @@ class TimeoutView(View):
         if self.message is not None:
             await self.message.edit(view=self)
 
+MULTI_LOOP = "<:loopall:1044708055234904094>"
+SINGLE_LOOP = "<:loop:1044708068639903907>"
 
 class PlayButtons(View):
     def __init__(
         self,
         track: Track | Playlist | None,
+        *,
+        loop:bool=False,
     ) -> None:
         super().__init__(timeout=300)
 
@@ -43,9 +48,9 @@ class PlayButtons(View):
         else:
             self.track = None
 
-        """if loop:
+        if loop:
             self.loop.emoji = MULTI_LOOP
-            self.loop.style = ButtonStyle.grey"""
+            self.loop.style = ButtonStyle.grey
 
     async def interaction_check(self, inter: Inter) -> bool:
         if not inter.guild or not inter.guild.voice_client:
@@ -148,3 +153,54 @@ class PlayButtons(View):
         menu = QueueMenu(source=QueueSource(current, queue), inter=inter)
         await menu.start(interaction=inter)
 
+    @button(emoji=MULTI_LOOP,style=ButtonStyle.blurple,custom_id="view:loop")
+    async def loop(self, button: Button, inter: Inter) -> None:
+        player = inter.guild.voice_client
+
+        if button.style is ButtonStyle.blurple and str(button.emoji) == MULTI_LOOP:
+            player.queue.loop_track(player.current, user=inter.user.id)
+            button.emoji = SINGLE_LOOP
+            embed = Embed(title="Looping Current Track Infinitely")
+
+        elif button.style is ButtonStyle.blurple and str(button.emoji) == SINGLE_LOOP:
+            player.queue.loop_track_once(player.current, user=inter.user.id)
+            button.style = ButtonStyle.grey
+            embed = Embed(title="Switching Loop Type to Once")
+        else:
+            player.queue.disable_loop()
+            button.emoji=MULTI_LOOP
+            button.style = ButtonStyle.blurple
+            embed = Embed(title="Track Looping Disabled")
+
+        await inter.edit(view=self)
+        await inter.send(embed=embed)
+        
+
+    @button(emoji="<:vibrheart:1044662164587290664>", style=ButtonStyle.blurple,row=1)
+    async def like(self,_: Button, inter: Inter) -> None:
+        existed = await add_to_liked(user=inter.user,track=self.track)
+        if existed:
+            await inter.send(f"**{self.track.title}** is already in your liked playlist!")
+            
+        else:
+            await inter.send(f"**{self.track.title}** added to your liked playlist!")
+        return
+    
+    @button(emoji="<:lyrics:1112483652480290867>", style=ButtonStyle.blurple, row=1)
+    async def lyrics(self, _: Button, inter: Inter) -> None:
+
+        await inter.client.lyrics(inter,self.track.title)
+        return
+    
+    @button(emoji="<:remove:1112483626328793222>", style=ButtonStyle.blurple, row=1)
+    async def remove(self,_:Button ,inter:Inter)-> None:
+        player = inter.guild.voice_client
+        try:
+            index=player.queue.index(self.track)
+            player.queue.pop(index)
+        except Exception:
+            await inter.send("This song is not in the queue",ephemeral=True)
+            return
+        embed = Embed(title=f"Removed **{self.track.title}** from the queue")
+        await inter.send(embed=embed)
+        return

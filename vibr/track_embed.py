@@ -196,6 +196,8 @@ async def track_embed(
         embed.set_footer(
             text=f"Queued - {queued} | " * bool(queued) + f"Length: {track_time}"
         )
+    else:
+        embed.set_footer(text=f"Length: {track_time}") 
     embed.set_thumbnail(url=thumbnail)
 
     if not grabbed and isinstance(item, Track):

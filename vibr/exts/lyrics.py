@@ -26,50 +26,7 @@ class Lyrics(CogBase[Vibr]):
         query:
             The song to search lyrics for, do not input if you want the current song."""
 
-        player: Player = inter.guild.voice_client
-        if not query:
-            if player is None or player.current is None:
-                raise SongNotProvided
-
-            assert player.current.title is not None
-            if "-" in player.current.title:
-                q = player.current.title
-            else:
-                q = player.current.title, player.current.author
-        else:
-            q = query
-
-        await inter.response.defer()
-
-        url_search = f"https://api.flowery.pw/v1/lyrics/search?query={q}"
-
-        async with self.bot.session.get(url_search) as resp:
-            result = await resp.json()
-        try:
-            isrc = result["tracks"][0]["external"]["isrc"]
-            spotify_id = result["tracks"][0]["external"]["spotify_id"]
-        except KeyError as e:
-            raise LyricsNotFound from e
-
-        url_lyrics = f"https://api.flowery.pw/v1/lyrics?isrc={isrc}&spotify_id={spotify_id}&query={q}"
-
-        async with self.bot.session.get(url_lyrics) as res:
-            lyrics = await res.json()
-
-        try:
-            lyrics_text = lyrics["lyrics"]["text"]
-            title = lyrics["track"]["title"]
-            artist = lyrics["track"]["artist"]
-            thumbnail = lyrics["track"]["media"]["artwork"]
-        except KeyError as e:
-            raise LyricsNotFound from e
-
-        lyrics_text = truncate(lyrics_text, length=4096)
-
-        embed = Embed(title=title, description=lyrics_text)
-        embed.set_author(name=artist)
-        embed.set_thumbnail(url=thumbnail)
-        await inter.send(embed=embed)
+        await self.bot.lyrics(inter=inter, query=query)
 
 
 def setup(bot: Vibr) -> None:

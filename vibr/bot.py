@@ -20,6 +20,7 @@ from nextcord import (
     StageChannel,
     VoiceChannel,
 )
+from nextcord.utils import utcnow
 
 from vibr.constants import COLOURS, GUILD_IDS
 from vibr.db.player import PlayerConfig
@@ -29,7 +30,9 @@ from vibr.track_embed import track_embed
 
 from . import errors
 from .player import Player
+from vibr.utils import truncate
 
+from .exts.playing._errors import SongNotProvided, LyricsNotFound
 if TYPE_CHECKING:
     from typing import TypedDict
 
@@ -355,5 +358,55 @@ class Vibr(BotBase):
                 )
                 await inter.send(embed=embed, view=embed.view, ephemeral=True)
                 return False
-
         return True
+
+    
+    async def lyrics(self, inter: Inter, query: str | None = None) -> None:
+        """Get Song's Lyrics
+        query:
+            The song to search lyrics for, do not input if you want the current song."""
+
+        player: Player = inter.guild.voice_client
+        if not query:
+            if player is None or player.current is None:
+                raise SongNotProvided
+
+            assert player.current.title is not None
+            if "-" in player.current.title:
+                q = player.current.title
+            else:
+                q = player.current.title, player.current.author
+        else:
+            q = query
+
+        await inter.response.defer()
+
+        url_search = f"https://api.flowery.pw/v1/lyrics/search?query={q}"
+
+        async with inter.client.session.get(url_search) as resp:
+            result = await resp.json()
+        try:
+            isrc = result["tracks"][0]["external"]["isrc"]
+            spotify_id = result["tracks"][0]["external"]["spotify_id"]
+        except KeyError as e:
+            raise LyricsNotFound from e
+
+        url_lyrics = f"https://api.flowery.pw/v1/lyrics?isrc={isrc}&spotify_id={spotify_id}&query={q}"
+
+        async with inter.client.session.get(url_lyrics) as res:
+            lyrics = await res.json()
+
+        try:
+            lyrics_text = lyrics["lyrics"]["text"]
+            title = lyrics["track"]["title"]
+            artist = lyrics["track"]["artist"]
+            thumbnail = lyrics["track"]["media"]["artwork"]
+        except KeyError as e:
+            raise LyricsNotFound from e
+
+        lyrics_text = truncate(lyrics_text, length=4096)
+
+        embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
+        embed.set_author(name=artist)
+        embed.set_thumbnail(url=thumbnail)
+        await inter.send(embed=embed)
