@@ -4,7 +4,6 @@ services:
   bot:
     environment:
       LAVALINK_FILE: lavalink/beta.nodes.yml
-      SPOTIFY_REDIRECT_URL: https://vibr-beta-oauth.boting.xyz
   gateway-proxy:
     volumes:
       - ./gateway-proxy/config.json:/config.json
