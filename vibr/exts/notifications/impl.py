@@ -8,6 +8,7 @@ from cachetools import TTLCache
 from cachetools.keys import hashkey
 from nextcord import Permissions, slash_command
 from nextcord.utils import utcnow
+from prometheus_client import Counter
 
 from vibr.bot import Vibr
 from vibr.db import Notification, User
@@ -23,6 +24,10 @@ FORMAT = (
 
 
 class NotificationsImpl(CogBase[Vibr]):
+    def __init__(self, bot: Vibr) -> None:
+        super().__init__(bot)
+        self.notified = Counter("vibr_notified_users", "User notifications sent")
+
     # Remove `self`.
     @cached(CACHE, key=lambda *args, **kwargs: hashkey(*args[1:], **kwargs))
     async def get_notified_status(self, user: int) -> bool:
@@ -58,6 +63,7 @@ class NotificationsImpl(CogBase[Vibr]):
                     ),
                     ephemeral=True,
                 )
+                self.notified.inc()
 
             await User.insert(
                 User({User.id: inter.user.id, User.notified: True})

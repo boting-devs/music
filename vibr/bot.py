@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from asyncio import gather, sleep
+from asyncio import Event, gather, sleep
 from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -83,6 +83,8 @@ class Vibr(BotBase):
         self.spotify = SpotifyApiClient(auth, hold_authentication=True)
         self.redis = redis.from_url(environ["REDIS_URL"])
 
+        self.nodes_connected = Event()
+
     async def launch_shard(
         self, _gateway: str, shard_id: int, *, initial: bool = False
     ) -> None:
@@ -128,6 +130,8 @@ class Vibr(BotBase):
                 regions=regions,
                 label=node["label"],
             )
+
+        self.nodes_connected.set()
 
     async def start(self, token: str, *, reconnect: bool = True) -> None:
         await self.spotify.create_new_client()
