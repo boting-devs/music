@@ -21,6 +21,7 @@ from nextcord import (
     VoiceChannel,
 )
 from nextcord.utils import utcnow
+from redis import asyncio as redis
 
 from vibr.constants import COLOURS, GUILD_IDS
 from vibr.db.player import PlayerConfig
@@ -80,6 +81,7 @@ class Vibr(BotBase):
             application_secret=environ["SPOTIFY_CLIENT_SECRET"],
         )
         self.spotify = SpotifyApiClient(auth, hold_authentication=True)
+        self.redis = redis.from_url(environ["REDIS_URL"])
 
     async def launch_shard(
         self, _gateway: str, shard_id: int, *, initial: bool = False
@@ -132,6 +134,11 @@ class Vibr(BotBase):
         await self.spotify.get_auth_token_with_client_credentials()
 
         await gather(self.add_nodes(), super().start(token, reconnect=reconnect))
+
+    async def close(self) -> None:
+        await self.redis.close()
+
+        return await super().close()
 
     async def process_application_commands(self, inter: Inter) -> None:
         permissions = inter.app_permissions
