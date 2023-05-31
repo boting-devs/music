@@ -26,6 +26,8 @@ services:
       SPOTIFY_CLIENT_ID: $SPOTIFY_CLIENT_ID
       SPOTIFY_CLIENT_SECRET: $SPOTIFY_CLIENT_SECRET
       LOG_CHANNEL: 1101963855141281900
+    ports:
+      - 127.0.0.1:${PROMETHEUS_PORTS:-6781}:9000
   gateway-proxy:
     image: ghcr.io/ooliver1/gateway-proxy:x86-64
     environment:
@@ -50,10 +52,15 @@ services:
       DB_URI: postgresql://postgres:postgres@postgres:5432/bot
   lavalink:
     image: ghcr.io/freyacodes/lavalink:v4
-    volumes:
-      - ./logs/lava:/opt/Lavalink/logs
+    entrypoint:
+      [
+        "java",
+        "-Djdk.tls.client.protocols=TLSv1.1,TLSv1.2",
+        "-Xmx2G",
+        "-jar",
+        "Lavalink.jar"
+      ]
     environment:
-      JDK_JAVA_OPTIONS: -Xmx2G
       SERVER_PORT: 6969
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: $PASSWORD
