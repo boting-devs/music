@@ -21,6 +21,7 @@ __all__ = (
     "VoiceConnectionError",
     "QueueFull",
     "NotVoted",
+    "MaxLiked",
 )
 
 
@@ -100,3 +101,9 @@ class NotVoted(CheckFailure):
                 f"{bot.get_command_mention('vote')}."
             ),
         )
+
+
+class MaxLiked(CheckFailure):
+    embed = ErrorEmbed(
+        title="Max Liked Songs", description="You can only have `500` liked songs."
+    )

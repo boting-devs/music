@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, ParamSpec, TypeVar, cast
 
 from asyncpg import UniqueViolationError
 
-from vibr.db import Playlist, Song, User
-from vibr.db.playlists import PlaylistToSong
+from vibr.db import Playlist, PlaylistToSong, Song, User
+from vibr.errors import MaxLiked
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
 P = ParamSpec("P")
 T = TypeVar("T")
+MAX_LIKED = 500
 
 
 def transaction(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
@@ -45,6 +46,14 @@ async def add_to_liked(*, user: nextcord.User | Member, track: Track) -> bool:
     #     )
     #     .returning(*Song.all_columns())
     # )[0]
+    # get count of liked songs by user
+    count = await PlaylistToSong.count().where(
+        (PlaylistToSong.playlist.owner.join_on(User.id).id == user.id)
+        & (PlaylistToSong.playlist.name == "Liked Songs")
+    )
+    if count >= MAX_LIKED:
+        raise MaxLiked
+
     try:
         song = Song.from_dict(
             (
