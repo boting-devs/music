@@ -43,6 +43,10 @@ async def init() -> None:
     await client.start(DISCORD_TOKEN)
 
 
+async def deinit() -> None:
+    await client.close()
+
+
 @ROUTER.post("/webhook")
 async def webhook(request: Request):
     if not (
