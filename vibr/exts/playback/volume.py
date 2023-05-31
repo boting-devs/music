@@ -8,7 +8,7 @@ from nextcord.abc import Snowflake
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected
-from vibr.db.player import PlayerConfig
+from vibr.db import PlayerConfig
 from vibr.embed import Embed
 from vibr.inter import Inter
 

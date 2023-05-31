@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from logging import getLogger
+
 import mafic
 from botbase import CogBase
 from mafic import SearchType
@@ -7,14 +9,15 @@ from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
 from vibr.database import add_to_liked, remove_from_liked
-from vibr.db import Playlist
-from vibr.db.playlists import PlaylistToSong
+from vibr.db import Playlist, PlaylistToSong
 from vibr.errors import NoTracksFound
 from vibr.inter import Inter
 from vibr.views import SearchView
 
 from ._errors import *
 from ._views import LikedMenu, LikedSource
+
+log = getLogger(__name__)
 
 
 class Liked(CogBase[Vibr]):
@@ -82,6 +85,7 @@ class Liked(CogBase[Vibr]):
         elif track is None:
             raise NoTrackOrQuery
 
+        log.info("Adding %s to %d's liked songs playlist", track.title, inter.author.id)
         existed = await add_to_liked(user=inter.author, track=track)
 
         if existed:
@@ -111,6 +115,7 @@ class Liked(CogBase[Vibr]):
 
         index -= 1
         lavalink_id = await remove_from_liked(user=inter.author, index=index)
+        log.info("Removed %d from %d's liked songs playlist", index, inter.author.id)
 
         if lavalink_id is None:
             raise NoSongAtIndex(self.bot)

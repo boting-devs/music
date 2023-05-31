@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from asyncio import sleep
+from logging import getLogger
 from typing import TYPE_CHECKING, cast
 
 from botbase import CogBase
@@ -11,6 +12,8 @@ from vibr.player import Player
 
 if TYPE_CHECKING:
     from nextcord import Member, VoiceState
+
+log = getLogger(__name__)
 
 
 class AutoDisconnect(CogBase[Vibr]):
@@ -54,6 +57,11 @@ class AutoDisconnect(CogBase[Vibr]):
                 player is not None
                 and cast(Snowflake, player.channel).id == after.channel.id
             ):
+                log.info(
+                    "%d joined, cancelling pause timer",
+                    member.id,
+                    extra={"guild": member.guild.id},
+                )
                 player.cancel_pause_timer()
 
         # Left, start a timer if needed.
@@ -64,6 +72,11 @@ class AutoDisconnect(CogBase[Vibr]):
                 and cast(Snowflake, player.channel).id == before.channel.id
                 and len(before.channel.voice_states) == 1
             ):
+                log.info(
+                    "%d left, starting pause timer",
+                    member.id,
+                    extra={"guild": member.guild.id},
+                )
                 player.start_pause_timer()
 
         # Switched channels, cancel existing timers.
@@ -78,8 +91,18 @@ class AutoDisconnect(CogBase[Vibr]):
                     cast(Snowflake, player.channel).id == before.channel.id
                     and len(before.channel.voice_states) == 1
                 ):
+                    log.info(
+                        "%d switched channels, cancelling pause timer",
+                        member.id,
+                        extra={"guild": member.guild.id},
+                    )
                     player.start_pause_timer()
                 elif cast(Snowflake, player.channel).id == after.channel.id:
+                    log.info(
+                        "%d switched channels, cancelling pause timer",
+                        member.id,
+                        extra={"guild": member.guild.id},
+                    )
                     player.cancel_pause_timer()
 
 

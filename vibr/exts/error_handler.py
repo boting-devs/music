@@ -6,6 +6,7 @@ from traceback import format_exception
 
 from botbase import CogBase
 from nextcord import ApplicationInvokeError, Colour, NotFound
+from prometheus_client import Counter
 
 from vibr.bot import Vibr
 from vibr.embed import ErrorEmbed
@@ -24,6 +25,12 @@ FORMAT = """command {command} gave
 
 
 class ErrorHandler(CogBase[Vibr]):
+    def __init__(self, bot: Vibr) -> None:
+        super().__init__(bot)
+        self.unhandled_error_count = Counter(
+            "vibr_unhandled_errors", "Unhandled errors"
+        )
+
     @CogBase.listener()
     async def on_application_command_error(self, inter: Inter, exc: Exception) -> None:
         if isinstance(exc, ApplicationInvokeError):
@@ -35,6 +42,7 @@ class ErrorHandler(CogBase[Vibr]):
 
             await inter.send(embed=embed, view=view, ephemeral=True)
         else:
+            self.unhandled_error_count.inc()
             log.error(
                 "Unexpected error in command %s",
                 inter.application_command.qualified_name

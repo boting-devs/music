@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from logging import getLogger
+
 from botbase import CogBase
 from nextcord import slash_command
 
@@ -9,6 +11,8 @@ from vibr.embed import Embed
 from vibr.inter import Inter
 
 from ._error import NoFilterActive
+
+log = getLogger(__name__)
 
 
 class ClearAll(CogBase[Vibr]):
@@ -26,6 +30,7 @@ class ClearAll(CogBase[Vibr]):
                 embed = Embed(title="Cleared up all the filters")
                 embed.set_footer(text="May take 1-5 seconds")
                 await inter.send(embed=embed)
+                log.info("Cleared up all filters", extra={"guild": inter.guild.id})
                 break
         else:
             raise NoFilterActive

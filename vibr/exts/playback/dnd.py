@@ -13,20 +13,20 @@ class Dnd(CogBase[Vibr]):
     @slash_command(dm_permission=False)
     @is_connected
     async def dnd(self, inter: Inter) -> None:
-        """Bot wont send embed on start of every song"""
+        """Disable sending embeds at the start of every song."""
 
         player = inter.guild.voice_client
         if not player.dnd:
             player.dnd = True
             embed = Embed(
                 title="DND mode ON",
-                description="Now the bot wont send embed on start of every song",
+                description="Now the bot wont send an embed at the start of every song",
             )
         else:
             player.dnd = False
             embed = Embed(
                 title="DND mode OFF",
-                description="Now the bot will send embed on start of every song",
+                description="Now the bot will send an embed at the start of every song",
             )
 
         embed.set_footer(icon_url=inter.author.display_avatar.url)

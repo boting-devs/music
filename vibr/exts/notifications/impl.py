@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from logging import getLogger
 from typing import Any
 
 from asyncache import cached
@@ -16,6 +17,8 @@ from vibr.inter import Inter
 
 from ._modals import CreateNotification
 
+log = getLogger(__name__)
+
 CACHE = TTLCache[tuple[Any], bool](maxsize=2e20, ttl=60 * 60)
 FORMAT = (
     "{mention} You have a new notification with the title **{title}** "
@@ -28,7 +31,7 @@ class NotificationsImpl(CogBase[Vibr]):
         super().__init__(bot)
         self.notified = Counter("vibr_notified_users", "User notifications sent")
 
-    # Remove `self`.
+    # Remove `self` (`key`).
     @cached(CACHE, key=lambda *args, **kwargs: hashkey(*args[1:], **kwargs))
     async def get_notified_status(self, user: int) -> bool:
         data = (
@@ -63,6 +66,7 @@ class NotificationsImpl(CogBase[Vibr]):
                     ),
                     ephemeral=True,
                 )
+                log.info("Notified %d", inter.user.id)
                 self.notified.inc()
 
             await User.insert(

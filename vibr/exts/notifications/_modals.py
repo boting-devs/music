@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from logging import getLogger
 
 from humanfriendly import parse_timespan
 from nextcord import TextInputStyle
 from nextcord.ui import Modal, TextInput
 from nextcord.utils import utcnow
 
-from vibr.db import Notification
-from vibr.db.user import User
+from vibr.db import Notification, User
 from vibr.inter import Inter
+
+log = getLogger(__name__)
 
 
 class CreateNotification(Modal):
@@ -60,6 +62,8 @@ class CreateNotification(Modal):
         await User.update({User.notified: False}, force=True)
 
         from .impl import CACHE
+
         CACHE.clear()
 
         await inter.send("Notification created!")
+        log.info("Notification created")

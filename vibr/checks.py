@@ -7,7 +7,7 @@ from nextcord import StageChannel, VoiceChannel
 from nextcord.ext.application_checks import check
 from nextcord.utils import utcnow
 
-from vibr.db.user import User
+from vibr.db import User
 from vibr.errors import NotConnected, NotInSameVoice, NotPlaying, NotVoted
 
 if TYPE_CHECKING:

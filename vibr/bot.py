@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from asyncio import Event, gather, sleep
+from logging import getLogger
 from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -24,7 +25,7 @@ from nextcord.utils import utcnow
 from redis import asyncio as redis
 
 from vibr.constants import COLOURS, GUILD_IDS
-from vibr.db.player import PlayerConfig
+from vibr.db import PlayerConfig
 from vibr.embed import Embed, ErrorEmbed
 from vibr.sharding import TOTAL_SHARDS, shard_ids
 from vibr.track_embed import track_embed
@@ -53,7 +54,7 @@ if TYPE_CHECKING:
 
 __all__ = ("Vibr",)
 
-
+log = getLogger(__name__)
 REGION_CLS = [Group, Region, VoiceRegion]
 DEFAULT_VOLUME = 100
 LOG_CHANNEL = int(environ["LOG_CHANNEL"])
@@ -338,16 +339,19 @@ class Vibr(BotBase):
             return
 
         try:
+            log.debug("Connecting...", extra={"guild": inter.guild.id})
             player = await channel.connect(cls=Player, timeout=2)
         except asyncio.TimeoutError as e:
             raise errors.VoiceConnectionError from e
 
+        log.debug("Setting player settings", extra={"guild": inter.guild.id})
         await self.set_player_settings(player, channel.id)
 
         embed = Embed(
             title="Connected!", description=f"Connected to {channel.mention}."
         )
 
+        log.info("Player connected and set up", extra={"guild": inter.guild.id})
         await inter.send(embed=embed)  # pyright: ignore[reportGeneralTypeIssues]
 
     async def can_connect(

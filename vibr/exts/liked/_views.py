@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from nextcord.ext.menus import ButtonMenuPages, PageSource
 
-from vibr.db.playlists import Playlist, PlaylistToSong
+from vibr.db import Playlist, PlaylistToSong
 from vibr.embed import Embed
 from vibr.utils import truncate
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from logging import getLogger
+
 from botbase import CogBase
 from mafic import Filter, Timescale
 from nextcord import slash_command
@@ -11,6 +13,7 @@ from vibr.inter import Inter
 
 from ._error import InvalidSpeed, SpeedNotActive
 
+log = getLogger(__name__)
 MAX_SPEED = 2
 
 
@@ -19,8 +22,10 @@ class Speed(CogBase[Vibr]):
     @is_connected_and_playing
     async def speed(self, inter: Inter, speed: float | None) -> None:
         """Increase/Decrease Speed of the song
+
         speed:
-            Accepted Range : 0 - 2. Use 1 for normal speed or leave it blank."""
+            Accepted Range: 0 - 2. Use 1 for normal speed or leave it blank.
+        """
 
         player = inter.guild.voice_client
 
@@ -36,16 +41,17 @@ class Speed(CogBase[Vibr]):
             speed_filter_object = Filter(timescale=speed_filter)
             await player.add_filter(speed_filter_object, label="speed", fast_apply=True)
             embed = Embed(title=f"Speed switched to {speed}x")
-
+            log.info("Changed speed to %d", speed, extra={"guild": inter.guild.id})
         elif await player.has_filter("speed") or speed == 1:
             await player.remove_filter("speed", fast_apply=True)
             embed = Embed(title="Speed switched to normal")
-
+            log.info("Changed speed to normal", extra={"guild": inter.guild.id})
         else:
             speed_filter = Timescale(speed=speed)
             speed_filter_object = Filter(timescale=speed_filter)
             await player.add_filter(speed_filter_object, label="speed", fast_apply=True)
             embed = Embed(title=f"Speed switched to {speed}x")
+            log.info("Changed speed to %d", speed, extra={"guild": inter.guild.id})
 
         await inter.send(embed=embed)
 

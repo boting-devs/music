@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from logging import getLogger
+
 from botbase import CogBase
 from nextcord import slash_command
 
@@ -8,6 +10,8 @@ from vibr.db import Notification, User
 from vibr.inter import Inter
 
 from ._views import NotificationsMenu, NotificationsSource
+
+log = getLogger(__name__)
 
 
 class Notifications(CogBase[Vibr]):
@@ -36,6 +40,7 @@ class Notifications(CogBase[Vibr]):
         await User.insert(
             User({User.id: inter.user.id, User.notifications: True})
         ).on_conflict((User.id,), "DO UPDATE", (User.notifications,))
+        log.info("Enabled notifications for %d", inter.user.id)
 
         await inter.send("Notifications have been enabled.", ephemeral=True)
 
