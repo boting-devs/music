@@ -1214,7 +1214,7 @@ db = ["piccolo[orjson,postgres,uvloop] (>=0.111.1,<0.112.0)"]
 type = "git"
 url = "https://github.com/ooliver1/botbase"
 reference = "master"
-resolved_reference = "d75a06e7ccc93c6edbe52985bf831cfb5abe364f"
+resolved_reference = "b72c501f647a90bbff855eec3c24da8ac50abcd9"
 
 [[package]]
 name = "orjson"
