@@ -8,6 +8,7 @@ from botbase import CogBase
 from cachetools import TTLCache
 from cachetools.keys import hashkey
 from nextcord import Permissions, slash_command
+from nextcord.ext.application_checks import is_owner
 from nextcord.utils import utcnow
 from prometheus_client import Counter
 
@@ -77,6 +78,7 @@ class NotificationsImpl(CogBase[Vibr]):
     @slash_command(
         name="create-notification", default_member_permissions=Permissions(8)
     )
+    @is_owner()
     async def create_notification(self, inter: Inter) -> None:
         """Create a notification."""
 
