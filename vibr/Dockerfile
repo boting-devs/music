@@ -2,7 +2,7 @@ FROM python:3.11-slim-bullseye
 
 WORKDIR /bot
 
-RUN apt-get update && apt-get install git netcat-openbsd iproute2 dnsutils -yqq && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install git netcat-openbsd iproute2 -yqq && rm -rf /var/lib/apt/lists/*
 
 RUN pip install poetry
 
