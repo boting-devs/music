@@ -966,26 +966,22 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "mafic"
-version = "2.7.0"
+version = "2.8.0"
 description = "A properly typehinted lavalink client for discord.py, nextcord, disnake and py-cord."
 category = "main"
 optional = false
-python-versions = "^3.8"
-files = []
-develop = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "mafic-2.8.0-py3-none-any.whl", hash = "sha256:0dce135ab19863e0f1ac8e14fd2a630406644b1f6bfef961f6c75a8569fa046c"},
+    {file = "mafic-2.8.0.tar.gz", hash = "sha256:f519158809df6799b3f42e8e4b28e2d9959ce24469c7585ce4b7bd76689c019d"},
+]
 
 [package.dependencies]
-aiohttp = "^3.6.0"
-yarl = "^1.0.0"
+aiohttp = ">=3.6.0,<4.0.0"
+yarl = ">=1.0.0,<2.0.0"
 
 [package.extras]
 speedups = ["orjson (>=3.8.0,<4.0.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/ooliver1/mafic"
-reference = "HEAD"
-resolved_reference = "12a8e03754154764db9a97f4e7c1b3bfb8be0083"
 
 [[package]]
 name = "markupsafe"
@@ -2032,4 +2028,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "60ca2912d2e001c3f24068b9cc4e75a586760e7f8eab1b78546d7e94c8a33d8c"
+content-hash = "c89ac5a7d6b9d5f98a3e332cb617c974dfca0cd289894ece80e954d96944bf84"
