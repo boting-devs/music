@@ -122,9 +122,9 @@ class Prometheus(CogBase[Vibr]):
                     )
                 )
 
-    async def cog_unload(self) -> None:
+    def cog_unload(self) -> None:
         if self.metrics:
-            await self.metrics.close()
+            self.bot.loop.create_task(self.metrics.close())
 
         self.metric_collection.stop()
 

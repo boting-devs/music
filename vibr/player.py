@@ -40,7 +40,6 @@ class Queue:
     @property
     def loop_type(self) -> LoopType | None:
         return self._loop_type
-    
 
     def loop_track(self, track: Track, *, user: int) -> None:
         if self._loop_type == LoopType.TRACK:
@@ -54,11 +53,10 @@ class Queue:
             self._stack.popleft()
         self._stack.appendleft((track, user))
         self._loop_type = None
-        
+
     def loop_queue(self, *, current: Track, user: int) -> None:
         self._loop_type_queue = LoopType.QUEUE
         self._stack.append((current, user))
-
 
     def disable_loop(self) -> None:
         self._stack.popleft()
@@ -132,9 +130,13 @@ class Queue:
 
         self._stack.insert(index, (track, user))
 
-    def index(self,query:Track) -> int | None:
-        index = next((index for index, (track, _) in enumerate(self._stack) if track == query), None)
+    def index(self, query: Track) -> int | None:
+        index = next(
+            (index for index, (track, _) in enumerate(self._stack) if track == query),
+            None,
+        )
         return index
+
 
 class Player(mafic.Player):
     PAUSE_TIMEOUT = 30

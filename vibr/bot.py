@@ -26,8 +26,10 @@ from redis import asyncio as redis
 
 from vibr.constants import COLOURS, GUILD_IDS
 from vibr.db import PlayerConfig
+from vibr.db.node import Node
 from vibr.embed import Embed, ErrorEmbed
 from vibr.sharding import TOTAL_SHARDS, shard_ids
+from vibr.sharding import client as docker_client
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
 
@@ -105,11 +107,11 @@ class Vibr(BotBase):
                 f
             )  # pyright: ignore[reportGeneralTypeIssues]
 
-        for node in data:
+        for node_data in data:
             regions: list[Group | Region | VoiceRegion] | None = None
-            if "regions" in node:
+            if "regions" in node_data:
                 regions = []
-                for region_str in node["regions"]:
+                for region_str in node_data["regions"]:
                     for cls in REGION_CLS:
                         if region_str in cls.__members__:
                             region = cls[region_str]
@@ -120,28 +122,56 @@ class Vibr(BotBase):
 
                     regions.append(region)
 
-            passwd = node["password"]
+            passwd = node_data["password"]
 
-            await self.pool.create_node(
-                host=node["host"].replace("host", environ["HOST_IP"]),
-                port=node["port"],
+            resuming = (
+                await Node.select(Node.session_id)
+                .where(Node.label == node_data["label"])
+                .first()
+            )
+            node = await self.pool.create_node(
+                host=node_data["host"].replace("host", environ["HOST_IP"]),
+                port=node_data["port"],
                 password=environ[
                     passwd.removeprefix("$") if passwd.startswith("$") else passwd
                 ],
                 regions=regions,
-                label=node["label"],
+                label=node_data["label"],
+                resuming_session_id=resuming["session_id"] if resuming else None,
             )
+            await Node.insert(
+                Node({Node.label: node.label, Node.session_id: node.session_id})
+            ).on_conflict((Node.label,), "DO UPDATE", (Node.session_id,))
 
         self.nodes_connected.set()
+
+    async def listen_to_redis(self) -> None:
+        pubsub = self.redis.pubsub()
+        await pubsub.subscribe("bot")
+        async for msg in pubsub.listen():
+            if msg["type"] != "message":
+                continue
+
+            data = msg["data"]
+            if data == b"shutdown":
+                docker_client.update_container(
+                    environ["HOSTNAME"], restart_policy={"Name": "no"}
+                )
+                await self.close()
 
     async def start(self, token: str, *, reconnect: bool = True) -> None:
         await self.spotify.create_new_client()
         await self.spotify.get_auth_token_with_client_credentials()
 
-        await gather(self.add_nodes(), super().start(token, reconnect=reconnect))
+        await gather(
+            self.add_nodes(),
+            super().start(token, reconnect=reconnect),
+            self.listen_to_redis(),
+        )
 
     async def close(self) -> None:
         await self.redis.close()
+        await self.pool.close()
 
         return await super().close()
 

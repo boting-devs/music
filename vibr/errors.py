@@ -75,9 +75,7 @@ class UserNotInVoice(CheckFailure):
 class VoiceConnectionError(CheckFailure):
     embed = ErrorEmbed(
         title="Failed to Connect",
-        description=(
-            "Failed to connect to the vocie channel. Please try again later.",
-        ),
+        description="Failed to connect to the voice channel. Please try again later.",
     )
 
 
