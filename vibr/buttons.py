@@ -188,11 +188,11 @@ class PlayButtons(View):
         else:
             await inter.send(f"**{self.track.title}** added to your liked playlist!")
 
-    @button(emoji="<:lyrics:1112483652480290867>", style=ButtonStyle.blurple, row=1)
+    @button(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
     async def lyrics(self, _: Button, inter: Inter) -> None:
         await inter.client.lyrics(inter, self.track.title)
 
-    @button(emoji="<:remove:1112483626328793222>", style=ButtonStyle.blurple, row=1)
+    @button(emoji="<:remove:1114702473249161226>", style=ButtonStyle.blurple, row=1)
     async def remove(self, _: Button, inter: Inter) -> None:
         player = inter.guild.voice_client
         try:
