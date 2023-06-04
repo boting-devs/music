@@ -5,6 +5,7 @@ from logging import getLogger
 from traceback import format_exception
 
 from botbase import CogBase
+from mafic import TrackLoadException
 from nextcord import ApplicationInvokeError, Colour, NotFound
 from prometheus_client import Counter
 
@@ -41,6 +42,9 @@ class ErrorHandler(CogBase[Vibr]):
             view = exc.view if exc.view else embed.view
 
             await inter.send(embed=embed, view=view, ephemeral=True)
+        elif isinstance(exc, TrackLoadException):
+            embed = ErrorEmbed(title="Failed to load track", description=exc.message)
+            await inter.send(embed=embed, view=embed.view, ephemeral=True)
         else:
             self.unhandled_error_count.inc()
             log.error(
