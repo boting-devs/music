@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from botbase import CogBase
 from mafic import EndReason, TrackEndEvent, TrackStartEvent
+from nextcord import HTTPException
 
 from vibr.bot import Vibr
 from vibr.embed import Embed
@@ -34,14 +35,18 @@ class Queue(CogBase[Vibr]):
                 if player.dnd:
                     return
 
-                embed,view = await track_embed(
-                    play_next,
-                    bot=self.bot,
-                    user=member,
-                    looping=player.queue.loop_type is not None,
-                )
                 if channel := player.notification_channel:
-                    await channel.send(embed=embed,view=view)
+                    embed, view = await track_embed(
+                        play_next,
+                        bot=self.bot,
+                        user=member,
+                        looping=player.queue.loop_type is not None,
+                    )
+                    try:
+                        await channel.send(embed=embed, view=view)
+                    except HTTPException:
+                        log.warning("Failed to send track embed to channel %s", channel)
+                        player.notification_channel = None
 
     @CogBase.listener()
     async def on_track_start(self, event: TrackStartEvent[Player]) -> None:
