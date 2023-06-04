@@ -9,6 +9,7 @@ from nextcord.ui import Button, Select, View
 
 from vibr.database import add_to_liked
 from vibr.embed import Embed, ErrorEmbed
+from vibr.exts.playing._errors import LyricsNotFound
 from vibr.inter import Inter
 from vibr.patches.nextcord.ui import button
 
@@ -190,7 +191,12 @@ class PlayButtons(View):
 
     @button(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
     async def lyrics(self, _: Button, inter: Inter) -> None:
-        await inter.client.lyrics(inter, self.track.title)
+        await inter.response.defer()
+
+        try:
+            await inter.client.lyrics(inter, self.track.title)
+        except LyricsNotFound as e:
+            await inter.send(embed=e.embed, view=e.embed.view)
 
     @button(emoji="<:remove:1114702473249161226>", style=ButtonStyle.blurple, row=1)
     async def remove(self, _: Button, inter: Inter) -> None:
