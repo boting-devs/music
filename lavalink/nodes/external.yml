@@ -5,6 +5,5 @@ services:
     extends:
       file: block.yml
       service: lavalink
-    network_mode: host
     environment:
-      SERVER_PORT: $PORT
+      SERVER_PORT: ${PORT:-No Lavalink port provided}

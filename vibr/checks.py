@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from os import getenv
 from typing import TYPE_CHECKING
 
 from nextcord import StageChannel, VoiceChannel
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
 
 __all__ = ("is_connected", "is_connected_and_playing", "voted")
 VOTE_INTERVAL = timedelta(hours=24)
+VOTING = bool(getenv("TOPGG_VOTING"))
 
 
 async def is_connected_predicate(inter: Inter) -> bool:
@@ -49,6 +51,9 @@ async def is_connected_and_playing_predicate(inter: Inter) -> bool:
 
 
 async def voted_predicate(inter: Inter) -> bool:
+    if not VOTING:
+        return True
+
     user = await User.select(User.topgg_voted).where(User.id == inter.user.id).first()
     if user is None:
         raise NotVoted(inter.client)

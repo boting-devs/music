@@ -10,3 +10,6 @@ services:
   lavalink:
     environment:
       METRICS_PROMETHEUS_ENABLED: false
+  api:
+    ports:
+      - 127.0.0.1:6782:8000

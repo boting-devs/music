@@ -14,16 +14,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     pull_policy: build
     environment:
-      TOKEN: $TOKEN
+      TOKEN: ${TOKEN:-No TOKEN provided}
       TOTAL_CLUSTERS: ${TOTAL_CLUSTERS:-1}
       LAVALINK_FILE: lavalink/alpha.nodes.yml
       DB_URI: postgresql://postgres:postgres@postgres:5432/bot
       GW_PROXY: ws://gateway-proxy:7878
       PROXY_HTTP: http://gateway-proxy:7878
-      PASSWORD: $PASSWORD
+      PASSWORD: ${PASSWORD:-No password for LOCAL lavalink provided}
       REDIS_URL: redis://keydb:6379
-      SPOTIFY_CLIENT_ID: $SPOTIFY_CLIENT_ID
-      SPOTIFY_CLIENT_SECRET: $SPOTIFY_CLIENT_SECRET
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:-No Spotify Client ID provided}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:-No Spotify Client secret provided}
       LOG_CHANNEL: "1101963855141281912"
     ports:
       - 127.0.0.1:${PROMETHEUS_PORTS:-6781}:9000
@@ -45,8 +45,6 @@ services:
       context: .
       dockerfile: api/Dockerfile
     pull_policy: build
-    ports:
-      - 127.0.0.1:6782:8000
     environment:
       DB_URI: postgresql://postgres:postgres@postgres:5432/bot
   lavalink:

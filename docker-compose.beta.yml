@@ -13,6 +13,9 @@ services:
   postgres:
     volumes:
       - vibr-beta-db:/var/lib/postgresql/data
+  api:
+    ports:
+      - 127.0.0.1:6782:8000
   lavalink:
     network_mode: host
     environment:
