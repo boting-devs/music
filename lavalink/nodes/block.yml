@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  lavalink:
+    extends:
+      file: base.yml
+      service: lavalink
+    network_mode: host
+    environment:
+      LAVALINK_SERVER_RATELIMIT_IP_BLOCKS_0: ${IP_BLOCK:?No IPv6 block provided}
+      LAVALINK_SERVER_STRATEGY: LoadBalance
+      LAVALINK_SERVER_SEARCH_TRIGGERS_FAIL: true

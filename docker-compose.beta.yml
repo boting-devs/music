@@ -19,7 +19,6 @@ services:
       LAVALINK_SERVER_RATELIMIT_IP_BLOCKS_0: ${IP_BLOCK:?No IPv6 block provided}
       LAVALINK_SERVER_STRATEGY: LoadBalance
       LAVALINK_SERVER_SEARCH_TRIGGERS_FAIL: true
-      METRICS_PROMETHEUS_ENABLED: true
 
 volumes:
   vibr-beta-db:

@@ -7,3 +7,6 @@ services:
   postgres:
     volumes:
       - ./pg_data:/var/lib/postgresql/data
+  lavalink:
+    environment:
+      METRICS_PROMETHEUS_ENABLED: false

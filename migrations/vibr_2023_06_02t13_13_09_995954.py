@@ -1,15 +1,13 @@
 from piccolo.apps.migrations.auto.migration_manager import MigrationManager
-from piccolo.columns.column_types import Text
-from piccolo.columns.column_types import Varchar
+from piccolo.columns.column_types import Text, Varchar
 from piccolo.columns.indexes import IndexMethod
-
 
 ID = "2023-06-02T13:13:09:995954"
 VERSION = "0.111.1"
 DESCRIPTION = "Store node session ids"
 
 
-async def forwards():
+async def forwards() -> MigrationManager:
     manager = MigrationManager(
         migration_id=ID, app_name="vibr", description=DESCRIPTION
     )
