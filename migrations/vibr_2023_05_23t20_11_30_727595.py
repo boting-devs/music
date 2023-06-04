@@ -14,6 +14,7 @@ async def forwards() -> MigrationManager:
             ...
 
         await RawTable.raw("ALTER TABLE playlist_to_song ADD UNIQUE (playlist, song);")
+        await RawTable.raw("ALTER TABLE song ADD UNIQUE (lavalink_id);")
 
     manager.add_raw(composite_unique)
 
