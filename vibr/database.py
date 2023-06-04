@@ -54,21 +54,19 @@ async def add_to_liked(*, user: nextcord.User | Member, track: Track) -> bool:
     if count >= MAX_LIKED:
         raise MaxLiked
 
-    try:
-        song = Song.from_dict(
-            (
-                await Song.insert(
-                    Song({Song.lavalink_id: b64decode(track.id)})
-                ).returning(*Song.all_columns())
-            )[0]
-        )
-        song._exists_in_db = True
-    except UniqueViolationError:
-        song = cast(
-            Song, await Song.objects().get(Song.lavalink_id == b64decode(track.id))
-        )
-        song.likes += 1
-        await song.update()
+    song = Song.from_dict(
+        (
+            await Song.raw(
+                """INSERT INTO song (lavalink_id)
+                VALUES ({})
+                ON CONFLICT (lavalink_id) DO UPDATE SET likes = song.likes + 1
+                RETURNING *;
+                """,
+                b64decode(track.id),
+            )
+        )[0]
+    )
+    song._exists_in_db = True
 
     owner = await User.objects().get_or_create(User.id == user.id)
     playlist = await Playlist.objects().get_or_create(
