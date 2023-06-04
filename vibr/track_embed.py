@@ -25,9 +25,10 @@ MAX_AUTHOR_LENGTH = 3
 HTTP_FOUND = 302
 BANDCAMP_TRACK = "https://chordorchard.bandcamp.com/track/"
 DISCORD_ATTACHMENT_RE = re.compile(
-    r"https?://cdn\.discordapp\.com/attachments/"
-    r"((?:[0-9]+)/(?:[0-9]+)/(?:[a-zA-Z0-9_.]+)+)",
+    r"https?://(?:cdn|media)\.discordapp\.(?:com|net)/attachments/"
+    r"((?:[0-9]+)/(?:[0-9]+)/(?:\S+)+)",
 )
+https://media.discordapp.net//864603863482892334/1040913013735182366/trim.13BCB9DE-5C22-4866-AC10-DFEF54F4B79A.mov
 SOUNDCLOUD_TRACK = "https://soundcloud.com/"
 VIMEO_VIDEO = "https://vimeo.com/"
 
@@ -197,7 +198,7 @@ async def track_embed(
             text=f"Queued - {queued} | " * bool(queued) + f"Length: {track_time}"
         )
     else:
-        embed.set_footer(text=f"Length: {track_time}") 
+        embed.set_footer(text=f"Length: {track_time}")
     embed.set_thumbnail(url=thumbnail)
 
     if not grabbed and isinstance(item, Track):
