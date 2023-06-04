@@ -31,6 +31,8 @@ services:
     image: ghcr.io/ooliver1/gateway-proxy:x86-64
     environment:
       TOKEN: $TOKEN
+    volumes:
+      - ./gateway-proxy/config.json:/config.json
   postgres:
     image: postgres:15
     environment:

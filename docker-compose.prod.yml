@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  bot:
+    environment:
+      LAVALINK_FILE: lavalink/prod.nodes.yml
+      EU_PASSWORD: ${EU_PASSWORD:-No EU password provided}
+      TOPGG_VOTING: true
+      # Simply for ensuring presence
+      PROMETHEUS_PORTS: $PROMETHEUS_PORTS
+      TOPGG_TOKEN: ${TOPGG_TOKEN:-No top.gg API token provided}
+    deploy:
+      replicas: $TOTAL_CLUSTERS
+  gateway-proxy:
+    ports:
+      - 127.0.0.1:5784:7878
+  postgres:
+    volumes:
+      - vibr-db:/var/lib/postgresql/data
+  api:
+    ports:
+      - 127.0.0.1:5782:8000
+    environment:
+      TOPGG_ENABLED: true
+      DISCORD_TOKEN: $TOKEN
+      VOTE_CHANNEL: "946324179605684235"
+      TOPGG_SECRET: ${TOPGG_SECRET:-No top.gg secret provided}
+  lavalink:
+    network_mode: host
+    environment:
+      SERVER_PORT: 5783
+      LAVALINK_SERVER_RATELIMIT_IP_BLOCKS_0: ${IP_BLOCK:?No IPv6 block provided}
+      LAVALINK_SERVER_STRATEGY: LoadBalance
+      LAVALINK_SERVER_SEARCH_TRIGGERS_FAIL: true
+
+volumes:
+  vibr-db:
