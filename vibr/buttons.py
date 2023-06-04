@@ -191,8 +191,6 @@ class PlayButtons(View):
 
     @button(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
     async def lyrics(self, _: Button, inter: Inter) -> None:
-        await inter.response.defer()
-
         try:
             await inter.client.lyrics(inter, self.track.title)
         except LyricsNotFound as e:
