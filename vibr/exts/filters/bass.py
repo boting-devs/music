@@ -7,7 +7,7 @@ from mafic import Filter
 from nextcord import slash_command
 
 from vibr.bot import Vibr
-from vibr.checks import is_connected_and_playing
+from vibr.checks import is_connected_and_playing, voted
 from vibr.embed import Embed
 from vibr.inter import Inter
 
@@ -40,6 +40,7 @@ class BassBoost(Filter):
 class Bass(CogBase[Vibr]):
     @slash_command(name="bass-boost", dm_permission=False)
     @is_connected_and_playing
+    @voted
     async def bass(self, inter: Inter) -> None:
         """Toggle the bass-boost filter."""
 

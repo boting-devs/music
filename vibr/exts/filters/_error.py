@@ -11,7 +11,7 @@ __all__ = (
 class NoFilterActive(CheckFailure):
     embed = ErrorEmbed(
         title="No Filter Active",
-        description="Currently no flter is active.Filter can't be cleared up",
+        description="Currently no filter is active. Filters cannot be cleared up",
     )
 
 

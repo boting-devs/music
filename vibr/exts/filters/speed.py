@@ -7,7 +7,7 @@ from mafic import Filter, Timescale
 from nextcord import slash_command
 
 from vibr.bot import Vibr
-from vibr.checks import is_connected_and_playing
+from vibr.checks import is_connected_and_playing, voted
 from vibr.embed import Embed
 from vibr.inter import Inter
 
@@ -20,6 +20,7 @@ MAX_SPEED = 2
 class Speed(CogBase[Vibr]):
     @slash_command(name="speed", dm_permission=False)
     @is_connected_and_playing
+    @voted
     async def speed(self, inter: Inter, speed: float | None) -> None:
         """Increase/Decrease Speed of the song
 

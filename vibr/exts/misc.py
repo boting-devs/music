@@ -50,7 +50,18 @@ class Misc(CogBase[Vibr]):
             name="Like our bot? Vote for us",
             value="[click here](https://top.gg/bot/882491278581977179)",
         )
-        embed.set_image(
+        embed.add_field(
+            name="Rewards",
+            value=(
+                f"- {self.bot.get_command_mention('lyrics')}\n"
+                f"- {self.bot.get_command_mention('bass-boost')}\n"
+                f"- {self.bot.get_command_mention('nightcore')}\n"
+                f"- {self.bot.get_command_mention('rotate')}\n"
+                f"- {self.bot.get_command_mention('speed')}"
+            ),
+            inline=False,
+        )
+        embed.set_thumbnail(
             url="https://d30i16bbj53pdg.cloudfront.net/wp-content/uploads/2018/10/vote-for-blog.jpg"
         )
         await inter.send(embed=embed, ephemeral=True)

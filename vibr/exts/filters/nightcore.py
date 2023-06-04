@@ -7,7 +7,7 @@ from mafic import Filter, Timescale
 from nextcord import slash_command
 
 from vibr.bot import Vibr
-from vibr.checks import is_connected_and_playing
+from vibr.checks import is_connected_and_playing, voted
 from vibr.embed import Embed
 from vibr.inter import Inter
 
@@ -17,6 +17,7 @@ log = getLogger(__name__)
 class Nightcore(CogBase[Vibr]):
     @slash_command(name="nightcore", dm_permission=False)
     @is_connected_and_playing
+    @voted
     async def nightcore(self, inter: Inter) -> None:
         """A funny filter. Just try it out!"""
 
