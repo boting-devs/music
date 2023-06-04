@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 nextcord = { version = "^2.4.0", extras = ["speed"] }
-mafic = "^2.9.0"
+mafic = "^2.9.1"
 uvloop = "^0.17.0"
 ooliver-botbase = {git = "https://github.com/ooliver1/botbase", rev = "master", extras = ["db"]}
 taskipy = "^1.10.3"
