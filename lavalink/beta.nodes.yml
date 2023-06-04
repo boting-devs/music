@@ -2,7 +2,16 @@
   port: 6783
   label: LOCAL
   password: $PASSWORD
+  regions:
+    - WEST # America
+    - EAST_ASIA # Japan and Hong Kong
+    - OCEANIA # Australia
 - host: 65.21.247.55
   port: 6783
   label: EU
   password: $EU_PASSWORD
+  regions:
+    - CENTRAL # Europe and Africa
+    - SOUTH_ASIA # India and Singapore
+    - WEST_ASIA # Dubai
+    - NORTH_ASIA # Russia
