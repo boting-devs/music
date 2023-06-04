@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  lavalink:
+    extends:
+      file: block.yml
+      service: lavalink
+    network_mode: host
+    environment:
+      SERVER_PORT: $PORT
