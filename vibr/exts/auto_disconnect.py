@@ -33,7 +33,11 @@ class AutoDisconnect(CogBase[Vibr]):
             return
 
         # They moved us, pause for a second then continue.
-        if player.current is not None and before.channel != after.channel:
+        if (
+            player.current is not None
+            and after.channel is not None
+            and before.channel != after.channel
+        ):
             paused = player.paused
             await player.pause()
             await sleep(1)

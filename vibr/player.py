@@ -44,9 +44,8 @@ class Queue:
     def loop_track(self, track: Track, *, user: int) -> None:
         if self._loop_type == LoopType.TRACK:
             return
-        else:
-            self._loop_type = LoopType.TRACK
-            self._stack.appendleft((track, user))
+        self._loop_type = LoopType.TRACK
+        self._stack.appendleft((track, user))
 
     def loop_track_once(self, track: Track, *, user: int) -> None:
         if self._loop_type == LoopType.TRACK:
@@ -222,11 +221,11 @@ class Player(mafic.Player):
 
         return super().stop()
 
-    def destroy(self) -> Coroutine[Any, Any, None]:
+    def disconnect(self, *, force: bool = False) -> Coroutine[Any, Any, None]:
         self.cancel_pause_timer()
         self.cancel_disconnect_timer()
 
-        return super().destroy()
+        return super().disconnect(force=force)
 
     def cancel_pause_timer(self) -> None:
         if self._pause_timer:
