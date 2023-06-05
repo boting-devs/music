@@ -64,7 +64,7 @@ class Misc(CogBase[Vibr]):
         embed.set_thumbnail(
             url="https://d30i16bbj53pdg.cloudfront.net/wp-content/uploads/2018/10/vote-for-blog.jpg"
         )
-        await inter.send(embed=embed, ephemeral=True)
+        await inter.send(embed=embed)
 
     @slash_command()
     async def donate(self, inter: Inter) -> None:
@@ -77,7 +77,7 @@ class Misc(CogBase[Vibr]):
         embed.set_image(
             url="https://i.postimg.cc/zG6kL55F/e-News-Thank-You-Large-1170x658.jpg"
         )
-        await inter.send(embed=embed, ephemeral=True)
+        await inter.send(embed=embed)
 
 
 def setup(bot: Vibr) -> None:
