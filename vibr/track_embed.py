@@ -54,36 +54,22 @@ def get_authors(tracks: list[Track]) -> str:
     return truncate(", ".join(authors), length=256)
 
 
-async def get_url(track: Track, *, bot: Vibr) -> str | None:
+async def get_url(track: Track) -> str | None:
     """Get a URL to Odesli, or just the URL if not found.
 
     Parameters
     ----------
     track:
         The Mafic track to get the URI from.
-    bot:
-        The bot object to get the session from.
     """
 
     if not track.uri:
         return None
 
-    del bot
+    if track.source == "youtube":
+        return f"https://song.link/y/{track.identifier}"
 
     return track.uri
-
-    # FIXME: not sure about the speed of this,
-    # maybe we can use our own url and have this fetching happen there?
-
-    # async with bot.session.get(
-    #     f"https://odesli.co/{track.uri.replace('://', ':/')}", allow_redirects=False
-    # ) as response:
-    #     if response.status == HTTP_FOUND:
-    #         loc = response.headers.get("Location", track.uri)
-    #         if loc != "/not-found":
-    #             return loc
-
-    #     return None
 
 
 SIMPLE_SOURCES = {
