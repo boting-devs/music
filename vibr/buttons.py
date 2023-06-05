@@ -150,7 +150,7 @@ class PlayButtons(View):
         current = inter.guild.voice_client.current
         queue = inter.guild.voice_client.queue
 
-        if not queue or not current:
+        if not queue and not current:
             embed = Embed(title="Queue is empty")
             await inter.send(embed=embed)
             return
