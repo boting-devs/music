@@ -119,11 +119,9 @@ async def forwards() -> MigrationManager:
         tablename="playlist",
         column_name="id",
         db_column_name="id",
-        column_class_name="Integer",
-        column_class=Integer,
+        column_class_name="Serial",
+        column_class=Serial,
         params={
-            "autoincrement": True,
-            "default": 0,
             "null": False,
             "primary_key": True,
             "unique": False,

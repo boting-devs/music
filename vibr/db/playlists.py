@@ -25,7 +25,7 @@ class Song(Table):
 
 
 class Playlist(Table):
-    id = Integer(primary_key=True, autoincrement=True)
+    id = Serial(primary_key=True)
     name = Text(default="Liked Songs")
     owner = ForeignKey(User, null=False)
     description = Text()
