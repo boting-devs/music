@@ -28,8 +28,7 @@ DISCORD_ATTACHMENT_RE = re.compile(
     r"https?://(?:cdn|media)\.discordapp\.(?:com|net)/attachments/"
     r"((?:[0-9]+)/(?:[0-9]+)/(?:\S+)+)",
 )
-https://media.discordapp.net//864603863482892334/1040913013735182366/trim.13BCB9DE-5C22-4866-AC10-DFEF54F4B79A.mov
-SOUNDCLOUD_TRACK = "https://soundcloud.com/"
+SOUNDCLOUD_TRACK_RE = re.compile(r"soundcloud:tracks:(?P<id>\d+)")
 VIMEO_VIDEO = "https://vimeo.com/"
 
 
@@ -108,7 +107,11 @@ def get_type_and_identifier(track: Track) -> tuple[str, int]:  # noqa: PLR0911
         return track.uri, SongLog.Type.OTHER.value
 
     if track.source == "soundcloud":
-        return track.uri.removeprefix(SOUNDCLOUD_TRACK), SongLog.Type.SOUNDCLOUD.value
+        # Store track ID not URI.
+        return (
+            SOUNDCLOUD_TRACK_RE.match(track.identifier).group("id"),
+            SongLog.Type.SOUNDCLOUD.value,
+        )
 
     # I do not think Twitch works right now.
 
