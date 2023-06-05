@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from asyncio import sleep
+from typing import cast
 
 from botbase import CogBase
 from botbase.db import CommandLog
+from nextcord.channel import VocalGuildChannel
 from nextcord.ext.tasks import loop
 from prometheus_async.aio.web import MetricsHTTPServer, start_http_server
 from prometheus_client import Gauge, Info
@@ -31,6 +33,34 @@ class Prometheus(CogBase[Vibr]):
     async def on_ready(self) -> None:
         if not self.metrics:
             self.metrics = await start_http_server(port=9000)
+
+            guilds = Gauge(
+                "vibr_guilds",
+                "Total guild count in this cluster",
+                labelnames=["cluster"],
+            )
+            listeners = Gauge(
+                "vibr_listeners",
+                "Total listeners from all players in this cluster",
+                labelnames=["cluster"],
+            )
+
+            guilds.labels(cluster=CURRENT_CLUSTER).set_function(
+                lambda: len(self.bot.guilds)
+            )
+            listeners.labels(cluster=CURRENT_CLUSTER).set_function(
+                lambda: (
+                    sum(
+                        max(
+                            # Take off vibr, or if somehow its 0, keep it at 0.
+                            len(cast(VocalGuildChannel, player.channel).voice_states)
+                            - 1,
+                            0,
+                        )
+                    )
+                    for player in self.bot.voice_clients
+                )
+            )
 
             if CURRENT_CLUSTER != 0:
                 return
