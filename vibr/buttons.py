@@ -155,7 +155,7 @@ class PlayButtons(View):
             await inter.send(embed=embed)
             return
 
-        menu = QueueMenu(source=QueueSource(current, queue), inter=inter)
+        menu = QueueMenu(source=QueueSource([current, *queue]), inter=inter)
         await menu.start(interaction=inter)
 
     @button(emoji=MULTI_LOOP, style=ButtonStyle.blurple, custom_id="view:loop")
