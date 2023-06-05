@@ -18,14 +18,10 @@ class Nowplaying(CogBase[Vibr]):
         player = inter.guild.voice_client
         assert player.current is not None
 
-        embed,view = await track_embed(
-            player.current,
-            bot=self.bot,
-            user=inter.user.id,
-            inter=inter,
-            length_embed=True,
+        embed, view = await track_embed(
+            player.current, user=inter.user.id, inter=inter, length_embed=True
         )
-        await inter.send(embed=embed,view=view)
+        await inter.send(embed=embed, view=view)
 
 
 def setup(bot: Vibr) -> None:

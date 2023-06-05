@@ -107,13 +107,15 @@ def get_type_and_identifier(track: Track) -> tuple[str, int]:  # noqa: PLR0911
     if track.source in SIMPLE_SOURCES:
         return track.identifier, SIMPLE_SOURCES[track.source].value
 
+    if match := DISCORD_ATTACHMENT_RE.match(track.identifier):
+        return match.group(1), SongLog.Type.DISCORD.value
+
     return track.uri, SongLog.Type.OTHER.value
 
 
 async def track_embed(
     item: Track | Playlist,
     *,
-    bot: Vibr,
     user: int,
     inter: Inter | None = None,
     skipped: int | None = None,

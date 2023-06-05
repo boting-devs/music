@@ -296,7 +296,7 @@ class Vibr(BotBase):
             queued = tracks[1:]
             await player.play(track)
 
-            embed, view = await track_embed(item, bot=self, user=inter.user.id)
+            embed, view = await track_embed(item, user=inter.user.id)
 
             if queued:
                 if type == "Next":
@@ -315,9 +315,7 @@ class Vibr(BotBase):
         else:
             player.queue += [(track, inter.user.id) for track in tracks]
             length = len(player.queue)
-            embed, view = await track_embed(
-                item, bot=self, user=inter.user.id, queued=length
-            )
+            embed, view = await track_embed(item, user=inter.user.id, queued=length)
 
         await inter.send(
             embed=embed, view=view
@@ -334,7 +332,7 @@ class Vibr(BotBase):
         for i in tracks[::-1]:
             player.queue.insert(0, i, inter.user.id)
         track, user = player.queue.skip(1)
-        embed, view = await track_embed(item, bot=self, user=user)
+        embed, view = await track_embed(item, user=user)
         await player.play(track)
 
         return embed, view
@@ -349,7 +347,7 @@ class Vibr(BotBase):
     ) -> tuple[Embed, PlayButtons]:
         for i in tracks[::-1]:
             player.queue.insert(0, i, inter.user.id)
-        embed, view = await track_embed(item, bot=self, user=inter.user.id, queued=1)
+        embed, view = await track_embed(item, user=inter.user.id, queued=1)
         return embed, view
 
     async def assert_player(self, *, inter: Inter) -> None:

@@ -38,7 +38,6 @@ class Queue(CogBase[Vibr]):
                 if channel := player.notification_channel:
                     embed, view = await track_embed(
                         play_next,
-                        bot=self.bot,
                         user=member,
                         looping=player.queue.loop_type is not None,
                     )

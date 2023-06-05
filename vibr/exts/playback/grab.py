@@ -19,7 +19,7 @@ class Grab(CogBase[Vibr]):
         assert player.current is not None
 
         embed, _ = await track_embed(
-            player.current, bot=self.bot, user=inter.user.id, inter=inter, grabbed=True
+            player.current, user=inter.user.id, inter=inter, grabbed=True
         )
 
         await inter.user.send(embed=embed)
