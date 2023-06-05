@@ -139,7 +139,7 @@ async def track_embed(
         authors = item.author
         length = item.length
         track_time = strftime("%H:%M:%S", gmtime(length / 1000))
-        url = await get_url(item, bot=bot)
+        url = await get_url(item)
         thumbnail = (
             item.artwork_url
             or "http://clipground.com/images/tone-duration-clipart-16.jpg"
