@@ -103,7 +103,7 @@ async def forwards() -> MigrationManager:
         column_class=Text,
         params={
             "default": "",
-            "null": False,
+            "null": True,
             "primary_key": False,
             "unique": False,
             "index": False,
