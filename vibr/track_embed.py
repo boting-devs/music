@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from time import gmtime, strftime
-from typing import TYPE_CHECKING
 
 from mafic import Playlist, Track
 from nextcord.utils import escape_markdown
@@ -14,16 +13,12 @@ from vibr.utils import truncate
 
 from . import buttons
 
-if TYPE_CHECKING:
-    from vibr.bot import Vibr
-
-
 __all__ = ("track_embed",)
 
 
 MAX_AUTHOR_LENGTH = 3
 HTTP_FOUND = 302
-BANDCAMP_TRACK = "https://chordorchard.bandcamp.com/track/"
+BANDCAMP_TRACK_RE = re.compile(r"https://(\w+\).bandcamp\.com/track/(\w+)")
 DISCORD_ATTACHMENT_RE = re.compile(
     r"https?://(?:cdn|media)\.discordapp\.(?:com|net)/attachments/"
     r"((?:[0-9]+)/(?:[0-9]+)/(?:\S+)+)",
@@ -84,7 +79,10 @@ def get_type_and_identifier(track: Track) -> tuple[str, int]:  # noqa: PLR0911
     assert track.uri is not None
 
     if track.source == "bandcamp":
-        return track.uri.removeprefix(BANDCAMP_TRACK), SongLog.Type.BANDCAMP.value
+        if match := BANDCAMP_TRACK_RE.match(track.uri):
+            return (f"{match.group(1)}:{match.group(2)}", SongLog.Type.BANDCAMP.value)
+
+        return track.uri, SongLog.Type.OTHER.value
 
     if track.source == "http":
         if match := DISCORD_ATTACHMENT_RE.match(track.uri):
@@ -106,9 +104,6 @@ def get_type_and_identifier(track: Track) -> tuple[str, int]:  # noqa: PLR0911
 
     if track.source in SIMPLE_SOURCES:
         return track.identifier, SIMPLE_SOURCES[track.source].value
-
-    if match := DISCORD_ATTACHMENT_RE.match(track.identifier):
-        return match.group(1), SongLog.Type.DISCORD.value
 
     return track.uri, SongLog.Type.OTHER.value
 
