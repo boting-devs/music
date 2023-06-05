@@ -7,7 +7,7 @@ services:
       EU_PASSWORD: ${EU_PASSWORD:-No EU password provided}
       TOPGG_VOTING: true
       # Simply for ensuring presence
-      PROMETHEUS_PORTS: $PROMETHEUS_PORTS
+      PROMETHEUS_PORTS: ${PROMETHEUS_PORTS:-No Prometheus ports provided}
       TOPGG_TOKEN: ${TOPGG_TOKEN:-No top.gg API token provided}
     deploy:
       replicas: $TOTAL_CLUSTERS
