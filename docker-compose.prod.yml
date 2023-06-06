@@ -1,7 +1,12 @@
 version: "3"
 
+x-restart-policy:
+  &restart_policy
+  restart: unless-stopped
+
 services:
   bot:
+    <<: *restart_policy
     environment:
       LAVALINK_FILE: lavalink/prod.nodes.yml
       EU_PASSWORD: ${EU_PASSWORD:-No EU password provided}
@@ -12,12 +17,15 @@ services:
     deploy:
       replicas: $TOTAL_CLUSTERS
   gateway-proxy:
+    <<: *restart_policy
     ports:
       - 127.0.0.1:5784:7878
   postgres:
+    <<: *restart_policy
     volumes:
       - vibr-db:/var/lib/postgresql/data
   api:
+    <<: *restart_policy
     ports:
       - 127.0.0.1:5782:8000
     environment:
@@ -26,6 +34,7 @@ services:
       VOTE_CHANNEL: "946324179605684235"
       TOPGG_SECRET: ${TOPGG_SECRET:-No top.gg secret provided}
   lavalink:
+    <<: *restart_policy
     network_mode: host
     environment:
       SERVER_PORT: 5783

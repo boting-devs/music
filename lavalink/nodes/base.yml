@@ -2,6 +2,7 @@ version: "3"
 
 services:
   lavalink:
+    <<: *restart_policy
     image: ghcr.io/freyacodes/lavalink:v4
     entrypoint:
       [
