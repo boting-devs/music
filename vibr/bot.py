@@ -7,8 +7,9 @@ from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import async_spotify
 import yaml
-from async_spotify import SpotifyApiClient, TokenRenewClass
+from async_spotify import SpotifyApiClient
 from async_spotify.authentification.authorization_flows import ClientCredentialsFlow
 from botbase import BotBase
 from mafic import Group, NodePool, Playlist, Region, SearchType, Track, VoiceRegion
@@ -40,6 +41,9 @@ from .player import Player
 if TYPE_CHECKING:
     from typing import TypedDict
 
+    from async_spotify.authentification.spotify_authorization_token import (
+        SpotifyAuthorisationToken,
+    )
     from typing_extensions import NotRequired
 
     from vibr.buttons import PlayButtons
@@ -60,6 +64,13 @@ log = getLogger(__name__)
 REGION_CLS = [Group, Region, VoiceRegion]
 DEFAULT_VOLUME = 100
 LOG_CHANNEL = int(environ["LOG_CHANNEL"])
+
+
+class TokenRenewClass(async_spotify.TokenRenewClass):
+    async def __call__(
+        self, spotify_api_client: SpotifyApiClient
+    ) -> SpotifyAuthorisationToken:
+        return await spotify_api_client.get_auth_token_with_client_credentials()
 
 
 class Vibr(BotBase):
@@ -84,7 +95,9 @@ class Vibr(BotBase):
             application_secret=environ["SPOTIFY_CLIENT_SECRET"],
         )
         self.spotify = SpotifyApiClient(
-            auth, hold_authentication=True, token_renew_instance=TokenRenewClass()
+            authorization_flow=auth,
+            hold_authentication=True,
+            token_renew_instance=TokenRenewClass(),
         )
         self.redis = redis.from_url(environ["REDIS_URL"])
 
@@ -98,7 +111,7 @@ class Vibr(BotBase):
         )
 
     async def before_identify_hook(
-        self, _shard_id: int | None, *, initial: bool = False  # noqa: ARG002
+        self, _shard_id: int | None, *, initial: bool = False
     ) -> None:
         # gateway-proxy
         return
