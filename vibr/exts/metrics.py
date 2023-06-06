@@ -57,8 +57,8 @@ class Prometheus(CogBase[Vibr]):
                             - 1,
                             0,
                         )
+                        for player in self.bot.voice_clients
                     )
-                    for player in self.bot.voice_clients
                 )
             )
 
