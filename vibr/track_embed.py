@@ -18,7 +18,7 @@ __all__ = ("track_embed",)
 
 MAX_AUTHOR_LENGTH = 3
 HTTP_FOUND = 302
-BANDCAMP_TRACK_RE = re.compile(r"https://(\w+\).bandcamp\.com/track/(\w+)")
+BANDCAMP_TRACK_RE = re.compile(r"https://(\w+).bandcamp\.com/track/(\w+)")
 DISCORD_ATTACHMENT_RE = re.compile(
     r"https?://(?:cdn|media)\.discordapp\.(?:com|net)/attachments/"
     r"((?:[0-9]+)/(?:[0-9]+)/(?:\S+)+)",
