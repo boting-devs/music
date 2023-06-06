@@ -139,7 +139,7 @@ class PlayButtons(TimeoutView):
 
         track, user = player.queue.skip(1)
         await player.play(track)
-        embed, view = await track_embed(track, skipped=inter.user.id, bot=inter.client)
+        embed, view = await track_embed(track, skipped=inter.user.id)
         m = await inter.response.send_message(embed=embed, view=view)
         view.message = m
         return
