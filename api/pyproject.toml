@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = ["Oliver Wilkes <oliverwilkes2006@icloud.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+uvloop = "^0.17.0"
+fastapi = "^0.95.2"
+uvicorn = "^0.22.0"
+taskipy = "^1.11.0"
+ooliver-botbase = { git = "https://github.com/ooliver1/botbase", rev = "master", extras = [
+    "db",
+] }
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.270"
+black = "^23.3.0"
+
+[tool.taskipy.tasks]
+start = "python -m api"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

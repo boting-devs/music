@@ -1,5 +1,10 @@
 *
-!poetry.lock
-!pyproject.toml
-!vibr/*
-!reload.sh
+!vibr/
+!lavalink/
+!gateway-proxy/
+!entrypoint.sh
+!alembic/
+!alembic.ini
+!api/
+!piccolo_conf.py
+!migrations/

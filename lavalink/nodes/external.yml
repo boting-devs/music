@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  lavalink:
+    extends:
+      file: block.yml
+      service: lavalink
+    environment:
+      SERVER_PORT: ${PORT:-No Lavalink port provided}
