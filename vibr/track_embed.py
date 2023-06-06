@@ -93,7 +93,7 @@ def get_type_and_identifier(track: Track) -> tuple[str, int]:  # noqa: PLR0911
     if track.source == "soundcloud":
         # Store track ID not URI.
         return (
-            SOUNDCLOUD_TRACK_RE.match(track.identifier).group("id"),
+            SOUNDCLOUD_TRACK_RE.search(track.identifier).group("id"),
             SongLog.Type.SOUNDCLOUD.value,
         )
 
