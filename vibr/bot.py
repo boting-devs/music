@@ -274,6 +274,8 @@ class Vibr(BotBase):
     ) -> None:
         await self.assert_player(inter=inter)
         player = inter.guild.voice_client
+        if player is None:
+            return
         player.notification_channel = (
             inter.channel
         )  # pyright: ignore[reportGeneralTypeIssues]
