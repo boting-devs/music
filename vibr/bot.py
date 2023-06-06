@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
-from async_spotify import SpotifyApiClient
+from async_spotify import SpotifyApiClient, TokenRenewClass
 from async_spotify.authentification.authorization_flows import ClientCredentialsFlow
 from botbase import BotBase
 from mafic import Group, NodePool, Playlist, Region, SearchType, Track, VoiceRegion
@@ -83,7 +83,9 @@ class Vibr(BotBase):
             application_id=environ["SPOTIFY_CLIENT_ID"],
             application_secret=environ["SPOTIFY_CLIENT_SECRET"],
         )
-        self.spotify = SpotifyApiClient(auth, hold_authentication=True)
+        self.spotify = SpotifyApiClient(
+            auth, hold_authentication=True, token_renew_instance=TokenRenewClass()
+        )
         self.redis = redis.from_url(environ["REDIS_URL"])
 
         self.nodes_connected = Event()
