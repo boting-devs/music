@@ -48,7 +48,7 @@ class Misc(CogBase[Vibr]):
         embed = Embed(title="**Vote for Vibr**")
         embed.add_field(
             name="Like our bot? Vote for us",
-            value="[click here](https://top.gg/bot/882491278581977179)",
+            value="[click here](https://top.gg/bot/882491278581977179/vote)",
         )
         embed.add_field(
             name="Rewards",
