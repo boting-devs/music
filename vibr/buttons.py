@@ -39,7 +39,7 @@ MULTI_LOOP = "<:loopall:1044708055234904094>"
 SINGLE_LOOP = "<:loop:1044708068639903907>"
 
 
-class PlayButtons(View):
+class PlayButtons(TimeoutView):
     def __init__(
         self,
         track: Track | Playlist | None,
