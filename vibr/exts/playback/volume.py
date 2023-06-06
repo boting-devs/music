@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import cast
 
 from botbase import CogBase
-from nextcord import Slashoption, slash_command
+from nextcord import SlashOption, slash_command
 from nextcord.abc import Snowflake
 
 from vibr.bot import Vibr
@@ -14,7 +14,7 @@ from vibr.inter import Inter
 
 
 class Volume(CogBase[Vibr]):
-    VOLUME = Slashoption(min_value=1, max_value=500)
+    VOLUME = SlashOption(min_value=1, max_value=500)
 
     @slash_command(dm_permission=False)
     @is_connected
