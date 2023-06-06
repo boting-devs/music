@@ -1,26 +1,41 @@
-[tool.poetry]
-name = "vibr"
-version = "0.1.0"
-description = "A music bot you can vibe with :)"
-authors = ["ooliver1 <oliverwilkes2006@icloud.com>", "Arnavop <arnavkamramalout@gmail.com>"]
+[tool.ruff]
+select = [
+    "E",
+    "F",
+    "W",
+    "C90",
+    "I",
+    "N",
+    "UP",
+    "ANN",
+    "S",
+    "BLE",
+    "B",
+    "C4",
+    "DTZ",
+    "ISC",
+    "G",
+    "PIE",
+    "Q",
+    "RSE",
+    "RET",
+    "SIM",
+    "TCH",
+    "ARG",
+    "PTH",
+    "PGH",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "TRY",
+    "RUF",
+]
+ignore = ["S101", "ANN101", "ANN102", "F405", "S311", "F403", "PLR0913"]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-nextcord = {git = "https://github.com/nextcord/nextcord"}
-python-dotenv = "^0.20.0"
-ooliver-botbase = "^1.17.7"
-pomice = {git = "https://github.com/ooliver1/pomice", rev = "main"}
-spotipy = "^2.19.0"
-uvloop = "^0.17.0"
-beautifulsoup4 = "^4.11.1"
-nextcord-ext-ipc = "^2.2.1"
-matplotlib = "^3.6.0"
-humanfriendly = "^10.0"
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"api/*" = ["ANN201"]
 
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
-isort = "^5.10.1"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.ruff.flake8-type-checking]
+exempt-modules = ["vibr.inter"]

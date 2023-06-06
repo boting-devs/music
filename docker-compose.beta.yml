@@ -2,58 +2,27 @@ version: "3"
 
 services:
   bot:
-    container_name: vibr-beta
-    env_file: .env
-    restart: unless-stopped
-    depends_on:
-      - lavalink
-      - postgres
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./logs:/bot/logs
-      - ./vibr:/bot/vibr
     environment:
-      LAVALINK_HOST: 127.0.0.1
-      LAVALINK_PORT: 6968
-      DB_URI: postgres://postgres:postgres@localhost:5433/bot
-      IPC_BIND: 127.0.0.1
-      IPC_PORT: 8766
-      IS_BETA: 1
-    network_mode: host
-  lavalink:
-    container_name: lavalink-beta
-    restart: unless-stopped
-    build:
-      context: lavalink
-      dockerfile: beta.Dockerfile
-    network_mode: host
+      LAVALINK_FILE: lavalink/beta.nodes.yml
+      EU_PASSWORD: $EU_PASSWORD
+  gateway-proxy:
     volumes:
-      - ./logs/lava:/opt/Lavalink/logs
+      - ./gateway-proxy/config.json:/config.json
+    ports:
+      - 127.0.0.1:6784:7878
   postgres:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: bot
-      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./pg_data:/var/lib/postgresql/data
-    network_mode: host
-    command: -h 127.0.0.1 -p 5433
+      - vibr-beta-db:/var/lib/postgresql/data
   api:
-    env_file: .env
-    restart: unless-stopped
-    build:
-      context: server
-      dockerfile: Dockerfile
-    volumes:
-      - ./logs/server:/server/logs
-    environment:
-      IPC_SERVER: 127.0.0.1
-      IPC_PORT: 8766
-      SERVER_BIND: 127.0.0.1
-      SERVER_PORT: 3169
+    ports:
+      - 127.0.0.1:6782:8000
+  lavalink:
     network_mode: host
+    environment:
+      SERVER_PORT: 6783
+      LAVALINK_SERVER_RATELIMIT_IP_BLOCKS_0: ${IP_BLOCK:?No IPv6 block provided}
+      LAVALINK_SERVER_STRATEGY: LoadBalance
+      LAVALINK_SERVER_SEARCH_TRIGGERS_FAIL: true
+
+volumes:
+  vibr-beta-db:

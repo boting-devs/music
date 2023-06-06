@@ -1,58 +1,12 @@
 version: "3"
 
 services:
-  bot:
-    container_name: vibr-alpha
-    env_file: .env
-    restart: unless-stopped
-    depends_on:
-      - lavalink
-      - postgres
-    links:
-      - postgres
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./logs:/bot/logs
-      - ./vibr:/bot/vibr
-    environment:
-      LAVALINK_HOST: lavalink-alpha
-      DB_URI: postgresql://postgres:postgres@postgres:5432/bot
-      IPC_BIND: 0.0.0.0
-      IPC_PORT: 8765
-  lavalink:
-    container_name: lavalink-alpha
-    restart: unless-stopped
-    build:
-      context: lavalink
-      dockerfile: alpha.Dockerfile
-    volumes:
-      - ./logs/lava:/opt/Lavalink/logs
   postgres:
-    image: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: bot
-      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./pg_data:/var/lib/postgresql/data
-  api:
-    env_file: .env
-    restart: unless-stopped
-    build:
-      context: server
-      dockerfile: Dockerfile
-    depends_on: [ bot ]
-    links: [ bot ]
-    ports:
-      - "3069:3069"
-    volumes:
-      - ./logs/server:/server/logs
+  lavalink:
     environment:
-      IPC_SERVER: bot
-      IPC_PORT: 8765
-      SERVER_BIND: 0.0.0.0
-      SERVER_PORT: 3069
+      METRICS_PROMETHEUS_ENABLED: false
+  api:
+    ports:
+      - 127.0.0.1:6782:8000
