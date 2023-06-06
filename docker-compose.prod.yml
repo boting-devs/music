@@ -30,7 +30,7 @@ services:
       - 127.0.0.1:5782:8000
     environment:
       TOPGG_ENABLED: true
-      DISCORD_TOKEN: $TOKEN
+      DISCORD_TOKEN: $TOPGG_DISCORD_TOKEN
       VOTE_CHANNEL: "946324179605684235"
       TOPGG_SECRET: ${TOPGG_SECRET:-No top.gg secret provided}
   lavalink:
