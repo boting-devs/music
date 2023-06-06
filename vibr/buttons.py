@@ -46,7 +46,7 @@ class PlayButtons(TimeoutView):
         *,
         loop: bool = False,
     ) -> None:
-        super().__init__(timeout=300)
+        super().__init__(timeout=60 * 5)
 
         if isinstance(track, Track):
             self.track = track
@@ -140,7 +140,8 @@ class PlayButtons(TimeoutView):
         track, user = player.queue.skip(1)
         await player.play(track)
         embed, view = await track_embed(track, skipped=inter.user.id, bot=inter.client)
-        await inter.response.send_message(embed=embed, view=view)
+        m = await inter.response.send_message(embed=embed, view=view)
+        view.message = m
         return
 
     @button(emoji="<:queue:1044702819992748138>", style=ButtonStyle.blurple, row=1)

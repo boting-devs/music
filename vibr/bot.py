@@ -317,9 +317,10 @@ class Vibr(BotBase):
             length = len(player.queue)
             embed, view = await track_embed(item, user=inter.user.id, queued=length)
 
-        await inter.send(
+        m = await inter.send(
             embed=embed, view=view
         )  # pyright: ignore[reportGeneralTypeIssues]
+        view.message = m
 
     async def handle_play_now(
         self,

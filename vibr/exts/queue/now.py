@@ -21,7 +21,8 @@ class Nowplaying(CogBase[Vibr]):
         embed, view = await track_embed(
             player.current, user=inter.user.id, inter=inter, length_embed=True
         )
-        await inter.send(embed=embed, view=view)
+        m = await inter.send(embed=embed, view=view)
+        view.message = m
 
 
 def setup(bot: Vibr) -> None:

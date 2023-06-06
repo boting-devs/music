@@ -42,10 +42,12 @@ class Queue(CogBase[Vibr]):
                         looping=player.queue.loop_type is not None,
                     )
                     try:
-                        await channel.send(embed=embed, view=view)
+                        m = await channel.send(embed=embed, view=view)
                     except HTTPException:
                         log.warning("Failed to send track embed to channel %s", channel)
                         player.notification_channel = None
+                    else:
+                        view.message = m
 
     @CogBase.listener()
     async def on_track_start(self, event: TrackStartEvent[Player]) -> None:
