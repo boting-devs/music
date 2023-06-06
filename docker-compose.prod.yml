@@ -14,6 +14,7 @@ services:
       # Simply for ensuring presence
       PROMETHEUS_PORTS: ${PROMETHEUS_PORTS:-No Prometheus ports provided}
       TOPGG_TOKEN: ${TOPGG_TOKEN:-No top.gg API token provided}
+      LOG_CHANNEL: "939853360289419284"
     deploy:
       replicas: $TOTAL_CLUSTERS
   gateway-proxy:

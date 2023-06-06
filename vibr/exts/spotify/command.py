@@ -69,12 +69,13 @@ class Spotify(CogBase[Vibr]):
     async def spotify_unlink(self, inter: Inter) -> None:
         """Unlink your spotify account."""
 
-        user = await User.objects().get(User.id == inter.user.id)
-        if user is None or user.spotify_id is None:
+        user = (
+            await User.select(User.spotify.id).where(User.id == inter.user.id).first()
+        )
+        if user is None or user["spotify_id"] is None:
             raise NotLinked(self.bot)
 
-        user.spotify_id = None
-        await user.update()
+        await User.update({User.spotify_id: None}).where(User.id == inter.user.id)
 
         embed = Embed(title="Unlinked", description="Your account has been unlinked.")
         await inter.send(embed=embed, ephemeral=True)
