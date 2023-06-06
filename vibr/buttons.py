@@ -195,13 +195,13 @@ class PlayButtons(TimeoutView):
         try:
             await voted_predicate(inter)
         except NotVoted as e:
-            await inter.send(embed=e.embed, view=e.embed.view)
+            await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)
             return
 
         try:
             await inter.client.lyrics(inter, self.track.title)
         except LyricsNotFound as e:
-            await inter.send(embed=e.embed, view=e.embed.view)
+            await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)
 
     @button(emoji="<:remove:1114702473249161226>", style=ButtonStyle.blurple, row=1)
     async def remove(self, _: Button, inter: Inter) -> None:

@@ -454,4 +454,4 @@ class Vibr(BotBase):
         embed = Embed(title=title, description=lyrics_text, timestamp=utcnow())
         embed.set_author(name=artist)
         embed.set_thumbnail(url=thumbnail)
-        await inter.send(embed=embed)
+        await inter.send(embed=embed, ephemeral=True)
