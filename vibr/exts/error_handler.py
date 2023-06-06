@@ -5,7 +5,7 @@ from logging import getLogger
 from traceback import format_exception
 
 from botbase import CogBase
-from mafic import TrackLoadException
+from mafic import NoNodesAvailable, PlayerNotConnected, TrackLoadException
 from nextcord import ApplicationInvokeError, Colour, NotFound
 from prometheus_client import Counter
 
@@ -44,6 +44,19 @@ class ErrorHandler(CogBase[Vibr]):
             await inter.send(embed=embed, view=view, ephemeral=True)
         elif isinstance(exc, TrackLoadException):
             embed = ErrorEmbed(title="Failed to load track", description=exc.message)
+            await inter.send(embed=embed, view=embed.view, ephemeral=True)
+        elif isinstance(exc, NoNodesAvailable):
+            embed = ErrorEmbed(
+                title="Wait", description="The bot is still restarting..."
+            )
+            await inter.send(embed=embed, view=embed.view, ephemeral=True)
+        elif isinstance(exc, PlayerNotConnected):
+            embed = ErrorEmbed(
+                title="Something went wrong",
+                description="Try connecting again.",
+            )
+            if inter.guild is not None and inter.guild.voice_client is not None:
+                await inter.guild.voice_client.disconnect(force=True)
             await inter.send(embed=embed, view=embed.view, ephemeral=True)
         else:
             self.unhandled_error_count.inc()

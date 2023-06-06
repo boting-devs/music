@@ -53,6 +53,11 @@ async def webhook(request: Request):
         "Authorization" in request.headers
         and compare_digest(request.headers["Authorization"], TOPGG_SECRET)
     ):
+        __import__("logging").critical(request.headers.get("Authorization"))
+        __import__("logging").critical(TOPGG_SECRET)
+        __import__("logging").critical(
+            compare_digest(request.headers["Authorization"], TOPGG_SECRET)
+        )
         raise HTTPException(status.HTTP_418_IM_A_TEAPOT, detail="L")
 
     data: WebhookRequest = await request.json()
