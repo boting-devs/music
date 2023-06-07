@@ -145,7 +145,7 @@ class Liked(CogBase[Vibr]):
 
         source = LikedSource(bot=self.bot, count=count, playlist=playlist)
         menu = LikedMenu(source=source)
-        await menu.start(interaction=inter, ephemeral=True)
+        await menu.start(interaction=inter)
 
 
 def setup(bot: Vibr) -> None:
