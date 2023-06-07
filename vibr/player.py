@@ -49,7 +49,10 @@ class Queue:
 
     def loop_track_once(self, track: Track, *, user: int) -> None:
         if self._loop_type == LoopType.TRACK:
-            self._stack.popleft()
+            try:
+                self._stack.popleft()
+            except IndexError:
+                return
         self._stack.appendleft((track, user))
         self._loop_type = None
 
@@ -58,7 +61,10 @@ class Queue:
         self._stack.append((current, user))
 
     def disable_loop(self) -> None:
-        self._stack.popleft()
+        try:
+            self._stack.popleft()
+        except IndexError:
+            return
         self._loop_type = None
 
     def disable_loop_queue(self) -> None:
