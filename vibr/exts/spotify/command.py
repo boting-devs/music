@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, cast
 
+from async_spotify.spotify_errors import SpotifyAPIError
 from botbase import CogBase
 from discord import SlashOption
 from nextcord import slash_command
@@ -19,12 +20,7 @@ if TYPE_CHECKING:
     from ._types import PlaylistResponse
 
 
-PLAYLIST_PAGE_LIMIT = 100
-PLAYLIST_ITEMS_FIELDS = (
-    "total,items(is_local, track(external_urls.spotify,id,name,"
-    "duration_ms,artists.name,external_ids.isrc,album.images.url))"
-)
-PLAYLIST_FIELDS = "id,name,images.url"
+NOT_FOUND = 404
 
 
 class Spotify(CogBase[Vibr]):
@@ -56,6 +52,17 @@ class Spotify(CogBase[Vibr]):
 
         spotify_id = match.group("id")
 
+        try:
+            await self.bot.spotify.user.get_one(spotify_id)
+        except SpotifyAPIError as e:
+            if e.get_json().get("error", {}).get("status") == NOT_FOUND:
+                embed = Embed(
+                    title="Spotify User Not Found",
+                    description="The Spotify user you provided was not found.",
+                )
+                await inter.send(embed=embed, ephemeral=True)
+                return
+            raise
         user = await User.objects().get_or_create(User.id == inter.user.id)
         await User.update({User.spotify_id: spotify_id}).where(User.id == user.id)
 
