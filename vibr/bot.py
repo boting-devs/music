@@ -142,7 +142,8 @@ class Vibr(BotBase):
             resuming = (
                 await Node.select(Node.session_id)
                 .where(
-                    (Node.label == node_data["label"]) & (Node.cluster == CURRENT_CLUSTER)
+                    (Node.label == node_data["label"])
+                    & (Node.cluster == int(CURRENT_CLUSTER))
                 )
                 .first()
             )
@@ -161,7 +162,7 @@ class Vibr(BotBase):
                     {
                         Node.label: node.label,
                         Node.session_id: node.session_id,
-                        Node.cluster: CURRENT_CLUSTER,
+                        Node.cluster: int(CURRENT_CLUSTER),
                     }
                 )
             ).on_conflict(
