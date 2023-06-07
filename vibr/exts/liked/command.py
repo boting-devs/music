@@ -1,6 +1,6 @@
 from __future__ import annotations
-from base64 import b64encode
 
+from base64 import b64encode
 from logging import getLogger
 
 import mafic
@@ -175,7 +175,7 @@ class Liked(CogBase[Vibr]):
             await player.play(tracks[0])
             tracks = tracks[1:]
 
-        player.queue.extend(tracks)
+        player.queue.extend([(track, inter.user.id) for track in tracks])
 
         embed = Embed(title="Liked Songs", description=f"Added {len(tracks)} songs.")
         await inter.send(embed=embed)
