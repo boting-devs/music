@@ -29,7 +29,7 @@ from vibr.constants import COLOURS, GUILD_IDS
 from vibr.db import PlayerConfig
 from vibr.db.node import Node
 from vibr.embed import Embed, ErrorEmbed
-from vibr.sharding import TOTAL_SHARDS, shard_ids
+from vibr.sharding import CURRENT_CLUSTER, TOTAL_SHARDS, shard_ids
 from vibr.sharding import client as docker_client
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
@@ -141,7 +141,9 @@ class Vibr(BotBase):
 
             resuming = (
                 await Node.select(Node.session_id)
-                .where(Node.label == node_data["label"])
+                .where(
+                    (Node.label == node_data["label"]) & Node.cluster == CURRENT_CLUSTER
+                )
                 .first()
             )
             node = await self.pool.create_node(
@@ -155,8 +157,16 @@ class Vibr(BotBase):
                 resuming_session_id=resuming["session_id"] if resuming else None,
             )
             await Node.insert(
-                Node({Node.label: node.label, Node.session_id: node.session_id})
-            ).on_conflict((Node.label,), "DO UPDATE", (Node.session_id,))
+                Node(
+                    {
+                        Node.label: node.label,
+                        Node.session_id: node.session_id,
+                        Node.cluster: CURRENT_CLUSTER,
+                    }
+                )
+            ).on_conflict(
+                (Node.label, Node.session_id), "DO UPDATE", (Node.session_id,)
+            )
 
         self.nodes_connected.set()
 
