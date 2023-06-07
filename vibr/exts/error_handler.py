@@ -23,6 +23,7 @@ FORMAT = """command {command} gave
 ```
 {channel} ({name}) in {guild} by {inter.user}
 """.strip()
+UNKNOWN_INTERACTION = 10062
 
 
 class ErrorHandler(CogBase[Vibr]):
@@ -58,6 +59,8 @@ class ErrorHandler(CogBase[Vibr]):
             if inter.guild is not None and inter.guild.voice_client is not None:
                 await inter.guild.voice_client.disconnect(force=True)
             await inter.send(embed=embed, view=embed.view, ephemeral=True)
+        elif isinstance(exc, NotFound) and exc.code == UNKNOWN_INTERACTION:
+            return
         else:
             self.unhandled_error_count.inc()
             log.error(
