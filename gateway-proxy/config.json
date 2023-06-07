@@ -5,6 +5,10 @@
   "status": "online",
   "backpressure": 100,
   "externally_accessible_url": "ws://gateway-proxy:7878",
+  "activity": {
+    "type": 2,
+    "name": "to your beats :) | shard {{shard}}"
+  },
   "cache": {
     "channels": true,
     "presences": false,
