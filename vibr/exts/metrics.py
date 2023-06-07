@@ -20,7 +20,7 @@ class Prometheus(CogBase[Vibr]):
         super().__init__(bot)
         self.metrics: MetricsHTTPServer | None = None
 
-        if CURRENT_CLUSTER == 0:
+        if CURRENT_CLUSTER == 1:
             self.commands = Gauge("vibr_commands_used", "Total command invokations")
             self.songs = Gauge("vibr_songs_played", "Total songs played")
 
@@ -62,7 +62,7 @@ class Prometheus(CogBase[Vibr]):
                 )
             )
 
-            if CURRENT_CLUSTER != 0:
+            if CURRENT_CLUSTER != 1:
                 return
 
             self.metric_collection.start()
