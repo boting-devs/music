@@ -74,7 +74,7 @@ class PlaylistSource(PageSource):
 
 
 class PlaylistMenu(ButtonMenuPages):
-    playlist_id: str
+    playlist_id: str | None = None
 
 
 class PlaylistSelect(Select["PlaylistMenu"]):

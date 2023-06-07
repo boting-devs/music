@@ -112,6 +112,9 @@ class Spotify(CogBase[Vibr]):
 
         playlist = menu.playlist_id
 
+        if playlist is None:
+            return
+
         await self.bot.play(inter=inter, query=self.PLAYLIST_URL + playlist)
 
 
