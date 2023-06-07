@@ -161,6 +161,11 @@ class PlayButtons(TimeoutView):
     async def loop(self, button: Button, inter: Inter) -> None:
         player = inter.guild.voice_client
 
+        if not player.current:
+            embed = Embed(title="No song Playing")
+            await inter.send(embed=embed, ephemeral=True)
+            return
+
         if button.style is ButtonStyle.blurple and str(button.emoji) == MULTI_LOOP:
             player.queue.loop_track(player.current, user=inter.user.id)
             button.emoji = SINGLE_LOOP
