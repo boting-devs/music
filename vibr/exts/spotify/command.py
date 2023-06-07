@@ -57,8 +57,7 @@ class Spotify(CogBase[Vibr]):
         spotify_id = match.group("id")
 
         user = await User.objects().get_or_create(User.id == inter.user.id)
-        user.spotify_id = spotify_id
-        await user.update()
+        await User.update({User.spotify_id: spotify_id}).where(User.id == user.id)
 
         embed = Embed(
             title="Linked to Spotify", description="Successfully linked to Spotify!"
@@ -84,11 +83,11 @@ class Spotify(CogBase[Vibr]):
     async def spotify_playlists(self, inter: Inter) -> None:
         """List your spotify playlists."""
 
-        user = await User.objects().get(User.id == inter.user.id)
+        user = await User.select().where(User.id == inter.user.id).first()
         if user is None:
             raise NotLinked(self.bot)
 
-        user_id = user.spotify_id
+        user_id = user["spotify_id"]
         if user_id is None:
             raise NotLinked(self.bot)
 

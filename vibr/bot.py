@@ -111,7 +111,7 @@ class Vibr(BotBase):
         )
 
     async def before_identify_hook(
-        self, _shard_id: int | None, *, initial: bool = False
+        self, _shard_id: int | None, *, initial: bool = False  # noqa: ARG002
     ) -> None:
         # gateway-proxy
         return
