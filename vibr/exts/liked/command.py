@@ -1,4 +1,5 @@
 from __future__ import annotations
+from base64 import b64encode
 
 from logging import getLogger
 
@@ -8,8 +9,11 @@ from mafic import SearchType
 from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
+from vibr.checks import is_connected
 from vibr.database import add_to_liked, remove_from_liked
 from vibr.db import Playlist, PlaylistToSong
+from vibr.db.playlists import Song
+from vibr.embed import Embed
 from vibr.errors import NoTracksFound
 from vibr.inter import Inter
 from vibr.views import SearchView
@@ -146,6 +150,35 @@ class Liked(CogBase[Vibr]):
         source = LikedSource(bot=self.bot, count=count, playlist=playlist)
         menu = LikedMenu(source=source)
         await menu.start(interaction=inter)
+
+    @liked.subcommand(name="play")
+    @is_connected
+    async def liked_play(self, inter: Inter) -> None:
+        """Play your liked songs playlist."""
+
+        player = inter.guild.voice_client
+
+        playlist = await Playlist.objects().get(
+            (Playlist.owner.id == inter.user.id) & (Playlist.name == "Liked Songs")
+        )
+        if playlist is None:
+            raise NoLikedSongs(self.bot)
+
+        songs: list[Song] = await playlist.get_m2m(playlist.songs)
+        if not songs:
+            raise NoLikedSongs(self.bot)
+
+        tracks = await inter.guild.voice_client.node.decode_tracks(
+            [b64encode(song.lavalink_id).decode() for song in songs]
+        )
+        if player.current is None:
+            await player.play(tracks[0])
+            tracks = tracks[1:]
+
+        player.queue.extend(tracks)
+
+        embed = Embed(title="Liked Songs", description=f"Added {len(tracks)} songs.")
+        await inter.send(embed=embed)
 
 
 def setup(bot: Vibr) -> None:
