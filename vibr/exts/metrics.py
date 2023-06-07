@@ -143,14 +143,20 @@ class Prometheus(CogBase[Vibr]):
                     lambda node=node: node.stats.memory.allocated if node.stats else 0
                 )
                 frame_stats_send.labels(node=node.label).set_function(
-                    lambda node=node: node.stats.frame_stats.sent if node.stats else 0
+                    lambda node=node: node.stats.frame_stats.sent
+                    if node.stats and node.stats.frame_stats
+                    else 0
                 )
                 frame_stats_nulled.labels(node=node.label).set_function(
-                    lambda node=node: node.stats.frame_stats.nulled if node.stats else 0
+                    lambda node=node: node.stats.frame_stats.nulled
+                    if node.stats and node.stats.frame_stats
+                    else 0
                 )
                 frame_stats_deficit.labels(node=node.label).set_function(
                     lambda node=node: (
-                        node.stats.frame_stats.deficit if node.stats else 0
+                        node.stats.frame_stats.deficit
+                        if node.stats and node.stats.frame_stats
+                        else 0
                     )
                 )
 
