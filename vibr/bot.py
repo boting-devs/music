@@ -142,7 +142,7 @@ class Vibr(BotBase):
             resuming = (
                 await Node.select(Node.session_id)
                 .where(
-                    (Node.label == node_data["label"]) & Node.cluster == CURRENT_CLUSTER
+                    (Node.label == node_data["label"]) & (Node.cluster == CURRENT_CLUSTER)
                 )
                 .first()
             )
