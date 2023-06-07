@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from asyncio import Event, gather, sleep
 from logging import getLogger
-from os import environ
+from os import environ, getenv
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -121,6 +121,9 @@ class Vibr(BotBase):
             data: list[LavalinkInfo] = yaml.safe_load(
                 f
             )  # pyright: ignore[reportGeneralTypeIssues]
+
+        if getenv("PROD"):
+            await sleep(5)
 
         for node_data in data:
             regions: list[Group | Region | VoiceRegion] | None = None
