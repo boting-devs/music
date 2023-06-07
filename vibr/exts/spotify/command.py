@@ -69,7 +69,7 @@ class Spotify(CogBase[Vibr]):
         """Unlink your spotify account."""
 
         user = (
-            await User.select(User.spotify.id).where(User.id == inter.user.id).first()
+            await User.select(User.spotify_id).where(User.id == inter.user.id).first()
         )
         if user is None or user["spotify_id"] is None:
             raise NotLinked(self.bot)
