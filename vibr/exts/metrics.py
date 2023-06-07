@@ -14,6 +14,8 @@ from vibr.bot import Vibr
 from vibr.db import SongLog
 from vibr.sharding import CURRENT_CLUSTER
 
+CURRENT_CLUSTER = int(CURRENT_CLUSTER)
+
 
 class Prometheus(CogBase[Vibr]):
     def __init__(self, bot: Vibr) -> None:
