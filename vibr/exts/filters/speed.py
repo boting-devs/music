@@ -25,7 +25,7 @@ class Speed(CogBase[Vibr]):
         """Increase/Decrease Speed of the song
 
         speed:
-            Accepted Range: 0 - 2. Use 1 for normal speed or leave it blank.
+            Accepted Range: 0.1 - 2. Use 1 for normal speed or leave it blank.
         """
 
         player = inter.guild.voice_client
@@ -33,7 +33,7 @@ class Speed(CogBase[Vibr]):
         if speed is None and not await player.has_filter("speed"):
             raise SpeedNotActive
 
-        if speed is not None and (speed > MAX_SPEED or speed <= 0):
+        if speed is not None and (speed > MAX_SPEED or speed <= 0.1):
             raise InvalidSpeed
 
         if await player.has_filter("speed") and speed is not None and speed != 1:
