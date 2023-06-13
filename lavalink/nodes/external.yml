@@ -6,4 +6,4 @@ services:
       file: block.yml
       service: lavalink
     environment:
-      SERVER_PORT: ${PORT:-No Lavalink port provided}
+      SERVER_PORT: ${PORT:?No Lavalink port provided}

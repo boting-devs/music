@@ -68,7 +68,7 @@ async def webhook(request: Request):
     if client.vote_webhook:
         webhook = client.vote_webhook
     else:
-        channel = cast(TextChannel, client.get_channel(VOTE_CHANNEL))
+        channel = cast(TextChannel, await client.fetch_channel(VOTE_CHANNEL))
         webhooks = await channel.webhooks()
         webhook = get(webhooks, name=WEBHOOK_NAME)
         if not webhook:
