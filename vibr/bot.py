@@ -33,6 +33,7 @@ from vibr.sharding import CURRENT_CLUSTER, TOTAL_SHARDS, shard_ids
 from vibr.sharding import client as docker_client
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
+from vibr.errors import NotInSameVoice
 
 from . import errors
 from .exts.playing._errors import LyricsNotFound, SongNotProvided
@@ -280,10 +281,10 @@ class Vibr(BotBase):
             .first()
         )
         if config is None:
-            return
+            return 100
 
         if config["volume"] == DEFAULT_VOLUME:
-            return
+            return 100
 
         # TODO: Add actual public interface to mafic.
         for _ in range(3):
@@ -293,6 +294,7 @@ class Vibr(BotBase):
             await sleep(1)
 
         await player.set_volume(config["volume"])
+        return config["volume"]
 
     async def play(
         self,
@@ -305,6 +307,13 @@ class Vibr(BotBase):
         player = inter.guild.voice_client
         if player is None:
             return
+        channel = inter.guild.voice_client.channel
+        
+        if channel is not None:
+            if not inter.user.voice or inter.user.voice.channel != channel:
+                assert isinstance(channel, VoiceChannel | StageChannel)
+                raise NotInSameVoice(channel)
+            
         player.notification_channel = (
             inter.channel
         )  # pyright: ignore[reportGeneralTypeIssues]
@@ -405,10 +414,9 @@ class Vibr(BotBase):
             raise errors.VoiceConnectionError from e
 
         log.debug("Setting player settings", extra={"guild": inter.guild.id})
-        await self.set_player_settings(player, channel.id)
-
+        vol = await self.set_player_settings(player, channel.id)
         embed = Embed(
-            title="Connected!", description=f"Connected to {channel.mention}."
+            title="Connected!", description=f"Connected to {channel.mention}.\nVolume:{vol}"
         )
 
         log.info("Player connected and set up", extra={"guild": inter.guild.id})
