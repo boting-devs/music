@@ -22,7 +22,7 @@ async def lifetime(_: FastAPI):
         await deinit()
 
 
-app = FastAPI(debug=DEBUG, lifetime=lifetime)
+app = FastAPI(debug=DEBUG, lifespan=lifetime)
 if TOPGG_ENABLED:
     from .routes import topgg
 
