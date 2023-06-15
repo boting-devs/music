@@ -29,11 +29,11 @@ from vibr.constants import COLOURS, GUILD_IDS
 from vibr.db import PlayerConfig
 from vibr.db.node import Node
 from vibr.embed import Embed, ErrorEmbed
+from vibr.errors import NotInSameVoice
 from vibr.sharding import CURRENT_CLUSTER, TOTAL_SHARDS, shard_ids
 from vibr.sharding import client as docker_client
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
-from vibr.errors import NotInSameVoice
 
 from . import errors
 from .exts.playing._errors import LyricsNotFound, SongNotProvided
@@ -308,12 +308,15 @@ class Vibr(BotBase):
         if player is None:
             return
         channel = inter.guild.voice_client.channel
-        
-        if channel is not None:
-            if not inter.user.voice or inter.user.voice.channel != channel:
-                assert isinstance(channel, VoiceChannel | StageChannel)
-                raise NotInSameVoice(channel)
-            
+
+        if (
+            channel is not None
+            and not inter.user.voice
+            or inter.user.voice.channel != channel
+        ):
+            assert isinstance(channel, VoiceChannel | StageChannel)
+            raise NotInSameVoice(channel)
+
         player.notification_channel = (
             inter.channel
         )  # pyright: ignore[reportGeneralTypeIssues]
@@ -416,8 +419,9 @@ class Vibr(BotBase):
         log.debug("Setting player settings", extra={"guild": inter.guild.id})
         vol = await self.set_player_settings(player, channel.id)
         embed = Embed(
-            title="Connected!", description=f"Connected to {channel.mention}.\nVolume:{vol}"
+            title="Connected!", description=f"Connected to {channel.mention}."
         )
+        embed.set_footer(text=f"Volume: {vol}%")
 
         log.info("Player connected and set up", extra={"guild": inter.guild.id})
         await inter.send(embed=embed)  # pyright: ignore[reportGeneralTypeIssues]
