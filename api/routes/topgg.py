@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from asyncio import Task, create_task
 from datetime import UTC, datetime
 from os import environ
 from secrets import compare_digest
@@ -37,13 +38,17 @@ class Client(nextcord.Client):
 
 
 client = Client()
+task: Task | None = None
 
 
 async def init() -> None:
-    await client.start(DISCORD_TOKEN)
+    global task  # noqa: PLW0603
+    task = create_task(client.start(DISCORD_TOKEN))
 
 
 async def deinit() -> None:
+    if task:
+        task.cancel()
     await client.close()
 
 
@@ -70,9 +75,9 @@ async def webhook(request: Request):
     else:
         channel = cast(TextChannel, await client.fetch_channel(VOTE_CHANNEL))
         webhooks = await channel.webhooks()
-        webhook = get(webhooks, name=WEBHOOK_NAME)
+        assert client.user is not None
+        webhook = get(webhooks, name=WEBHOOK_NAME, user__id=client.user.id)
         if not webhook:
-            assert client.user is not None
             webhook = await channel.create_webhook(
                 name=WEBHOOK_NAME, avatar=client.user.avatar
             )
@@ -80,8 +85,9 @@ async def webhook(request: Request):
         client.vote_webhook = webhook
 
     user = await client.fetch_user(user)
+    display = str(user) if user.discriminator != "0" else user.display_name
     await webhook.send(
-        content=f"`{user}` has voted",
+        content=f"`{display}` has voted",
         username=user.display_name,
         avatar_url=user.display_avatar.url,
     )
