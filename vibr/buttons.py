@@ -202,7 +202,11 @@ class PlayButtons(TimeoutView):
         except NotVoted as e:
             await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)
             return
-
+        
+        if self.track is None or self.track.title is None:
+            await inter.send("No track available to fetch lyrics.", ephemeral=True)
+            return
+            
         try:
             await inter.client.lyrics(inter, self.track.title)
         except LyricsNotFound as e:

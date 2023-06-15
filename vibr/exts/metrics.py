@@ -70,42 +70,57 @@ class Prometheus(CogBase[Vibr]):
             self.metric_collection.start()
             await self.bot.nodes_connected.wait()
 
-            info = Info("node", "Info about a node", labelnames=["node"])
+            info = Info("lavalink", "Info about a node", labelnames=["node"])
             playing_player_count = Gauge(
-                "node_playing_player_count", "Total active players", labelnames=["node"]
+                "lavalink_playing_player_count",
+                "Total active players",
+                labelnames=["node"],
             )
             player_count = Gauge(
-                "node_total_player_count",
+                "lavalink_total_player_count",
                 "Total connected players",
                 labelnames=["node"],
             )
             cpu_system_load = Gauge(
-                "node_cpu_system_load",
+                "lavalink_cpu_system_load",
                 "CPU Load of the system the node is on",
                 labelnames=["node"],
             )
             cpu_lavalink_load = Gauge(
-                "node_cpu_load", "CPU Load of the Lavalink process", labelnames=["node"]
+                "lavalink_cpu_load",
+                "CPU Load of the Lavalink process",
+                labelnames=["node"],
             )
             memory_free = Gauge(
-                "node_memory_free_bytes", "Total free node memory", labelnames=["node"]
+                "lavalink_memory_free_bytes",
+                "Total free node memory",
+                labelnames=["node"],
             )
             memory_used = Gauge(
-                "node_memory_used_bytes", "Total used node memory", labelnames=["node"]
+                "lavalink_memory_used_bytes",
+                "Total used node memory",
+                labelnames=["node"],
             )
             memory_allocated = Gauge(
-                "node_memory_allocated_bytes",
+                "lavalink_memory_allocated_bytes",
                 "Total allocated node memory",
                 labelnames=["node"],
             )
+            memory_reservable = Gauge(
+                "lavalink_memory_reservable_bytes",
+                "Total reservable node memory",
+                labelnames=["node"],
+            )
             frame_stats_send = Gauge(
-                "node_frames_sent", "Total UDP frames sent", labelnames=["node"]
+                "lavalink_frames_sent", "Total UDP frames sent", labelnames=["node"]
             )
             frame_stats_nulled = Gauge(
-                "node_frames_nulled", "Total UDP frames nulled", labelnames=["node"]
+                "lavalink_frames_nulled", "Total UDP frames nulled", labelnames=["node"]
             )
             frame_stats_deficit = Gauge(
-                "node_frames_deficit", "Total UDP frames deficit", labelnames=["node"]
+                "lavalink_frames_deficit",
+                "Total UDP frames deficit",
+                labelnames=["node"],
             )
 
             for node in self.bot.pool.nodes:
@@ -113,8 +128,8 @@ class Prometheus(CogBase[Vibr]):
                     await sleep(0.1)
                 info.labels(node=node.label).info(
                     {
-                        "node_cpu_cores": str(node.stats.cpu.cores),
-                        "node_memory_reservable": str(node.stats.memory.reservable),
+                        "lavalink_cpu_cores": str(node.stats.cpu.cores),
+                        "lavalink_memory_reservable": str(node.stats.memory.reservable),
                     }
                 )
                 # Funny syntax innit?
@@ -141,6 +156,9 @@ class Prometheus(CogBase[Vibr]):
                 )
                 memory_allocated.labels(node=node.label).set_function(
                     lambda node=node: node.stats.memory.allocated if node.stats else 0
+                )
+                memory_reservable.labels(node=node.label).set_function(
+                    lambda node=node: node.stats.memory.reservable if node.stats else 0
                 )
                 frame_stats_send.labels(node=node.label).set_function(
                     lambda node=node: node.stats.frame_stats.sent
