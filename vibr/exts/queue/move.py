@@ -59,9 +59,14 @@ class Move(CogBase[Vibr]):
             raise InvalidIndex
 
         track_index = int(track)
-
-        track_n = player.queue[track_index - 1]
-        player.queue.pop(track_index - 1)
+        try:
+            track_n = player.queue[track_index - 1]
+            player.queue.pop(track_index - 1)
+        except IndexError:
+            await inter.send(
+                "Please input a number which is within your queue!", ephemeral=True
+            )
+            return
         player.queue.insert(destination - 1, track_n, user=inter.user.id)
 
         embed = Embed(title=f'"{track_n.title}" position set to {destination}')
