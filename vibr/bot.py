@@ -5,7 +5,7 @@ from asyncio import Event, gather, sleep
 from logging import getLogger
 from os import environ, getenv
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import async_spotify
 import yaml
@@ -22,6 +22,7 @@ from nextcord import (
     StageChannel,
     VoiceChannel,
 )
+from nextcord.guild import Guild
 from nextcord.utils import utcnow
 from redis import asyncio as redis
 
@@ -30,8 +31,9 @@ from vibr.db import PlayerConfig
 from vibr.db.node import Node
 from vibr.embed import Embed, ErrorEmbed
 from vibr.errors import NotInSameVoice
-from vibr.sharding import CURRENT_CLUSTER, TOTAL_SHARDS, shard_ids
+from vibr.sharding import CURRENT_CLUSTER, TOTAL_SHARDS
 from vibr.sharding import client as docker_client
+from vibr.sharding import shard_ids
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
 
@@ -103,6 +105,21 @@ class Vibr(BotBase):
         self.redis = redis.from_url(environ["REDIS_URL"])
 
         self.nodes_connected = Event()
+        self.shards_connected = Event()
+        self.connected_shards: set[int] = set()
+
+        async def delay_ready() -> None:
+            await self.shards_connected.wait()
+            await self._connection._delay_ready()
+
+        self._connection._delay_ready = delay_ready
+
+    # Hacky, to stop `on_ready` from being called before shards are *really* connected.
+    async def on_shard_connect(self, shard: int) -> None:
+        self.connected_shards.add(shard)
+        log.info("Connected shard %d", shard)
+        if len(self.connected_shards) == len(cast(list[int], self.shard_ids)):
+            self.shards_connected.set()
 
     async def launch_shard(
         self, _gateway: str, shard_id: int, *, initial: bool = False
@@ -116,6 +133,16 @@ class Vibr(BotBase):
     ) -> None:
         # gateway-proxy
         return
+
+    async def on_guild_available(self, guild: Guild) -> None:
+        __import__("logging").info(f"guild: {guild.id}")
+        return await super().on_guild_available(guild)
+
+    async def on_shard_ready(self, s) -> None:
+        __import__("logging").info(f"ready: {s}")
+
+    async def on_ready(self) -> None:
+        __import__("logging").info("ready")
 
     async def add_nodes(self) -> None:
         with Path(environ["LAVALINK_FILE"]).open("rb") as f:
@@ -206,6 +233,7 @@ class Vibr(BotBase):
         return await super().close()
 
     async def process_application_commands(self, inter: Inter) -> None:
+        return
         permissions = inter.app_permissions
 
         if not permissions.view_channel:
