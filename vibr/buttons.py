@@ -32,6 +32,11 @@ class TimeoutView(View):
                 child.disabled = True
 
         if self.message is not None:
+            if isinstance(self.message, Message):
+                perms = self.message.channel.permissions_for(self.message.guild.me)
+                if not perms.view_channel or not perms.send_messages:
+                    return
+
             await self.message.edit(view=self)
 
 
@@ -202,11 +207,11 @@ class PlayButtons(TimeoutView):
         except NotVoted as e:
             await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)
             return
-        
+
         if self.track is None or self.track.title is None:
             await inter.send("No track available to fetch lyrics.", ephemeral=True)
             return
-            
+
         try:
             await inter.client.lyrics(inter, self.track.title)
         except LyricsNotFound as e:
