@@ -33,8 +33,6 @@ class Prometheus(CogBase[Vibr]):
 
     @CogBase.listener()
     async def on_ready(self) -> None:
-        while self.bot.shard_
-
         if not self.metrics:
             self.metrics = await start_http_server(port=9000)
 
