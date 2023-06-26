@@ -22,7 +22,6 @@ from nextcord import (
     StageChannel,
     VoiceChannel,
 )
-from nextcord.guild import Guild
 from nextcord.utils import utcnow
 from redis import asyncio as redis
 
@@ -118,6 +117,11 @@ class Vibr(BotBase):
     async def on_shard_connect(self, shard: int) -> None:
         self.connected_shards.add(shard)
         log.info("Connected shard %d", shard)
+        log.info(
+            "Connected shards: %d of %d",
+            len(self.connected_shards),
+            len(self.shard_ids),
+        )
         if len(self.connected_shards) == len(cast(list[int], self.shard_ids)):
             self.shards_connected.set()
 
@@ -133,16 +137,6 @@ class Vibr(BotBase):
     ) -> None:
         # gateway-proxy
         return
-
-    async def on_guild_available(self, guild: Guild) -> None:
-        __import__("logging").info(f"guild: {guild.id}")
-        return await super().on_guild_available(guild)
-
-    async def on_shard_ready(self, s) -> None:
-        __import__("logging").info(f"ready: {s}")
-
-    async def on_ready(self) -> None:
-        __import__("logging").info("ready")
 
     async def add_nodes(self) -> None:
         with Path(environ["LAVALINK_FILE"]).open("rb") as f:
