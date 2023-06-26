@@ -233,7 +233,6 @@ class Vibr(BotBase):
         return await super().close()
 
     async def process_application_commands(self, inter: Inter) -> None:
-        return
         permissions = inter.app_permissions
 
         if not permissions.view_channel:
@@ -259,13 +258,9 @@ class Vibr(BotBase):
             return
 
         if not permissions.embed_links:
-            embed = ErrorEmbed(
-                title="I Am Missing Permissions",
-                description="I am missing the `Embed Links` permission "
-                "in the channel you are sending the command in.",
-            )
             await inter.response.send_message(
-                embed=embed, view=embed.view, ephemeral=True
+                "I do not have the `Embed Links` permission in this channel.",
+                ephemeral=True,
             )
             return
 
@@ -302,7 +297,7 @@ class Vibr(BotBase):
 
         return f"`/{name}`"
 
-    async def set_player_settings(self, player: Player, channel_id: int) -> None:
+    async def set_player_settings(self, player: Player, channel_id: int) -> int:
         config = (
             await PlayerConfig.select(PlayerConfig.volume)
             .where(PlayerConfig.channel_id == channel_id)
