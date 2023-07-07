@@ -138,9 +138,10 @@ class PlayButtons(TimeoutView):
         player = inter.guild.voice_client
 
         if not player.queue:
-            embed = Embed(title="Queue is empty")
-            await inter.send(embed=embed)
-            return
+            await player.stop()
+            embed = ErrorEmbed(title="Queue Empty",
+                               description="The queue is empty. Stopping the Player.")
+            return await inter.send(embed=embed)
 
         track, user = player.queue.skip(1)
         await player.play(track)

@@ -11,6 +11,7 @@ from vibr.checks import is_connected
 from vibr.inter import Inter
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
+from vibr.embed import ErrorEmbed
 
 from ..playing._errors import AmountNotInt, IndexNotInQueue, QueueEmpty
 
@@ -47,8 +48,11 @@ class Skip(CogBase[Vibr]):
             amount_int = 1
 
         if not player.queue:
-            raise QueueEmpty
-
+            await player.stop()
+            embed = ErrorEmbed(title="Queue Empty",
+                               description="The queue is empty. Stopping the Player.")
+            await inter.send(embed=embed)
+            return
         if amount_int > len(player.queue):
             raise IndexNotInQueue
 
