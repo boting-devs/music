@@ -35,6 +35,9 @@ class Speed(CogBase[Vibr]):
 
         if speed is not None and (speed > MAX_SPEED or speed <= 0.1):
             raise InvalidSpeed
+        
+        if not await player.has_filter("speed") and speed ==1:
+            raise InvalidSpeed
 
         if await player.has_filter("speed") and speed is not None and speed != 1:
             await player.remove_filter("speed", fast_apply=True)
@@ -43,6 +46,7 @@ class Speed(CogBase[Vibr]):
             await player.add_filter(speed_filter_object, label="speed", fast_apply=True)
             embed = Embed(title=f"Speed switched to {speed}x")
             log.info("Changed speed to %d", speed, extra={"guild": inter.guild.id})
+        
         elif await player.has_filter("speed") or speed == 1:
             await player.remove_filter("speed", fast_apply=True)
             embed = Embed(title="Speed switched to normal")
