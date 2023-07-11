@@ -13,7 +13,7 @@ CURRENT_CLUSTER = int(our_container["Labels"]["com.docker.compose.container-numb
 
 TOTAL_CLUSTERS = int(environ["TOTAL_CLUSTERS"])
 # Request proxy's current shard count, as the single 'source of truth'.
-TOTAL_SHARDS = int(requests.get(f"{environ['PROXY_HTTP']}/shard_count", timeout=5).text)
+TOTAL_SHARDS = int(requests.get(f"{environ['PROXY_HTTP']}/shard-count", timeout=5).text)
 SHARD_COUNT = TOTAL_SHARDS // TOTAL_CLUSTERS
 shard_ids = list(
     range(
