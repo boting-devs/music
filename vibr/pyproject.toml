@@ -23,6 +23,7 @@ humanfriendly = "^10.0"
 redis = { version = "^4.5.5", extras = ["hiredis"] }
 prometheus-async = "^22.2.0"
 prometheus-client = "^0.17.0"
+ytmusicapi = "^1.1.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
