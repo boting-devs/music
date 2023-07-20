@@ -13,7 +13,7 @@ log = getLogger(__name__)
 
 
 class Lyrics(CogBase[Vibr]):
-    @slash_command(dm_permission=False)
+    @slash_command()
     @voted
     async def lyrics(self, inter: Inter, query: str | None = None) -> None:
         """Get a song's lyrics
@@ -22,7 +22,7 @@ class Lyrics(CogBase[Vibr]):
             The song to search lyrics for, leave blank if you want the current song.
         """
 
-        await self.bot.lyrics(inter=inter, query=query)
+        await self.bot.lyrics(inter=inter, song=query)
 
 
 def setup(bot: Vibr) -> None:
