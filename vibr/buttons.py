@@ -32,10 +32,12 @@ class TimeoutView(View):
                 child.disabled = True
 
         if self.message is not None:
+            from nextcord import Message
             if isinstance(self.message, Message):
-                perms = self.message.channel.permissions_for(self.message.guild.me)
-                if not perms.view_channel or not perms.send_messages:
-                    return
+                if hasattr(self.message,'channel') and hasattr(self.message.channel,'permissions_for') and hasattr(self.message.guild,'me'):
+                    perms = self.message.channel.permissions_for(self.message.guild.me)
+                    if not perms.view_channel or not perms.send_messages:
+                        return
 
             await self.message.edit(view=self)
 
