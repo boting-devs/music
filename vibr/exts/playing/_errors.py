@@ -31,7 +31,7 @@ class IndexNotInQueue(CheckFailure):
 class QueueEmpty(CheckFailure):
     embed = ErrorEmbed(
         title="Queue Empty",
-        description="The queue is empty. There is nothing to skip.",
+        description=f"The queue is empty.",
     )
 
 
