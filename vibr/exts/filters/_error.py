@@ -17,7 +17,7 @@ class NoFilterActive(CheckFailure):
 
 class InvalidSpeed(CheckFailure):
     embed = ErrorEmbed(
-        title="Invalid Speed", description="Please use the speed betweeen 0 and 2"
+        title="Invalid Speed", description="Please use the speed betweeen 0 and 2 (1 is normal speed)"
     )
 
 
