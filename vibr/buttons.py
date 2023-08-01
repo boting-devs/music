@@ -43,7 +43,45 @@ class TimeoutView(View):
 MULTI_LOOP = "<:loopall:1044708055234904094>"
 SINGLE_LOOP = "<:loop:1044708068639903907>"
 
+class LyricsButton(Button):
+    def __init__(self,track: Track | None):
+        super().__init__(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
+        self.track = track
 
+    async def callback(self,inter: Inter) -> None:
+        try:
+            await voted_predicate(inter)
+        except NotVoted as e:
+            await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)
+            return
+
+        if self.track is None or self.track.title is None:
+            await inter.send("No track available to fetch lyrics.", ephemeral=True)
+            return
+
+        try:
+            await inter.client.lyrics(inter, self.track.title)
+        except LyricsNotFound as e:
+            await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)
+
+class ShuffleButton(Button):
+    def __init__(self):
+        super().__init__(emoji="<:shuffle:1044699214803894293>", style=ButtonStyle.blurple, row=1)
+
+    async def callback(self, inter: Inter) ->None:
+        player = inter.guild.voice_client
+
+        if not player.current:
+            await inter.send_embed(
+                "No Song", "There is no song playing!", ephemeral=True
+            )
+            return
+
+        player.queue.shuffle()
+        embed = Embed(title="Shuffled the queue")
+        await inter.send(embed=embed)
+        return
+    
 class PlayButtons(TimeoutView):
     def __init__(
         self,
@@ -61,6 +99,16 @@ class PlayButtons(TimeoutView):
         if loop:
             self.loop.emoji = MULTI_LOOP
             self.loop.style = ButtonStyle.grey
+
+        if isinstance(track, Playlist):
+            self.add_item(
+                ShuffleButton()
+            )
+        else:
+            self.add_item(
+                LyricsButton(track)
+            )
+
 
     async def interaction_check(self, inter: Inter) -> bool:
         if not inter.guild or not inter.guild.voice_client:
@@ -200,7 +248,8 @@ class PlayButtons(TimeoutView):
         else:
             await inter.send(f"**{self.track.title}** added to your liked playlist!")
 
-    @button(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
+
+    '''@button(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
     async def lyrics(self, _: Button, inter: Inter) -> None:
         try:
             await voted_predicate(inter)
@@ -215,7 +264,7 @@ class PlayButtons(TimeoutView):
         try:
             await inter.client.lyrics(inter, self.track.title)
         except LyricsNotFound as e:
-            await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)
+            await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)'''
 
     @button(emoji="<:remove:1114702473249161226>", style=ButtonStyle.blurple, row=1)
     async def remove(self, _: Button, inter: Inter) -> None:
