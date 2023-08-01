@@ -6,7 +6,7 @@ from mafic import Playlist, Track
 from nextcord import ButtonStyle
 from nextcord.abc import Snowflake
 from nextcord.ui import Button, Select, View
-
+from nextcord import Message
 from vibr.checks import voted_predicate
 from vibr.database import add_to_liked
 from vibr.embed import Embed, ErrorEmbed
@@ -18,7 +18,7 @@ from vibr.patches.nextcord.ui import button
 from .exts.queue._views import QueueMenu, QueueSource
 
 if TYPE_CHECKING:
-    from nextcord import Message, PartialInteractionMessage
+    from nextcord import PartialInteractionMessage
 
 
 class TimeoutView(View):
@@ -33,9 +33,10 @@ class TimeoutView(View):
 
         if self.message is not None:
             if isinstance(self.message, Message):
-                perms = self.message.channel.permissions_for(self.message.guild.me)
-                if not perms.view_channel or not perms.send_messages:
-                    return
+                if hasattr(self.message,'channel') and hasattr(self.message.channel,'permissions_for') and hasattr(self.message.guild,'me'):
+                    perms = self.message.channel.permissions_for(self.message.guild.me)
+                    if not perms.view_channel or not perms.send_messages:
+                        return
 
             await self.message.edit(view=self)
 
