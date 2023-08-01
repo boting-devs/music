@@ -24,6 +24,8 @@ services:
       LAVALINK_SERVER_YOUTUBE_PLAYLIST_LOAD_LIMIT: 5
       LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.TopiSenpai.LavaSrc:lavasrc-plugin:85b39d130692e0fb96c61f5ed518ad3c1e4eecd6"
       LAVALINK_PLUGINS_0_REPOSITORY: "https://jitpack.io"
+      LAVALINK_SERVER_YOUTUBE_CONFIG_EMAIL: "musicfixthebot@gmail.com"
+      LAVALINK_SERVER_YOUTUBE_CONFIG_PASSWORD: "ChitChat100"
       PLUGINS_LAVASRC_PROVIDERS_0: "dzisrc:%ISRC%"
       PLUGINS_LAVASRC_PROVIDERS_1: "dzsearch:%QUERY%"
       PLUGINS_LAVASRC_PROVIDERS_2: 'ytsearch:"%ISRC%"'
