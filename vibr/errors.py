@@ -60,7 +60,7 @@ class NoTracksFound(CheckFailure):
     embed = ErrorEmbed(
         title="No Tracks Found",
         description="Could not find any tracks for your config. "
-        "Try a different `search-type` or a more generic query.",
+        "Try a different `source` or a more generic query.",
     )
 
 

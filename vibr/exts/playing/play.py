@@ -10,7 +10,7 @@ from vibr.inter import Inter
 
 class Play(CogBase[Vibr]):
     SEARCH_TYPE = SlashOption(
-        name="search-type",
+        name="source",
         choices={
             "Default": SearchType.YOUTUBE.value,
             "SoundCloud": SearchType.SOUNDCLOUD.value,

@@ -13,7 +13,7 @@ from vibr.views import SearchView
 
 class Search(CogBase[Vibr]):
     SEARCH_TYPE = SlashOption(
-        name="search-type",
+        name="source",
         choices={
             "Default": SearchType.YOUTUBE.value,
             "SoundCloud": SearchType.SOUNDCLOUD.value,
