@@ -24,21 +24,21 @@ if TYPE_CHECKING:
 class TimeoutView(View):
     message: Message | PartialInteractionMessage | None = None
 
-    async def on_timeout(self) -> None:
-        self.stop()
-
-        for child in self.children:
-            if isinstance(child, Button | Select):
-                child.disabled = True
-
-        if self.message is not None:
-            if isinstance(self.message, Message):
-                if hasattr(self.message,'channel') and hasattr(self.message.channel,'permissions_for') and hasattr(self.message.guild,'me'):
-                    perms = self.message.channel.permissions_for(self.message.guild.me)
-                    if not perms.view_channel or not perms.send_messages:
-                        return
-
-            await self.message.edit(view=self)
+#    async def on_timeout(self) -> None:
+#        self.stop()
+#
+#        for child in self.children:
+#            if isinstance(child, Button | Select):
+#                child.disabled = True
+#
+#        if self.message is not None:
+#            if isinstance(self.message, Message):
+#                if hasattr(self.message,'channel') and hasattr(self.message.channel,'permissions_for') and hasattr(self.message.guild,'me'):
+#                    perms = self.message.channel.permissions_for(self.message.guild.me)
+#                    if not perms.view_channel or not perms.send_messages:
+#                        return
+#
+#            await self.message.edit(view=self)
 
 
 MULTI_LOOP = "<:loopall:1044708055234904094>"
