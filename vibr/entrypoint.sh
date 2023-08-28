@@ -6,4 +6,5 @@ until (
     || nc -w 1 $HOST_IP 5783 \
     || nc -w 1 lavalink 6969 2>&1 >> /dev/null
 ); do sleep 0.1; done
+rm wow/*
 poetry run task start
