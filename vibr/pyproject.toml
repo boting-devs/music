@@ -10,7 +10,7 @@ python = "^3.10"
 nextcord = { git = "https://github.com/boting-devs/nextcord", rev = "vibr", extras = [
     "speed",
 ] }
-mafic = "^2.9.2"
+mafic = "^2.9.3"
 uvloop = "^0.17.0"
 ooliver-botbase = { git = "https://github.com/ooliver1/botbase", rev = "master", extras = [
     "db",

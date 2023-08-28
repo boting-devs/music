@@ -966,14 +966,14 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "mafic"
-version = "2.9.2"
+version = "2.9.3"
 description = "A properly typehinted lavalink client for discord.py, nextcord, disnake and py-cord."
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "mafic-2.9.2-py3-none-any.whl", hash = "sha256:1fb6955bf0d3b9f3054bb978933fedd2225880dff372e54b538c06ddb084beb5"},
-    {file = "mafic-2.9.2.tar.gz", hash = "sha256:d2fc233f9f2bc73b45dd31000b6cd373fb03c532dc88addb09e61d0c774c7f6c"},
+    {file = "mafic-2.9.3-py3-none-any.whl", hash = "sha256:4ce8430712edf52384048510044f7919e2327c0f2ec6cdf6074766db1a4250a1"},
+    {file = "mafic-2.9.3.tar.gz", hash = "sha256:b4eb80cea2ab773e1ada4db106b1f2d3ea33af0e127fd9aec7d6ef974079ea79"},
 ]
 
 [package.dependencies]
@@ -2154,4 +2154,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "26d033628adaa07be1e8c917c33973c5612f4b558bfea3660b2e3e3a288f645c"
+content-hash = "bc5ac0fe80a4b199f57596f811a2c7b32ccf4ddc838aabaadd1f5242d4c9cfb7"
