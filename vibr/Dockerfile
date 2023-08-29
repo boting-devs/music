@@ -1,17 +1,15 @@
-FROM python:3.11-slim-bookworm
+FROM alpine
 
 WORKDIR /bot
 
-RUN apt-get update && apt-get install git netcat-openbsd iproute2 debuginfod python3.11-dbg -yqq && rm -rf /var/lib/apt/lists/*
-
+RUN apk add --no-cache --update git netcat-openbsd iproute2 python3 python3-dbg py3-pip python3-dev gcc
 # ENV DEBUGINFOD_URLS="https://debuginfod.elfutils.org/"
-# ENV POETRY_VIRTUALENVS_CREATE="false"
-# ENV PYTHONPATH="/usr/local/lib/python311.zip:/usr/local/lib/python3.11:/usr/local/lib/python3.11/lib-dynload:/usr/local/lib/python3.11/site-packages"
-RUN pip install poetry
+RUN python3 -m pip install poetry --break-system-packages
 
-COPY vibr/pyproject.toml vibr/poetry.lock ./
+# COPY vibr/pyproject.toml vibr/poetry.lock ./
+COPY vibr/requirements.txt ./
 
-RUN poetry install --no-root --only main
+RUN pip install -r requirements.txt
 
 COPY . .
 RUN mkdir wow

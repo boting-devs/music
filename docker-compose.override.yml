@@ -12,6 +12,7 @@ services:
       dockerfile: vibr/Dockerfile
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./wow:/bot/wow
     pull_policy: build
     environment:
       TOKEN: ${TOKEN:?No TOKEN provided}
