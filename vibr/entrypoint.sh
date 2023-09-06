@@ -7,4 +7,4 @@ until (
     || nc -w 1 lavalink 6969 2>&1 >> /dev/null
 ); do sleep 0.1; done
 rm wow/*
-python3 -m memray run --aggregate --native -o wow/memray.$((1 + $RANDOM % 999)).bin -m vibr
+poetry run task start
