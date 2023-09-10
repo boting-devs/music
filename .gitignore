@@ -161,5 +161,3 @@ cython_debug/
 
 #pgdata
 pg_data/
-wow/
-keydb/
