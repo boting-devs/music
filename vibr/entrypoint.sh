@@ -7,4 +7,3 @@ until (
     || nc -w 1 lavalink 6969 2>&1 >> /dev/null
 ); do sleep 0.1; done
 poetry run task start
-poetry run task start
