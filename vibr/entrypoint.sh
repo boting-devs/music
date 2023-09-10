@@ -6,4 +6,4 @@ until (
     || nc -w 1 $HOST_IP 5783 \
     || nc -w 1 lavalink 6969 2>&1 >> /dev/null
 ); do sleep 0.1; done
-python3 -m memray run --aggregate --native -o wow/memray.$((1 + $RANDOM % 999)).bin -m vibr
+poetry run task start
