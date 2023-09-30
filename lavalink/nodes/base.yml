@@ -6,7 +6,7 @@ x-restart-policy: &restart_policy
 services:
   lavalink:
     <<: *restart_policy
-    image: ghcr.io/boting-devs/lavalink:c0402c732d
+    image: ghcr.io/boting-devs/lavalink:c0402c7
     entrypoint:
       [
         "java",
