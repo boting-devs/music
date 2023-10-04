@@ -30,8 +30,7 @@ from vibr.db import PlayerConfig
 from vibr.db.node import Node
 from vibr.embed import Embed, ErrorEmbed
 from vibr.errors import NotInSameVoice
-
-# from vibr.sharding import CURRENT_CLUSTER, TOTAL_SHARDS, shard_ids
+from vibr.sharding import CURRENT_CLUSTER, TOTAL_SHARDS, shard_ids
 from vibr.sharding import client as docker_client
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
@@ -86,8 +85,8 @@ class Vibr(BotBase):
             log_guilds=True,
             intents=Intents(guilds=True, voice_states=True),
             member_cache_flags=MemberCacheFlags.none(),
-            # shard_count=TOTAL_SHARDS,
-            # shard_ids=shard_ids,
+            shard_count=TOTAL_SHARDS,
+            shard_ids=shard_ids,
         )
 
         self.pool = NodePool(self)
@@ -126,18 +125,18 @@ class Vibr(BotBase):
     #     if len(self.connected_shards) == len(cast(list[int], self.shard_ids)):
     #         self.shards_connected.set()
 
-    # async def launch_shard(
-    #     self, _gateway: str, shard_id: int, *, initial: bool = False
-    # ) -> None:
-    #     return await super().launch_shard(
-    #         environ["GW_PROXY"], shard_id, initial=initial
-    #     )
+    async def launch_shard(
+        self, _gateway: str, shard_id: int, *, initial: bool = False
+    ) -> None:
+        return await super().launch_shard(
+            environ["GW_PROXY"], shard_id, initial=initial
+        )
 
-    # async def before_identify_hook(
-    #     self, _shard_id: int | None, *, initial: bool = False  # noqa: ARG002
-    # ) -> None:
-    #     # gateway-proxy
-    #     return
+    async def before_identify_hook(
+        self, _shard_id: int | None, *, initial: bool = False  # noqa: ARG002
+    ) -> None:
+        # gateway-proxy
+        return
 
     async def add_nodes(self) -> None:
         with Path(environ["LAVALINK_FILE"]).open("rb") as f:
@@ -169,7 +168,7 @@ class Vibr(BotBase):
                 await Node.select(Node.session_id)
                 .where(
                     (Node.label == node_data["label"])
-                    # & (Node.cluster == int(CURRENT_CLUSTER))
+                    & (Node.cluster == int(CURRENT_CLUSTER))
                 )
                 .first()
             )
@@ -188,8 +187,7 @@ class Vibr(BotBase):
                     {
                         Node.label: node.label,
                         Node.session_id: node.session_id,
-                        # Node.cluster: int(CURRENT_CLUSTER),
-                        Node.cluster: 0,
+                        Node.cluster: int(CURRENT_CLUSTER),
                     }
                 )
             ).on_conflict(

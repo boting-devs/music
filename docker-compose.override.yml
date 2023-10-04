@@ -6,7 +6,7 @@ services:
       - postgres
       - keydb
       - lavalink
-      # - gateway-proxy
+      - gateway-proxy
     build:
       context: .
       dockerfile: vibr/Dockerfile
@@ -27,12 +27,12 @@ services:
       LOG_CHANNEL: "1101963855141281912"
     ports:
       - 127.0.0.1:${PROMETHEUS_PORTS:-6781}:9000
-  # gateway-proxy:
-  #   image: ghcr.io/boting-devs/gateway-proxy:vibr-x86-64
-  #   environment:
-  #     TOKEN: $TOKEN
-  #   volumes:
-  #     - ./gateway-proxy/config.json:/config.json
+  gateway-proxy:
+    image: ghcr.io/boting-devs/gateway-proxy:vibr-x86-64
+    environment:
+      TOKEN: $TOKEN
+    volumes:
+      - ./gateway-proxy/config.json:/config.json
   postgres:
     image: postgres:15
     environment:
