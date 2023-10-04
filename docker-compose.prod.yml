@@ -15,12 +15,12 @@ services:
       TOPGG_TOKEN: ${TOPGG_AUTH:?No top.gg API token provided}
       LOG_CHANNEL: "939853360289419284"
       PROD: true
-    deploy:
-      replicas: $TOTAL_CLUSTERS
-  gateway-proxy:
-    <<: *restart_policy
-    ports:
-      - 127.0.0.1:5784:7878
+    # deploy:
+    #   replicas: $TOTAL_CLUSTERS
+  # gateway-proxy:
+  #   <<: *restart_policy
+  #   ports:
+  #     - 127.0.0.1:5784:7878
   postgres:
     <<: *restart_policy
     volumes:
