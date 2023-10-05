@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import async_spotify
 import yaml
+from aiohttp import TCPConnector
 from async_spotify import SpotifyApiClient
 from async_spotify.authentification.authorization_flows import ClientCredentialsFlow
 from botbase import BotBase
@@ -88,6 +89,7 @@ class Vibr(BotBase):
             member_cache_flags=MemberCacheFlags.none(),
             # shard_count=TOTAL_SHARDS,
             # shard_ids=shard_ids,
+            connector=TCPConnector(limit=1000),
         )
 
         self.pool = NodePool(self)
@@ -134,7 +136,7 @@ class Vibr(BotBase):
     #     )
 
     # async def before_identify_hook(
-    #     self, _shard_id: int | None, *, initial: bool = False  # noqa: ARG002
+    #     self, _shard_id: int | None, *, initial: bool = False
     # ) -> None:
     #     # gateway-proxy
     #     return
@@ -168,7 +170,8 @@ class Vibr(BotBase):
             resuming = (
                 await Node.select(Node.session_id)
                 .where(
-                    (Node.label == node_data["label"])
+                    Node.label
+                    == node_data["label"]
                     # & (Node.cluster == int(CURRENT_CLUSTER))
                 )
                 .first()
