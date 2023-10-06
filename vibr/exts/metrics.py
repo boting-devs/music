@@ -66,7 +66,7 @@ class Prometheus(CogBase[Vibr]):
                 )
             )
 
-            if CURRENT_CLUSTER != 1:
+            if CURRENT_CLUSTER != 0:
                 return
 
             self.metric_collection.start()
