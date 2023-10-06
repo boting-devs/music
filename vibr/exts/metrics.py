@@ -16,7 +16,7 @@ from vibr.db import SongLog
 # from vibr.sharding import CURRENT_CLUSTER
 
 # CURRENT_CLUSTER = int(CURRENT_CLUSTER)
-CURRENT_CLUSTER = 0
+CURRENT_CLUSTER = 1
 
 
 class Prometheus(CogBase[Vibr]):
@@ -66,7 +66,7 @@ class Prometheus(CogBase[Vibr]):
                 )
             )
 
-            if CURRENT_CLUSTER != 0:
+            if CURRENT_CLUSTER != 1:
                 return
 
             self.metric_collection.start()
