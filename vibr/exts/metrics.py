@@ -12,11 +12,9 @@ from prometheus_client import Gauge, Info
 
 from vibr.bot import Vibr
 from vibr.db import SongLog
+from vibr.sharding import CURRENT_CLUSTER
 
-# from vibr.sharding import CURRENT_CLUSTER
-
-# CURRENT_CLUSTER = int(CURRENT_CLUSTER)
-CURRENT_CLUSTER = 1
+CURRENT_CLUSTER = int(CURRENT_CLUSTER)
 
 
 class Prometheus(CogBase[Vibr]):

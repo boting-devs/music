@@ -36,8 +36,7 @@ class Topgg(CogBase[Vibr]):
     async def post_stats(self) -> None:
         headers = {"Authorization": TOKEN}
 
-        assert self.bot.shard_ids is not None
-        for shard in self.bot.shard_ids:
+        for shard in self.bot.shard_ids or []:
             await self.aquire_connection(shard)
             data = {
                 "server_count": sum(g.shard_id == shard for g in self.bot.guilds),
@@ -55,7 +54,8 @@ class Topgg(CogBase[Vibr]):
     @post_stats.before_loop
     async def before_loop(self) -> None:
         await self.bot.wait_until_ready()
-        await sleep(10)
+        # Just to be safe.
+        await sleep(60 * 30)
 
 
 def setup(bot: Vibr) -> None:
