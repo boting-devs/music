@@ -6,7 +6,6 @@ from time import gmtime, strftime
 from mafic import Playlist, Track
 from nextcord.utils import escape_markdown
 
-from vibr.db import SongLog
 from vibr.embed import Embed
 from vibr.inter import Inter
 from vibr.utils import truncate
@@ -67,12 +66,12 @@ async def get_url(track: Track) -> str | None:
     return track.uri
 
 
-SIMPLE_SOURCES = {
-    "applemusic": SongLog.Type.APPLE_MUSIC,
-    "deezer": SongLog.Type.DEEZER,
-    "spotify": SongLog.Type.SPOTIFY,
-    "youtube": SongLog.Type.YOUTUBE,
-}
+# SIMPLE_SOURCES = {
+#     "applemusic": SongLog.Type.APPLE_MUSIC,
+#     "deezer": SongLog.Type.DEEZER,
+#     "spotify": SongLog.Type.SPOTIFY,
+#     "youtube": SongLog.Type.YOUTUBE,
+# }
 
 
 def get_type_and_identifier(track: Track) -> tuple[str, int]:  # noqa: PLR0911
@@ -187,16 +186,16 @@ async def track_embed(
         embed.set_footer(text=f"Length: {track_time}")
     embed.set_thumbnail(url=thumbnail)
 
-    if not grabbed and isinstance(item, Track):
-        await SongLog.raw(
-            """INSERT INTO song_log (identifier, type, user_id)
-            VALUES ({}, {}, {})
-            ON CONFLICT (type, identifier, user_id)
-            DO UPDATE SET
-                amount = song_log.amount + 1
-            """,
-            *get_type_and_identifier(item),
-            user,
-        )
+    # if not grabbed and isinstance(item, Track):
+    #     await SongLog.raw(
+    #         """INSERT INTO song_log (identifier, type, user_id)
+    #         VALUES ({}, {}, {})
+    #         ON CONFLICT (type, identifier, user_id)
+    #         DO UPDATE SET
+    #             amount = song_log.amount + 1
+    #         """,
+    #         *get_type_and_identifier(item),
+    #         user,
+    #     )
 
     return embed, view

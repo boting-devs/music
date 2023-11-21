@@ -17,7 +17,7 @@ services:
       TOKEN: ${TOKEN:?No TOKEN provided}
       TOTAL_CLUSTERS: ${TOTAL_CLUSTERS:-1}
       LAVALINK_FILE: lavalink/alpha.nodes.yml
-      DB_URI: postgresql://postgres:postgres@postgres:5432/bot
+      # DB_URI: postgresql://postgres:postgres@postgres:5432/bot
       GW_PROXY: ws://gateway-proxy:7878
       PROXY_HTTP: http://gateway-proxy:7878
       PASSWORD: ${PASSWORD:?No password for LOCAL lavalink provided}

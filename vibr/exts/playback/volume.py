@@ -8,7 +8,6 @@ from nextcord.abc import Snowflake
 
 from vibr.bot import Vibr
 from vibr.checks import is_connected
-from vibr.db import PlayerConfig
 from vibr.embed import Embed
 from vibr.inter import Inter
 
@@ -31,12 +30,12 @@ class Volume(CogBase[Vibr]):
         embed = Embed(title=f"Volume set to {number}")
         await inter.send(embed=embed)
 
-        channel_id = cast(Snowflake, player.channel).id
-        config = await PlayerConfig.objects().get_or_create(
-            PlayerConfig.channel_id == channel_id
-        )
-        config.volume = number
-        await config.save()
+        # channel_id = cast(Snowflake, player.channel).id
+        # config = await PlayerConfig.objects().get_or_create(
+        #     PlayerConfig.channel_id == channel_id
+        # )
+        # config.volume = number
+        # await config.save()
 
 
 # volume cap left

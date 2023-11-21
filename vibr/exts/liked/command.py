@@ -9,7 +9,7 @@ from mafic import SearchType
 from nextcord import SlashOption, slash_command
 
 from vibr.bot import Vibr
-from vibr.checks import is_connected
+from vibr.checks import is_connected, maintainance
 from vibr.database import add_to_liked, remove_from_liked
 from vibr.db import Playlist, PlaylistToSong
 from vibr.db.playlists import Song
@@ -42,6 +42,7 @@ class Liked(CogBase[Vibr]):
     )
 
     @liked.subcommand(name="add")
+    @maintainance
     async def liked_add(
         self,
         inter: Inter,
@@ -107,6 +108,7 @@ class Liked(CogBase[Vibr]):
         )
 
     @liked.subcommand(name="remove")
+    @maintainance
     async def liked_remove(self, inter: Inter, index: int) -> None:
         """Remove a song from your liked songs playlist.
 
@@ -132,6 +134,7 @@ class Liked(CogBase[Vibr]):
         )
 
     @liked.subcommand(name="list")
+    @maintainance
     async def liked_list(self, inter: Inter) -> None:
         """List your liked songs playlist."""
 
@@ -152,6 +155,7 @@ class Liked(CogBase[Vibr]):
         await menu.start(interaction=inter)
 
     @liked.subcommand(name="play")
+    @maintainance
     @is_connected
     async def liked_play(self, inter: Inter) -> None:
         """Play your liked songs playlist."""

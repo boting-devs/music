@@ -9,7 +9,7 @@ from discord import SlashOption
 from nextcord import slash_command
 
 from vibr.bot import Vibr
-from vibr.db import User
+from vibr.checks import maintainance
 from vibr.embed import Embed
 from vibr.inter import Inter
 
@@ -40,6 +40,7 @@ class Spotify(CogBase[Vibr]):
     PROFILE_URL = SlashOption(name="profile-url")
 
     @spotify.subcommand(name="link")
+    @maintainance
     async def spotify_link(self, inter: Inter, profile_url: str = PROFILE_URL) -> None:
         """Link your spotify account.
 
@@ -72,6 +73,7 @@ class Spotify(CogBase[Vibr]):
         await inter.send(embed=embed, ephemeral=True)
 
     @spotify.subcommand(name="unlink")
+    @maintainance
     async def spotify_unlink(self, inter: Inter) -> None:
         """Unlink your spotify account."""
 
@@ -87,6 +89,7 @@ class Spotify(CogBase[Vibr]):
         await inter.send(embed=embed, ephemeral=True)
 
     @spotify.subcommand(name="playlists")
+    @maintainance
     async def spotify_playlists(self, inter: Inter) -> None:
         """List your spotify playlists."""
 

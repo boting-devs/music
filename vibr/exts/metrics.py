@@ -4,14 +4,12 @@ from asyncio import sleep
 from typing import cast
 
 from botbase import CogBase
-from botbase.db import CommandLog
 from nextcord.channel import VocalGuildChannel
 from nextcord.ext.tasks import loop
 from prometheus_async.aio.web import MetricsHTTPServer, start_http_server
 from prometheus_client import Gauge, Info
 
 from vibr.bot import Vibr
-from vibr.db import SongLog
 from vibr.sharding import CURRENT_CLUSTER
 
 CURRENT_CLUSTER = int(CURRENT_CLUSTER)
@@ -28,8 +26,9 @@ class Prometheus(CogBase[Vibr]):
 
     @loop(seconds=30)
     async def metric_collection(self) -> None:
-        self.commands.set(await CommandLog.count())
-        self.songs.set(await SongLog.count())
+        # self.commands.set(await CommandLog.count())
+        # self.songs.set(await SongLog.count())
+        ...
 
     @CogBase.listener()
     async def on_ready(self) -> None:

@@ -27,11 +27,9 @@ from nextcord.utils import utcnow
 from redis import asyncio as redis
 
 from vibr.constants import COLOURS, GUILD_IDS
-from vibr.db import PlayerConfig
-from vibr.db.node import Node
 from vibr.embed import Embed, ErrorEmbed
 from vibr.errors import NotInSameVoice
-from vibr.sharding import CURRENT_CLUSTER, TOTAL_SHARDS, shard_ids
+from vibr.sharding import TOTAL_SHARDS, shard_ids
 from vibr.sharding import client as docker_client
 from vibr.track_embed import track_embed
 from vibr.utils import truncate
@@ -89,6 +87,7 @@ class Vibr(BotBase):
             connector=TCPConnector(limit=1000),
             shard_count=TOTAL_SHARDS,
             shard_ids=shard_ids,
+            db_enabled=False,
         )
 
         self.pool = NodePool(self)
@@ -166,15 +165,16 @@ class Vibr(BotBase):
 
             passwd = node_data["password"]
 
-            resuming = (
-                await Node.select(Node.session_id)
-                .where(
-                    (Node.label == node_data["label"])
-                    & (Node.cluster == int(CURRENT_CLUSTER))
-                )
-                .first()
-            )
-            node = await self.pool.create_node(
+            # resuming = (
+            #     await Node.select(Node.session_id)
+            #     .where(
+            #         (Node.label == node_data["label"])
+            #         & (Node.cluster == int(CURRENT_CLUSTER))
+            #     )
+            #     .first()
+            # )
+            # node = await self.pool.create_node(
+            await self.pool.create_node(
                 host=node_data["host"].replace("host", environ["HOST_IP"]),
                 port=node_data["port"],
                 password=environ[
@@ -182,19 +182,19 @@ class Vibr(BotBase):
                 ],
                 regions=regions,
                 label=node_data["label"],
-                resuming_session_id=resuming["session_id"] if resuming else None,
+                # resuming_session_id=resuming["session_id"] if resuming else None,
             )
-            await Node.insert(
-                Node(
-                    {
-                        Node.label: node.label,
-                        Node.session_id: node.session_id,
-                        Node.cluster: int(CURRENT_CLUSTER),
-                    }
-                )
-            ).on_conflict(
-                (Node.label, Node.session_id), "DO UPDATE", (Node.session_id,)
-            )
+            # await Node.insert(
+            #     Node(
+            #         {
+            #             Node.label: node.label,
+            #             Node.session_id: node.session_id,
+            #             Node.cluster: int(CURRENT_CLUSTER),
+            #         }
+            #     )
+            # ).on_conflict(
+            #     (Node.label, Node.session_id), "DO UPDATE", (Node.session_id,)
+            # )
 
         self.nodes_connected.set()
 
@@ -294,13 +294,15 @@ class Vibr(BotBase):
         return f"`/{name}`"
 
     async def set_player_settings(self, player: Player, channel_id: int) -> int:
-        config = (
-            await PlayerConfig.select(PlayerConfig.volume)
-            .where(PlayerConfig.channel_id == channel_id)
-            .first()
-        )
-        if config is None:
-            return 100
+        # config = (
+        #     await PlayerConfig.select(PlayerConfig.volume)
+        #     .where(PlayerConfig.channel_id == channel_id)
+        #     .first()
+        # )
+        # if config is None:
+        #     return 100
+
+        return 100
 
         if config["volume"] == DEFAULT_VOLUME:
             return 100
