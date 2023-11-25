@@ -105,11 +105,3 @@ class MaxLiked(CheckFailure):
     embed = ErrorEmbed(
         title="Max Liked Songs", description="You can only have `500` liked songs."
     )
-
-
-class CommandUnderMaintainance(CheckFailure):
-    embed = ErrorEmbed(
-        title="This Feature is Under Maintainance",
-        description="You cannot use this feature right now, "
-        "join the support server for more details. Sorry for any inconvenience caused.",
-    )

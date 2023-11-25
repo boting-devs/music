@@ -8,13 +8,8 @@ from nextcord import StageChannel, VoiceChannel
 from nextcord.ext.application_checks import check
 from nextcord.utils import utcnow
 
-from vibr.errors import (
-    CommandUnderMaintainance,
-    NotConnected,
-    NotInSameVoice,
-    NotPlaying,
-    NotVoted,
-)
+from vibr.db import User
+from vibr.errors import NotConnected, NotInSameVoice, NotPlaying, NotVoted
 
 if TYPE_CHECKING:
     from vibr.inter import Inter
@@ -59,8 +54,6 @@ async def voted_predicate(inter: Inter) -> bool:
     if not VOTING:
         return True
 
-    return True
-
     user = await User.select(User.topgg_voted).where(User.id == inter.user.id).first()
     if user is None:
         raise NotVoted(inter.client)
@@ -78,10 +71,3 @@ is_connected_and_playing = check(
     is_connected_and_playing_predicate  # pyright: ignore[reportGeneralTypeIssues]
 )
 voted = check(voted_predicate)  # pyright: ignore[reportGeneralTypeIssues]
-
-
-async def maintainance_predicate(_: Inter) -> bool:
-    raise CommandUnderMaintainance
-
-
-maintainance = check(maintainance_predicate)  # pyright: ignore[reportGeneralTypeIssues]

@@ -3,16 +3,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from mafic import Playlist, Track
-from nextcord import ButtonStyle, Message
+from nextcord import ButtonStyle
 from nextcord.abc import Snowflake
-from nextcord.interactions import Interaction
-from nextcord.ui import Button, View
-from nextcord.ui.item import Item
-
+from nextcord.ui import Button, Select, View
+from nextcord import Message
 from vibr.checks import voted_predicate
 from vibr.database import add_to_liked
 from vibr.embed import Embed, ErrorEmbed
-from vibr.errors import CheckFailure, CommandUnderMaintainance, NotVoted
+from vibr.errors import NotVoted
 from vibr.exts.playing._errors import LyricsNotFound
 from vibr.inter import Inter
 from vibr.patches.nextcord.ui import button
@@ -25,17 +23,6 @@ if TYPE_CHECKING:
 
 class TimeoutView(View):
     message: Message | PartialInteractionMessage | None = None
-
-    async def on_error(self, exc: Exception, item: Item, inter: Interaction) -> None:
-        if isinstance(exc, CheckFailure):
-            embed: ErrorEmbed = exc.embed
-            view = exc.view if exc.view else embed.view
-
-            await inter.send(embed=embed, view=view, ephemeral=True)
-            return
-
-        await super().on_error(exc, item, inter)
-
 
 #    async def on_timeout(self) -> None:
 #        self.stop()
@@ -57,15 +44,12 @@ class TimeoutView(View):
 MULTI_LOOP = "<:loopall:1044708055234904094>"
 SINGLE_LOOP = "<:loop:1044708068639903907>"
 
-
 class LyricsButton(Button):
-    def __init__(self, track: Track | None) -> None:
-        super().__init__(
-            emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1
-        )
+    def __init__(self,track: Track | None):
+        super().__init__(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
         self.track = track
 
-    async def callback(self, inter: Inter) -> None:
+    async def callback(self,inter: Inter) -> None:
         try:
             await voted_predicate(inter)
         except NotVoted as e:
@@ -81,14 +65,11 @@ class LyricsButton(Button):
         except LyricsNotFound as e:
             await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)
 
-
 class ShuffleButton(Button):
-    def __init__(self) -> None:
-        super().__init__(
-            emoji="<:shuffle:1044699214803894293>", style=ButtonStyle.blurple, row=1
-        )
+    def __init__(self):
+        super().__init__(emoji="<:shuffle:1044699214803894293>", style=ButtonStyle.blurple, row=1)
 
-    async def callback(self, inter: Inter) -> None:
+    async def callback(self, inter: Inter) ->None:
         player = inter.guild.voice_client
 
         if not player.current:
@@ -101,8 +82,7 @@ class ShuffleButton(Button):
         embed = Embed(title="Shuffled the queue")
         await inter.send(embed=embed)
         return
-
-
+    
 class PlayButtons(TimeoutView):
     def __init__(
         self,
@@ -122,9 +102,14 @@ class PlayButtons(TimeoutView):
             self.loop.style = ButtonStyle.grey
 
         if isinstance(track, Playlist):
-            self.add_item(ShuffleButton())
+            self.add_item(
+                ShuffleButton()
+            )
         else:
-            self.add_item(LyricsButton(track))
+            self.add_item(
+                LyricsButton(track)
+            )
+
 
     async def interaction_check(self, inter: Inter) -> bool:
         if not inter.guild or not inter.guild.voice_client:
@@ -203,10 +188,8 @@ class PlayButtons(TimeoutView):
 
         if not player.queue:
             await player.stop()
-            embed = ErrorEmbed(
-                title="Queue Empty",
-                description="The queue is empty. Stopping the Player.",
-            )
+            embed = ErrorEmbed(title="Queue Empty",
+                               description="The queue is empty. Stopping the Player.")
             return await inter.send(embed=embed)
 
         track, user = player.queue.skip(1)
@@ -214,7 +197,7 @@ class PlayButtons(TimeoutView):
         embed, view = await track_embed(track, user=user, skipped=inter.user.id)
         m = await inter.response.send_message(embed=embed, view=view)
         view.message = m
-        return None
+        return
 
     @button(emoji="<:queue:1044702819992748138>", style=ButtonStyle.blurple, row=1)
     async def queue(self, _: Button, inter: Inter) -> None:
@@ -258,7 +241,6 @@ class PlayButtons(TimeoutView):
 
     @button(emoji="<:vibrheart:1044662164587290664>", style=ButtonStyle.blurple, row=1)
     async def like(self, _: Button, inter: Inter) -> None:
-        raise CommandUnderMaintainance
         existed = await add_to_liked(user=inter.user, track=self.track)
         if existed:
             await inter.send(
@@ -268,7 +250,8 @@ class PlayButtons(TimeoutView):
         else:
             await inter.send(f"**{self.track.title}** added to your liked playlist!")
 
-    """@button(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
+
+    '''@button(emoji="<:lyrics:1114702495722262669>", style=ButtonStyle.blurple, row=1)
     async def lyrics(self, _: Button, inter: Inter) -> None:
         try:
             await voted_predicate(inter)
@@ -283,7 +266,7 @@ class PlayButtons(TimeoutView):
         try:
             await inter.client.lyrics(inter, self.track.title)
         except LyricsNotFound as e:
-            await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)"""
+            await inter.send(embed=e.embed, view=e.embed.view, ephemeral=True)'''
 
     @button(emoji="<:remove:1114702473249161226>", style=ButtonStyle.blurple, row=1)
     async def remove(self, _: Button, inter: Inter) -> None:

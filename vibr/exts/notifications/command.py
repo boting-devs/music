@@ -6,7 +6,6 @@ from botbase import CogBase
 from nextcord import slash_command
 
 from vibr.bot import Vibr
-from vibr.checks import maintainance
 from vibr.db import Notification, User
 from vibr.inter import Inter
 
@@ -21,7 +20,6 @@ class Notifications(CogBase[Vibr]):
         ...
 
     @notifications.subcommand(name="list")
-    @maintainance
     async def notifications_list(self, inter: Inter) -> None:
         """List all notifications."""
 
@@ -36,7 +34,6 @@ class Notifications(CogBase[Vibr]):
         await menu.start(interaction=inter, ephemeral=True)
 
     @notifications.subcommand(name="enable")
-    @maintainance
     async def notifications_enable(self, inter: Inter) -> None:
         """Enable notifications for news."""
 
@@ -49,7 +46,6 @@ class Notifications(CogBase[Vibr]):
 
     # Now notifications disable
     @notifications.subcommand(name="disable")
-    @maintainance
     async def notifications_disable(self, inter: Inter) -> None:
         """Disable notifications for news."""
 

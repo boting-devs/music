@@ -12,6 +12,8 @@ from fastapi.routing import APIRouter
 from nextcord import Intents, TextChannel, Webhook
 from nextcord.utils import get
 
+from vibr.db import User
+
 if TYPE_CHECKING:
 
     class WebhookRequest(TypedDict):
@@ -64,9 +66,9 @@ async def webhook(request: Request):
         return "OK!"
 
     user = int(data["user"])
-    # await User.insert(
-    #     User({User.id: user, User.topgg_voted: datetime.now(tz=UTC)})
-    # ).on_conflict((User.id,), "DO UPDATE", (User.topgg_voted,))
+    await User.insert(
+        User({User.id: user, User.topgg_voted: datetime.now(tz=UTC)})
+    ).on_conflict((User.id,), "DO UPDATE", (User.topgg_voted,))
 
     if client.vote_webhook:
         webhook = client.vote_webhook

@@ -46,7 +46,6 @@ class NotificationsImpl(CogBase[Vibr]):
 
     @CogBase.listener()
     async def on_application_command_completion(self, inter: Inter) -> None:
-        return
         notified = await self.get_notified_status(inter.user.id)
 
         if not notified:
