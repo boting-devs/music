@@ -29,7 +29,6 @@ class Dnd(CogBase[Vibr]):
                 description="Now the bot will send an embed at the start of every song",
             )
 
-        embed.set_footer(icon_url=inter.author.display_avatar.url)
         await inter.send(embed=embed)
 
 
