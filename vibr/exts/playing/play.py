@@ -12,9 +12,9 @@ class Play(CogBase[Vibr]):
     SEARCH_TYPE = SlashOption(
         name="source",
         choices={
-            "Default": SearchType.YOUTUBE.value,
+            "Default": SearchType.SPOTIFY_SEARCH.value,
             "SoundCloud": SearchType.SOUNDCLOUD.value,
-            "Spotify": SearchType.SPOTIFY_SEARCH.value,
+            "Spotify": SearchType.YOUTUBE_MUSIC.value,
             "Apple Music": SearchType.APPLE_MUSIC.value,
             "Deezer": SearchType.DEEZER_SEARCH.value,
             # "Yandex Music": SearchType.YANDEX_MUSIC.value,
