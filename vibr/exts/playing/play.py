@@ -19,7 +19,7 @@ class Play(CogBase[Vibr]):
             "Deezer": SearchType.DEEZER_SEARCH.value,
             # "Yandex Music": SearchType.YANDEX_MUSIC.value,
         },
-        default=SearchType.SPOTIFY_SEARCH.value,
+        default=SearchType.YOUTUBE.value,
     )
     TYPE = SlashOption(choices=["Next", "Now"], default=None)
 
