@@ -90,18 +90,12 @@ class ErrorHandler(CogBase[Vibr]):
                     if inter.application_command
                     else ""
                 )
-                if inter.guild is None:
-                    channel = "dm"
-                    guild = "dm"
-                else:
-                    channel = inter.channel.mention  # pyright: ignore  # noqa: PGH003
-                    guild = inter.guild.name
+                guild = "dm" if inter.guild is None else inter.guild.name
 
                 tb = "\n".join(format_exception(exc))
                 await log_channel.send_embed(
                     desc=FORMAT.format(
                         tb=tb,
-                        channel=channel,
                         inter=inter,
                         guild=guild,
                         command=command,
