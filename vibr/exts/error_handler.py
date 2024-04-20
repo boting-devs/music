@@ -21,7 +21,7 @@ FORMAT = """command {command} gave
 ```py
 {tb}
 ```
-{channel} ({name}) in {guild} by {inter.user}
+{channel} in {guild} by {inter.user}
 """.strip()
 UNKNOWN_INTERACTION = 10062
 
@@ -92,11 +92,9 @@ class ErrorHandler(CogBase[Vibr]):
                 )
                 if inter.guild is None:
                     channel = "dm"
-                    name = "dm"
                     guild = "dm"
                 else:
                     channel = inter.channel.mention  # pyright: ignore  # noqa: PGH003
-                    name = inter.channel.name  # pyright: ignore  # noqa: PGH003
                     guild = inter.guild.name
 
                 tb = "\n".join(format_exception(exc))
@@ -105,7 +103,6 @@ class ErrorHandler(CogBase[Vibr]):
                         tb=tb,
                         channel=channel,
                         inter=inter,
-                        name=name,
                         guild=guild,
                         command=command,
                     )
