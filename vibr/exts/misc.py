@@ -17,12 +17,15 @@ class Misc(CogBase[Vibr]):
         """Invite me!"""
 
         servers = self.bot.guilds
-        embed = Embed(title="**Invite Link**")
+        embed = Embed(
+            title="**Invite Link**",
+            description="**[invite me](https://discord.com/api/oauth2/authorize?"
+            "client_id=882491278581977179&permissions=274919115840&scope=bot"
+            "%20applications.commands)"
+        )
         embed.add_field(
             name=f"**The bot is currently in {len(servers)} servers**",
-            value="**[invite me](https://discord.com/api/oauth2/authorize?"
-            "client_id=882491278581977179&permissions=274919115840&scope=bot"
-            "%20applications.commands)**",
+            value="**",
         )
         embed.set_image(
             url="https://learnenglishfunway.com/wp-content/uploads/2020/12/Music-2.jpg"
