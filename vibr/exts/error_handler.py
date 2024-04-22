@@ -90,7 +90,7 @@ class ErrorHandler(CogBase[Vibr]):
                     if inter.application_command
                     else ""
                 )
-                guild = "dm" if inter.guild is None else inter.guild.name
+                guild = inter.guild.name if inter.guild is not None else "dm"
 
                 tb = "\n".join(format_exception(exc))
                 await log_channel.send_embed(
