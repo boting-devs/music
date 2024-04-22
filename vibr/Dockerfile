@@ -11,5 +11,6 @@ COPY vibr/pyproject.toml vibr/poetry.lock ./
 RUN poetry install --no-root --only main
 
 COPY . .
+RUN mkdir wow
 
 CMD ["sh", "vibr/entrypoint.sh"]

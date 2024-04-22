@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from asyncio import Event, gather, sleep
+import gc
+from asyncio import Event, Lock, gather, sleep
 from logging import getLogger
 from os import environ, getenv
 from pathlib import Path
@@ -9,6 +10,7 @@ from typing import TYPE_CHECKING
 
 import async_spotify
 import yaml
+from aiohttp import TCPConnector
 from async_spotify import SpotifyApiClient
 from async_spotify.authentification.authorization_flows import ClientCredentialsFlow
 from botbase import BotBase
@@ -85,6 +87,7 @@ class Vibr(BotBase):
             log_guilds=True,
             intents=Intents(guilds=True, voice_states=True),
             member_cache_flags=MemberCacheFlags.none(),
+            connector=TCPConnector(limit=1000),
             shard_count=TOTAL_SHARDS,
             shard_ids=shard_ids,
         )
@@ -103,6 +106,16 @@ class Vibr(BotBase):
         self.redis = redis.from_url(environ["REDIS_URL"])
 
         self.nodes_connected = Event()
+        self.gc_lock = Lock()
+
+    async def on_resumed(self) -> None:
+        if self.gc_lock.locked():
+            return
+
+        async with self.gc_lock:
+            await sleep(2.0)
+            collected = gc.collect()
+            log.info("Garbage collector: collected %d objects.", collected)
 
     #     self.shards_connected = Event()
     #     self.connected_shards: set[int] = set()
