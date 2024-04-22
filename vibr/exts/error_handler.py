@@ -21,7 +21,7 @@ FORMAT = """command {command} gave
 ```py
 {tb}
 ```
-{channel} in {guild} by {inter.user}
+{guild} by {inter.user}
 """.strip()
 UNKNOWN_INTERACTION = 10062
 
