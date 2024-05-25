@@ -1,12 +1,12 @@
 version: "3"
 
 x-restart-policy: &restart_policy
-  restart: unless-stopped
+  restart: no
 
 services:
   lavalink:
     <<: *restart_policy
-    image: ghcr.io/lavalink-devs/lavalink:v4-update-lp
+    image: ghcr.io/lavalink-devs/lavalink:4.0.5
     entrypoint:
       [
         "java",
@@ -22,10 +22,26 @@ services:
       LAVALINK_SERVER_FRAME_BUFFER_DURATION: 5000
       LAVALINK_SERVER_RESAMPLING_QUALITY: LOW
       LAVALINK_SERVER_YOUTUBE_PLAYLIST_LOAD_LIMIT: 5
-      LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.TopiSenpai.LavaSrc:lavasrc-plugin:85b39d130692e0fb96c61f5ed518ad3c1e4eecd6"
-      LAVALINK_PLUGINS_0_REPOSITORY: "https://jitpack.io"
-      LAVALINK_SERVER_YOUTUBE_CONFIG_EMAIL: "musicfixthebot@gmail.com"
-      LAVALINK_SERVER_YOUTUBE_CONFIG_PASSWORD: "ChitChat100"
+      LAVALINK_PLUGINS_0_DEPENDENCY: "com.github.topi314.lavasrc:lavasrc-plugin:4.1.1"
+      LAVALINK_PLUGINS_1_DEPENDENCY: "dev.lavalink.youtube:youtube-plugin:1.3.0"
+      LAVALINK_SERVER_SOURCES_YOUTUBE: false
+      PLUGINS_YOUTUBE_ENABLED: true
+      # default is "MUSIC", "WEB", "ANDROID", "TVHTML5EMBEDDED"
+      # IOS could be something to try if there are issues, but it requires transcoding
+      # ANDROID_TESTSUITE may have less blocking, but does not load all kinds of videos
+      # TVHTML5EMBEDDED is the alternative to logging in for age restricted
+      # logging in makes it easier to get blocked and is barely supported on yt anyway (not in the plugin)
+      # PLUGINS_YOUTUBE_CLIENTS_n: ...
+      # expected these to be the default as they're shown in the example config
+      # there are no default client options however
+      # there will avoid using multiple clients when the next one may
+      # - not support that feature
+      # - not make it any better
+      PLUGINS_YOUTUBE_WEB_PLAYBACK: false
+      # tv should only be used for playing age restricted to keep it from being blocked
+      PLUGINS_YOUTUBE_TVHTML5EMBEDDED_PLAYLIST_LOADING: false
+      PLUGINS_YOUTUBE_TVHTML5EMBEDDED_VIDEO_LOADING: false
+      PLUGINS_YOUTUBE_TVHTML5EMBEDDED_SEARCHING: false
       PLUGINS_LAVASRC_PROVIDERS_0: "dzisrc:%ISRC%"
       PLUGINS_LAVASRC_PROVIDERS_1: "dzsearch:%QUERY%"
       PLUGINS_LAVASRC_PROVIDERS_2: 'ytsearch:"%ISRC%"'
