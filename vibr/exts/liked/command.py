@@ -32,13 +32,14 @@ class Liked(CogBase[Vibr]):
     SEARCH_TYPE = SlashOption(
         name="source",
         choices={
-            "Default": SearchType.YOUTUBE.value,
+            "Default": SearchType.APPLE_MUSIC.value,
+            "YouTube": SearchType.YOUTUBE.value,
             "SoundCloud": SearchType.SOUNDCLOUD.value,
             "Spotify": SearchType.SPOTIFY_SEARCH.value,
             "Apple Music": SearchType.APPLE_MUSIC.value,
             "Deezer": SearchType.DEEZER_SEARCH.value,
         },
-        default=SearchType.YOUTUBE.value,
+        default=SearchType.APPLE_MUSIC .value,
     )
 
     @liked.subcommand(name="add")
